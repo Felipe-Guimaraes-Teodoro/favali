@@ -10,9 +10,11 @@ const char* default_vs = R"(
 #version 420 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoord;
 
 out vec3 FragPos;
 out vec3 Normal;
+out vec2 TexCoord;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -22,7 +24,8 @@ void main() {
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
 
     FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormal; 
+    Normal = mat3(transpose(inverse(model))) * aNormal;
+    TexCoord = aTexCoord;
 }
 )";
 
@@ -31,11 +34,13 @@ const char* default_fs = R"(
 
 in vec3 FragPos;
 in vec3 Normal;
+in vec2 TexCoord;
 
 out vec4 FragColor;
 
 uniform mat4 view;
 uniform vec4 color;
+uniform sampler2D ourTexture;
 
 layout (std140, binding = 0) uniform Light {
     vec3 position;
@@ -51,8 +56,8 @@ void main() {
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(Normal, lightDir), 0.1);
 
-    vec3 result = color.rgb * light.color * diff;
-    FragColor = vec4(result, color);
+    vec3 result = color.rgb * light.color * diff * texture(ourTexture, TexCoord).rgb;
+    FragColor = vec4(result, color.a);
 }
 )";
 

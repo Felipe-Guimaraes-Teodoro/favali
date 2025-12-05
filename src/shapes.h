@@ -3,6 +3,7 @@
 #include "mesh.h"
 #include "camera.h"
 #include "glm.hpp"
+#include "texture.cpp"
 #include <vector>
 #include <cmath>
 using std::vector;
@@ -14,17 +15,17 @@ enum Shapes {
     Circle,
     Triangle,
     Cube,
-    Sphere,
-    Gustavo
+    Sphere
 };
 
 typedef struct {
     Mesh mesh;
     Transform transform;
     glm::vec4 color;
+    unsigned int texture;
 
     void draw(unsigned int program, const Camera& camera) const {
-        mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color);
+        mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color, texture);
     }
 } Shape;
 
@@ -36,11 +37,11 @@ Shape make_shape(Shapes shape) {
 
         case Square: {
             vertices = {
-                // x y z      nx ny nz
-                0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,
-                0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,
-               -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,
-               -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f
+                // x y z      nx ny nz    u v
+                0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+                0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+               -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+               -0.5f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f
             };
 
             indices = {0,1,3, 1,2,3};
@@ -50,9 +51,10 @@ Shape make_shape(Shapes shape) {
         case Circle: {
             int segments = 32;
 
-            // center vertex (position + normal)
+            // center vertex (position + normal + uv)
             vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(0.0f);
             vertices.push_back(0.0f); vertices.push_back(0.0f); vertices.push_back(1.0f);
+            vertices.push_back(0.5f); vertices.push_back(0.5f);
 
             for (int i = 0; i < segments; i++) {
                 float angle = 2.0f * PI * i / segments;
@@ -65,6 +67,9 @@ Shape make_shape(Shapes shape) {
                 vertices.push_back(0.0f);
                 vertices.push_back(0.0f);
                 vertices.push_back(1.0f);
+                // UV coordinates
+                vertices.push_back(0.5f + x);
+                vertices.push_back(0.5f + y);
             }
 
             for (int i = 0; i < segments; i++) {
@@ -78,9 +83,10 @@ Shape make_shape(Shapes shape) {
 
         case Triangle: {
             vertices = {
-                0.0f,  0.5f, 0.0f,    0.0f, 0.0f, 1.0f,
-               -0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f,
-                0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f
+                // x y z      nx ny nz    u v
+                0.0f,  0.5f, 0.0f,    0.0f, 0.0f, 1.0f,   0.5f, 1.0f,
+               -0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+                0.5f, -0.5f, 0.0f,    0.0f, 0.0f, 1.0f,   1.0f, 0.0f
             };
 
             indices = {0,1,2};
@@ -90,40 +96,40 @@ Shape make_shape(Shapes shape) {
         case Cube: {
             vertices = {
                 // FRONT (+Z)
-                -0.5f,-0.5f, 0.5f,   0.0f, 0.0f, 1.0f,
-                0.5f,-0.5f, 0.5f,   0.0f, 0.0f, 1.0f,
-                0.5f, 0.5f, 0.5f,   0.0f, 0.0f, 1.0f,
-                -0.5f, 0.5f, 0.5f,   0.0f, 0.0f, 1.0f,
+                -0.5f,-0.5f, 0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+                0.5f, 0.5f, 0.5f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+                -0.5f, 0.5f, 0.5f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f,
 
                 // BACK (−Z)
-                0.5f,-0.5f,-0.5f,   0.0f, 0.0f,-1.0f,
-                -0.5f,-0.5f,-0.5f,   0.0f, 0.0f,-1.0f,
-                -0.5f, 0.5f,-0.5f,   0.0f, 0.0f,-1.0f,
-                0.5f, 0.5f,-0.5f,   0.0f, 0.0f,-1.0f,
+                0.5f,-0.5f,-0.5f,   0.0f, 0.0f,-1.0f,   0.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,   0.0f, 0.0f,-1.0f,   1.0f, 0.0f,
+                -0.5f, 0.5f,-0.5f,   0.0f, 0.0f,-1.0f,   1.0f, 1.0f,
+                0.5f, 0.5f,-0.5f,   0.0f, 0.0f,-1.0f,   0.0f, 1.0f,
 
                 // BOTTOM (−Y)
-                -0.5f,-0.5f,-0.5f,   0.0f,-1.0f, 0.0f,
-                -0.5f,-0.5f, 0.5f,   0.0f,-1.0f, 0.0f,
-                0.5f,-0.5f, 0.5f,   0.0f,-1.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,   0.0f,-1.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,   0.0f,-1.0f, 0.0f,   0.0f, 0.0f,
+                -0.5f,-0.5f, 0.5f,   0.0f,-1.0f, 0.0f,   1.0f, 0.0f,
+                0.5f,-0.5f, 0.5f,   0.0f,-1.0f, 0.0f,   1.0f, 1.0f,
+                0.5f,-0.5f,-0.5f,   0.0f,-1.0f, 0.0f,   0.0f, 1.0f,
 
                 // TOP (+Y)
-                -0.5f, 0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
-                0.5f, 0.5f, 0.5f,   0.0f, 1.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,   0.0f, 1.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,   0.0f, 1.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+                0.5f, 0.5f, 0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+                0.5f, 0.5f,-0.5f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+                -0.5f, 0.5f,-0.5f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f,
 
                 // LEFT (−X)
-                -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,
-                -0.5f,-0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,
-                -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,
-                -0.5f, 0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,
+                -0.5f,-0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+                -0.5f,-0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+                -0.5f, 0.5f, 0.5f,  -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+                -0.5f, 0.5f,-0.5f,  -1.0f, 0.0f, 0.0f,   0.0f, 1.0f,
 
                 // RIGHT (+X)
-                0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,
-                0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-                0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,
-                0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f
+                0.5f,-0.5f, 0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+                0.5f,-0.5f,-0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+                0.5f, 0.5f,-0.5f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+                0.5f, 0.5f, 0.5f,   1.0f, 0.0f, 0.0f,   0.0f, 1.0f
             };
 
             indices = {
@@ -174,6 +180,12 @@ Shape make_shape(Shapes shape) {
                     vertices.push_back(n.x);
                     vertices.push_back(n.y);
                     vertices.push_back(n.z);
+
+                    // uv coordinates
+                    float u = (float)j / (float)slices;
+                    float v = (float)i / (float)stacks;
+                    vertices.push_back(u);
+                    vertices.push_back(v);
                 }
             }
 
@@ -197,25 +209,13 @@ Shape make_shape(Shapes shape) {
 
             break;
         }
-
-        case Gustavo: {
-            for (int i = 0; i < 1024; i++) {
-                int r = (rand() % 3) -1;
-                vertices.push_back(r);
-            }
-
-            for (int i = 0; i < 1024 - 2; i++) {
-                indices.push_back(i);
-                indices.push_back(i + 1);
-                indices.push_back(i + 2);
-            }
-        }
     }
 
     Shape result = {
         .mesh = create_mesh(vertices, indices),
         .transform = Transform::empty(),
         .color = glm::vec4(1.0f),
+        .texture = create_default_texture()
     };
 
     return result;

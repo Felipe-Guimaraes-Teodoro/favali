@@ -12,14 +12,13 @@ using std::vector;
 #include "shapes.h"
 #include "camera.h"
 #include "light.h"
+#include "texture.cpp"
 
-SDL_Window* window = NULL;
+SDL_Window* window;
 SDL_GLContext gl_context;
 
 int w = 900;
 int h = 600;
-
-void clearWindow(); // combiler: bro why did u even bother
 
 void init() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -27,7 +26,7 @@ void init() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    window = SDL_CreateWindow("todo: name this", w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow("OpenGL!", w, h, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     SDL_SetWindowRelativeMouseMode(window, true);
     gl_context = SDL_GL_CreateContext(window);
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {
@@ -54,6 +53,38 @@ void onResize(int w, int h, Camera& camera) {
     );
 }
 
+Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float speed, float dt){
+    const bool *state = SDL_GetKeyboardState(NULL);
+
+    float mouse_x, mouse_y;
+    SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
+    
+    if (!lock_cursor) {
+        camera.yaw += mouse_x * sensitivity;
+        camera.pitch += -mouse_y * sensitivity;
+    }
+
+    if (state[SDL_SCANCODE_W]){
+        camera.position += camera.front * dt * speed;
+    }
+    if (state[SDL_SCANCODE_S]){
+        camera.position -= camera.front * dt * speed;
+    }
+    if (state[SDL_SCANCODE_A]){
+        camera.position += camera.right * dt * speed;
+    }
+    if (state[SDL_SCANCODE_D]){
+        camera.position -= camera.right * dt * speed;
+    }
+    if (state[SDL_SCANCODE_SPACE]){
+        camera.position.y += dt * speed;
+    }
+    if (state[SDL_SCANCODE_LCTRL]){
+        camera.position.y -= dt * speed;
+    }
+    return camera;
+}
+
 int main() {
     init();
 
@@ -63,8 +94,15 @@ int main() {
     Shader fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);    
     unsigned int program = create_program(vs, fs);
 
-    // this kinda rolls well off the tongue
-    vector<Shape> squares = {};
+    vector<unsigned int> texture_pack;
+    texture_pack.push_back(make_texture("../favali/assets/container.jpg"));
+
+    // this kinda rolls well off the tongue<<
+    Shape cube = make_shape(Shapes::Cube);
+    cube.texture = texture_pack[0]; // use path relative to build file location
+
+    Shape sphere = make_shape(Shapes::Sphere);
+    sphere.texture = create_default_texture();
 
     Camera camera = create_camera({0, 0, 0}, 60.0);
 
@@ -112,19 +150,8 @@ int main() {
                         lock_cursor = true;
                     }
                 }
-                if (event.key.key == SDLK_C){
-                    for (int i = 0; i < 50; i++) {
-                        Shape shape = make_shape(Shapes::Cube);
-                        shape.transform.position = camera.position;
-                        squares.push_back(shape);
-                    }
-                }
-
-                if (event.key.key == SDLK_R) {
-                    for (int i = 0; i < 50; i++) {
-                        // todo: fix memory leak
-                        squares.erase(squares.begin() + i);
-                    }
+                if (event.key.key == SDLK_ESCAPE){
+                    running = false;
                 }
             }
 
@@ -136,40 +163,16 @@ int main() {
             }
         }
 
-        const bool *state = SDL_GetKeyboardState(NULL);
+        camera = cameraMovement(lock_cursor, camera, sensitivity, speed, dt);
 
-        float mouse_x, mouse_y;
-        SDL_GetRelativeMouseState(&mouse_x, &mouse_y);
-
-        if (!lock_cursor) {
-            camera.yaw += mouse_x * sensitivity;
-            camera.pitch += -mouse_y * sensitivity;
-        }
-
-        if (state[SDL_SCANCODE_W]){
-            camera.position += camera.front * dt * speed;
-        }
-        if (state[SDL_SCANCODE_S]){
-            camera.position -= camera.front * dt * speed;
-        }
-        if (state[SDL_SCANCODE_A]){
-            camera.position += camera.right * dt * speed;
-        }
-        if (state[SDL_SCANCODE_D]){
-            camera.position -= camera.right * dt * speed;
-        }
-        if (state[SDL_SCANCODE_E]){
-            camera.position.y += dt * speed;
-        }
-        if (state[SDL_SCANCODE_Q]){
-            camera.position.y -= dt * speed;
-        }
+        cube.transform.position = camera.position + camera.front*3.0f + (-camera.up);
+        glm::quat q = glm::quatLookAt(camera.front, camera.up);
+        cube.transform.rotation = q;
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-        for (const Shape& square : squares) {
-            square.draw(program, camera);
-        }
+        cube.draw(program, camera);
+        sphere.draw(program, camera);
 
         camera.update();
 

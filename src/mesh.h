@@ -13,7 +13,7 @@ struct Mesh {
 
     bool setup;
 
-    void draw(unsigned int program, glm::mat4 model_mat, glm::mat4 view_mat, glm::mat4 proj_mat, glm::vec4 col) const {
+    void draw(unsigned int program, glm::mat4 model_mat, glm::mat4 view_mat, glm::mat4 proj_mat, glm::vec4 col, unsigned int texture) const {
         if (!setup) {
             printf("WARNING: Attempting to draw deleted mesh\n"); 
             return;
@@ -27,6 +27,7 @@ struct Mesh {
 
         shader_uniform_vec4(program, "color", col);
 
+        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
         glDrawElements(
             GL_TRIANGLES, 
@@ -58,12 +59,16 @@ void setup_mesh(Mesh& mesh) {
             );
 
         // POSITION
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
         // NORMAL
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        // UV
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);

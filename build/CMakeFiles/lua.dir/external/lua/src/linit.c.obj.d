@@ -1,0 +1,27 @@
+CMakeFiles/lua.dir/external/lua/src/linit.c.obj: \
+ C:\Users\ferra\cpp\favali\favali\external\lua\src\linit.c \
+ C:\Users\ferra\cpp\favali\favali\external\lua\src\lprefix.h \
+ C:/Users/ferra/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/stddef.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/stddef.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/crtdefs.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/corecrt.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/_mingw.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/_mingw_mac.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/_mingw_secapi.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/vadefs.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/sdks/_mingw_ddk.h \
+ C:\Users\ferra\cpp\favali\favali\external\lua\src\lua.h \
+ C:/Users/ferra/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/stdarg.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/stdarg.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/_mingw_stdarg.h \
+ C:\Users\ferra\cpp\favali\favali\external\lua\src\luaconf.h \
+ C:/Users/ferra/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/limits.h \
+ C:/Users/ferra/mingw64/lib/gcc/x86_64-w64-mingw32/14.2.0/include/syslimits.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/limits.h \
+ C:\Users\ferra\cpp\favali\favali\external\lua\src\lualib.h \
+ C:\Users\ferra\cpp\favali\favali\external\lua\src\lauxlib.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/stdio.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/corecrt_stdio_config.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/_mingw_off_t.h \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/swprintf.inl \
+ C:/Users/ferra/mingw64/x86_64-w64-mingw32/include/sec_api/stdio_s.h

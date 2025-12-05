@@ -1,0 +1,3 @@
+"C:\Program Files\CMake\bin\cmake.exe" -E rm -f CMakeFiles\shenanigans.dir/objects.a
+C:\Users\ferra\mingw64\bin\ar.exe qc CMakeFiles\shenanigans.dir/objects.a @CMakeFiles\shenanigans.dir\objects1.rsp
+C:\Users\ferra\mingw64\bin\g++.exe -g -LC:/Users/ferra/cpp/favali/favali/external/sdl3 -Wl,--whole-archive CMakeFiles\shenanigans.dir/objects.a -Wl,--no-whole-archive -o shenanigans.exe -Wl,--out-implib,libshenanigans.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\shenanigans.dir\linkLibs.rsp
