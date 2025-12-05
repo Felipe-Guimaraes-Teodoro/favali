@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "compare": "cpp",
+        "type_traits": "cpp",
+        "vulkan.h": "c",
+        "unistd.h": "c",
+        "cmath": "c",
+        "random": "c",
+        "array": "c",
+        "charconv": "c",
+        "functional": "c",
+        "tuple": "c",
+        "utility": "c",
+        "variant": "c",
+        "typeinfo": "c",
+        "cstdlib": "c",
+        "lua.h": "c",
+        "lualib.h": "c"
+    }
+}
