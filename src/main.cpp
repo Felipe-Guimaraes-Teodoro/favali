@@ -7,12 +7,15 @@ using std::vector;
 #include "glad/glad.h"
 
 #include "transform.h"
+#define UBO_DEFINITION
 #include "shaders.h"
 #include "mesh.h"
 #include "shapes.h"
 #include "camera.h"
 #include "light.h"
-#include "texture.cpp"
+#include "texture.h"
+
+#include "player.h"
 
 SDL_Window* window;
 SDL_GLContext gl_context;
@@ -46,10 +49,10 @@ void onResize(int w, int h, Camera& camera) {
     glViewport(0, 0, w, h);
 
     camera.proj = glm::perspective(
-        glm::radians(60.f),
+        glm::radians(80.f),
         aspect,
         0.1f,
-        100.f
+        1000.f
     );
 }
 
@@ -95,16 +98,17 @@ int main() {
     unsigned int program = create_program(vs, fs);
 
     vector<unsigned int> texture_pack;
-    texture_pack.push_back(make_texture("../favali/assets/container.jpg"));
+    // maybe move assets to build directory
+    texture_pack.push_back(make_texture("assets/container.jpg"));
 
-    // this kinda rolls well off the tongue<<
+    // this kinda rolls well off the tongue
     Shape cube = make_shape(Shapes::Cube);
     cube.texture = texture_pack[0]; // use path relative to build file location
 
     Shape sphere = make_shape(Shapes::Sphere);
     sphere.texture = create_default_texture();
 
-    Camera camera = create_camera({0, 0, 0}, 60.0);
+    Camera camera = create_camera({0, 0, 0}, 80.0);
 
     Light light = Light::empty();
     light.position = {1.0 ,1.0, 1.0};
@@ -164,10 +168,6 @@ int main() {
         }
 
         camera = cameraMovement(lock_cursor, camera, sensitivity, speed, dt);
-
-        cube.transform.position = camera.position + camera.front*3.0f + (-camera.up);
-        glm::quat q = glm::quatLookAt(camera.front, camera.up);
-        cube.transform.rotation = q;
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -175,6 +175,10 @@ int main() {
         sphere.draw(program, camera);
 
         camera.update();
+
+        cube.transform.position = camera.position + camera.front*1.0f + (-camera.up);
+        glm::quat q = glm::quatLookAt(camera.front, camera.up);
+        cube.transform.rotation = q;
 
         SDL_GL_SwapWindow(window);
 

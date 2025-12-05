@@ -12,10 +12,8 @@
             },
             "cacheVariables": {
                 "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
-                "CMAKE_C_COMPILER": "ccache",
-                "CMAKE_CXX_COMPILER": "ccache",
-                "CMAKE_C_COMPILER_ARG1": "gcc",
-                "CMAKE_CXX_COMPILER_ARG1": "g++",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
                 "SDL_OPENGLES": "OFF",
                 "CMAKE_BUILD_TYPE": "Release",
                 "CMAKE_MODULE_PATH": "E:/msys64/ucrt64/lib/cmake/SDL3",

@@ -1,4 +1,0 @@
-C:/Users/ferra/cpp/favali/build/CMakeFiles/shenanigans.dir
-C:/Users/ferra/cpp/favali/build/CMakeFiles/lua.dir
-C:/Users/ferra/cpp/favali/build/CMakeFiles/edit_cache.dir
-C:/Users/ferra/cpp/favali/build/CMakeFiles/rebuild_cache.dir
