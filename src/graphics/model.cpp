@@ -28,7 +28,14 @@ void append_texture_from_material(Shape& dst, cgltf_material* material) {
                 printf("%s", img->uri);
                 dst.texture = make_texture(img->uri);
             }
-            else if (img->buffer_view) {printf("texture has buffer view embedded\n");}
+            else if (img->buffer_view) {
+                const uint8_t *tex_data = cgltf_buffer_view_data(img->buffer_view);
+                int size = img->buffer_view->size;
+
+                printf("texture has buffer view embedded %u\n", size);
+
+                dst.texture = make_texture_from_memory(tex_data, size);
+            }
             else {
                 printf("mesh has NO TEXTURE WHATSOEVER\n");
             }
@@ -133,9 +140,7 @@ Shape create_shape_from_gltf(const char *path, int idx) {
             cgltf_primitive *primitive = &current_mesh->primitives[p];
 
             append_index_data_from_primitive(primitive, indices);
-
             append_vertex_data_from_primitive(primitive, vertices);
-
             append_texture_from_material(shape, primitive->material);
         } // for primitives
 
@@ -148,33 +153,39 @@ Shape create_shape_from_gltf(const char *path, int idx) {
 
 Level *create_level_from_gltf(const char *path) {
     Level *level = create_level();
-
     cgltf_data *data = load_gltf(path);
 
     if (!data)
         return level;
 
+    int primitive_count = 0;
     for (int i = 0; i < data->meshes_count; i++) {
-        level->shapes.push_back(make_shape(Shapes::Empty));
+        primitive_count += data->meshes[i].primitives_count;
     }
 
-    for (int i = 0; i < data->meshes_count; i++) {
-        cgltf_mesh *current_mesh = &data->meshes[i];
+    level->shapes.reserve(primitive_count);
 
-        for (int p = 0; p < current_mesh->primitives_count; p++) {
-            cgltf_primitive *primitive = &current_mesh->primitives[p];
+    for (int i = 0; i < data->nodes_count; i++) {
+        cgltf_node* node = &data->nodes[i];
+        if (!node->mesh) continue;
 
-            append_index_data_from_primitive(primitive, level->shapes[i].mesh.indices);
+        cgltf_mesh* mesh = node->mesh;
 
-            append_vertex_data_from_primitive(primitive, level->shapes[i].mesh.vertices);
+        for (int p = 0; p < mesh->primitives_count; p++){
+            Shape shape = make_shape(Shapes::Empty);
 
-            append_texture_from_material(level->shapes[i], primitive->material);
-        } // for primitives
+            cgltf_primitive* prim = &mesh->primitives[p];
+            // todo: get node transform and put it on shape
 
-        setup_mesh(level->shapes[i].mesh);
+            append_index_data_from_primitive(prim, shape.mesh.indices);
+            append_vertex_data_from_primitive(prim, shape.mesh.vertices);
+            append_texture_from_material(shape, prim->material);
 
-    } // for meshes
+            setup_mesh(shape.mesh);
 
+            level->shapes.push_back(shape);
+        }
+    }
 
     return level;
 }

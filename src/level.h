@@ -14,3 +14,7 @@ typedef struct {
 } Level;
 
 Level *create_level();
+
+void merge_level_shapes(Level* level);
+
+// void create_level_collider() {}

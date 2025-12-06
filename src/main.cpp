@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <vector>
 using std::vector;
+#include <math.h>
 #include "SDL3/SDL.h"
 #include "scripting.h"
 
@@ -91,6 +92,16 @@ Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float 
     return camera;
 }
 
+
+struct Bullet{
+    Shape bullet;
+    glm::vec3 dir;
+
+    Bullet() 
+        : bullet(make_shape(Shapes::Sphere)), dir(0.0f, 0.0f, 0.0f) {
+    }
+};
+
 int main() {
     init();
 
@@ -109,7 +120,11 @@ int main() {
     sphere.texture = create_default_texture();
 
     Shape gun = create_shape_from_gltf("../../../assets/gun.gltf", 0);
+    glm::vec3 local_shoot_pos(-3.2, -5.97, 0.);
+    std::vector<Bullet> bullets;
+
     Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
+    merge_level_shapes(level0);
     gun.transform.scale = vec3(0.01);
     
     Camera camera = create_camera({0, 0, 0}, 80.0);
@@ -136,9 +151,8 @@ int main() {
         dt = (now - last)/1000.0f;
         last = now;
 
-        light.position = camera.position + vec3(5.0, 5.0, 5.);
-        
-        update_ubo<Light>(ubo, &light);
+        // light.position = camera.position + vec3(5.0, 5.0, 5.);
+        // update_ubo<Light>(ubo, &light);
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
@@ -166,6 +180,22 @@ int main() {
             }
             if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
                 if (event.button.button == SDL_BUTTON_LEFT){
+                    Shape bullet_s = make_shape(Shapes::Sphere);
+                    glm::vec3 muzzleWorld = glm::vec3(
+                        gun.transform.getModelMat() * glm::vec4(local_shoot_pos, 1.0)
+                    );
+                    bullet_s.transform.position = muzzleWorld;
+                    bullet_s.transform.scale = vec3(0.025);
+
+                    Bullet bullet;
+                    bullet.bullet = bullet_s;
+                    // glm::vec4 cam_front(camera.front.x, camera.front.y, camera.front.z, 0.);
+                    // bullet.dir = glm::normalize(glm::vec3(bullet_s.transform.getModelMat() * cam_front));
+
+                    glm::vec3 forward = glm::normalize(glm::vec3(gun.transform.getModelMat() * glm::vec4(1,0,0,0)));
+                    bullet.dir = forward;
+
+                    bullets.push_back(bullet);
                     shoot = true;
                 }
             }
@@ -192,6 +222,7 @@ int main() {
         
         if (shoot) {
             recoil_timer += 1.f;
+            recoil_timer = glm::min(recoil_timer, 2.0f);
             shoot = false;
         }
 
@@ -208,8 +239,12 @@ int main() {
         glm::quat target_rot = recoil_q * base;
 
         gun.transform.rotation = glm::slerp(gun.transform.rotation, target_rot, 0.15f);
-
         gun.transform.position = glm::mix(gun.transform.position, goal, 0.5f);
+
+        for (int i = 0; i < bullets.size(); i++){
+            bullets[i].bullet.draw(program, camera);
+            bullets[i].bullet.transform.position += bullets[i].dir * dt * 10.f;
+        }
 
         SDL_GL_SwapWindow(window);
 
