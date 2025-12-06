@@ -15,6 +15,7 @@ using std::vector;
 #include "light.h"
 #include "texture.h"
 #include "model.hpp"
+#include "level.h"
 
 #include "player.h"
 
@@ -107,7 +108,8 @@ int main() {
     Shape sphere = make_shape(Shapes::Sphere);
     sphere.texture = create_default_texture();
 
-    Shape gun = loadModel("../../../assets/gun.gltf", 0);
+    Shape gun = create_shape_from_gltf("../../../assets/gun.gltf", 0);
+    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
     gun.transform.scale = vec3(0.01);
     
     Camera camera = create_camera({0, 0, 0}, 80.0);
@@ -181,6 +183,10 @@ int main() {
     
         sphere.draw(program, camera);
         gun.draw(program, camera);
+
+        for (const Shape& shape : level0->shapes) {
+            shape.draw(program, camera);
+        }
 
         camera.update();
         

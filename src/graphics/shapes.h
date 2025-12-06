@@ -16,7 +16,8 @@ enum Shapes {
     Circle,
     Triangle,
     Cube,
-    Sphere
+    Sphere,
+    Empty,
 };
 
 typedef struct {

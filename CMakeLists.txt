@@ -6,6 +6,7 @@ find_package(OpenGL REQUIRED)
 add_executable(shenanigans 
     src/main.cpp
     src/scripting.c
+    src/level.cpp
 
     src/graphics/camera.cpp
     src/graphics/mesh.cpp
@@ -22,6 +23,7 @@ target_include_directories(shenanigans PUBLIC
     ${CMAKE_SOURCE_DIR}/external/sdl3/include
     ${CMAKE_SOURCE_DIR}/external/lua/src
 
+    ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/graphics
 )
 

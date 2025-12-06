@@ -9,6 +9,8 @@ Shape make_shape(Shapes shape) {
     vector<float> vertices;
     vector<unsigned int> indices;
 
+    Mesh resulting_mesh = empty_mesh();
+
     switch (shape) {
 
         case Square: {
@@ -21,6 +23,7 @@ Shape make_shape(Shapes shape) {
             };
 
             indices = {0,1,3, 1,2,3};
+
             break;
         }
 
@@ -185,10 +188,21 @@ Shape make_shape(Shapes shape) {
 
             break;
         }
+
+        case Empty: {
+            break;
+        }
+    }
+
+    resulting_mesh.vertices = vertices;
+    resulting_mesh.indices = indices;
+
+    if (vertices.size() > 0 && indices.size() > 0) {
+        setup_mesh(resulting_mesh);
     }
 
     Shape result = {
-        .mesh = create_mesh(vertices, indices),
+        .mesh = resulting_mesh,
         .transform = Transform::empty(),
         .color = glm::vec4(1.0f),
         .texture = create_default_texture()

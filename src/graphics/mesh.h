@@ -26,3 +26,4 @@ struct Mesh {
 void setup_mesh(Mesh& mesh);
 
 Mesh create_mesh(vector<float>& vertices, vector<unsigned int>& indices);
+Mesh empty_mesh();

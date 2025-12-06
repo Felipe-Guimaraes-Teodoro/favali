@@ -81,3 +81,9 @@ Mesh create_mesh(vector<float>& vertices, vector<unsigned int>& indices) {
 
     return mesh;
 }
+
+Mesh empty_mesh() {
+    Mesh mesh = {};
+
+    return mesh;
+}
