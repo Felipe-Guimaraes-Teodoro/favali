@@ -4,8 +4,16 @@ void Shape::draw(unsigned int program, const Camera& camera) const {
     mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color, texture);
 }
 
+Shape make_shape(Mesh& mesh, Transform& transform, unsigned int texture) {
+    return (Shape) {
+        .mesh = mesh,
+        .transform = transform,
+        .color = glm::vec4(1.0),
+        .texture = texture,
+    };
+}
 
-Shape make_shape(Shapes shape) {
+Shape make_shape(Shapes shape, unsigned int texture) {
     vector<float> vertices;
     vector<unsigned int> indices;
 
@@ -199,13 +207,18 @@ Shape make_shape(Shapes shape) {
 
     if (vertices.size() > 0 && indices.size() > 0) {
         setup_mesh(resulting_mesh);
+
+        if (texture == 0) {
+            texture = create_default_texture();
+        }
     }
+
 
     Shape result = {
         .mesh = resulting_mesh,
         .transform = Transform::empty(),
         .color = glm::vec4(1.0f),
-        .texture = create_default_texture()
+        .texture = texture
     };
 
     return result;

@@ -11,7 +11,7 @@ unsigned int create_default_texture() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, white_pixel);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
+
     return texture_id;
 }
 
@@ -31,8 +31,7 @@ unsigned int make_texture(const char *path){
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else{
-        printf("Failed to load texture!\n");
-        printf("  Error: %s\n", stbi_failure_reason());
+        printf("Failed to load texture %s. Error: %s\n", path, stbi_failure_reason());
     }
 
     stbi_image_free(data);
@@ -59,11 +58,9 @@ unsigned int make_texture_from_memory(const uint8_t* src, int size) {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
     else {
-        printf("Failed to load embedded texture!\n");
-        printf("  Error: %s\n", stbi_failure_reason());
+        printf("Failed to load texture %p. Error: %s\n", src, stbi_failure_reason());
     }
-
-
+    
     stbi_image_free(data);
 
     return texture;

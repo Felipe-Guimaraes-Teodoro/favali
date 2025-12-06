@@ -19,7 +19,7 @@ void main() {
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
 
     FragPos = vec3(model * vec4(aPos, 1.0));
-    Normal = mat3(transpose(inverse(model))) * aNormal;
+    Normal = normalize(mat3(transpose(inverse(model))) * aNormal);
     TexCoord = aTexCoord;
 }
 )";
@@ -42,6 +42,8 @@ layout (std140, binding = 0) uniform Light {
     vec3 color;
 } light;
 
+vec3 ambient = vec3(0.1);
+
 // uniform PointLight pointLights[16];
 
 void main() {
@@ -51,7 +53,7 @@ void main() {
     vec3 lightDir = normalize(light.position - FragPos);
     float diff = max(dot(Normal, lightDir), 0.1);
 
-    vec3 result = color.rgb * light.color * diff * texture(ourTexture, TexCoord).rgb;
+    vec3 result = color.rgb * light.color * (diff + ambient) * texture(ourTexture, TexCoord).rgb;
     FragColor = vec4(result, color.a);
 }
 )";

@@ -33,7 +33,6 @@ void Mesh::draw(
     );
 }
 
-
 void setup_mesh(Mesh& mesh) {
     mesh.setup = true;
 

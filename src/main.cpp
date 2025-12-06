@@ -23,8 +23,8 @@ using std::vector;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-int w = 900;
-int h = 600;
+int w = 1600;
+int h = 900;
 
 void init() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -111,26 +111,17 @@ int main() {
     Shader fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);    
     unsigned int program = create_program(vs, fs);
 
-    vector<unsigned int> texture_pack;
-    // maybe move assets to build directory
-    texture_pack.push_back(make_texture("../../../assets/container.jpg"));
-
-    // this kinda rolls well off the tongue
-    Shape sphere = make_shape(Shapes::Sphere);
-    sphere.texture = create_default_texture();
-
     Shape gun = create_shape_from_gltf("../../../assets/gun.gltf", 0);
     glm::vec3 local_shoot_pos(-3.2, -5.97, 0.);
     std::vector<Bullet> bullets;
 
-    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
-    merge_level_shapes(level0);
+    Level *level0 = create_level_from_gltf("../../../assets/level1.glb");
     gun.transform.scale = vec3(0.01);
     
-    Camera camera = create_camera({0, 0, 0}, 80.0);
+    Camera camera = create_camera({0, 0, 0}, 80.0, (float)w/(float)h);
 
     Light light = Light::empty();
-    light.position = {1.0 ,1.0, 1.0};
+    light.position = {1.0 ,10.0, 5.0};
     light.color = {1.0, 1.0, 1.0};
 
     UniformBuffer ubo = create_ubo<Light>(&light);
@@ -185,8 +176,8 @@ int main() {
                         gun.transform.getModelMat() * glm::vec4(local_shoot_pos, 1.0)
                     );
                     bullet_s.transform.position = muzzleWorld;
-                    bullet_s.transform.scale = vec3(0.025);
-
+                    bullet_s.transform.scale = vec3(0.05);
+                    
                     Bullet bullet;
                     bullet.bullet = bullet_s;
                     // glm::vec4 cam_front(camera.front.x, camera.front.y, camera.front.z, 0.);
@@ -211,7 +202,6 @@ int main() {
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-        sphere.draw(program, camera);
         gun.draw(program, camera);
 
         for (const Shape& shape : level0->shapes) {
@@ -222,16 +212,16 @@ int main() {
         
         if (shoot) {
             recoil_timer += 1.f;
-            recoil_timer = glm::min(recoil_timer, 2.0f);
+            recoil_timer = glm::min(recoil_timer, 1.5f);
             shoot = false;
         }
 
         vec3 goal = camera.position + camera.front*0.3f + -camera.right * 0.12f - camera.up * 0.1f;
-        goal -= camera.front * (recoil_timer * 0.08f);
+        goal -= camera.front * (recoil_timer * 0.04f);
 
         recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
-        float recoil_amount = recoil_timer * -1.0f;
+        float recoil_amount = recoil_timer * -0.3f;
 
         glm::quat base = glm::quatLookAt(-camera.right, -camera.up);
         glm::quat recoil_q = glm::angleAxis(recoil_amount, camera.right);
@@ -243,16 +233,18 @@ int main() {
 
         for (int i = 0; i < bullets.size(); i++){
             bullets[i].bullet.draw(program, camera);
-            bullets[i].bullet.transform.position += bullets[i].dir * dt * 10.f;
+            bullets[i].bullet.transform.position += bullets[i].dir * dt * 1.f;
         }
 
         SDL_GL_SwapWindow(window);
 
         float target = 1000.0f / fps;
         float frame_ms = dt * 1000.0f;
+
         if (frame_ms < target) {
             SDL_Delay((Uint32)(target - frame_ms));
         }
+
     }
 
     SDL_DestroyWindow(window);

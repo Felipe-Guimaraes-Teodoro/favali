@@ -29,4 +29,5 @@ typedef struct {
     void draw(unsigned int program, const Camera& camera) const;
 } Shape;
 
-Shape make_shape(Shapes shape);
+Shape make_shape(Mesh& mesh, Transform& transform, unsigned int texture);
+Shape make_shape(Shapes shape, unsigned int texture = 0);
