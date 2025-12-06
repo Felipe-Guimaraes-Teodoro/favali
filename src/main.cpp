@@ -14,6 +14,7 @@ using std::vector;
 #include "camera.h"
 #include "light.h"
 #include "texture.h"
+#include "model.hpp"
 
 #include "player.h"
 
@@ -85,6 +86,7 @@ Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float 
     if (state[SDL_SCANCODE_LCTRL]){
         camera.position.y -= dt * speed;
     }
+
     return camera;
 }
 
@@ -99,15 +101,15 @@ int main() {
 
     vector<unsigned int> texture_pack;
     // maybe move assets to build directory
-    texture_pack.push_back(make_texture("assets/container.jpg"));
+    texture_pack.push_back(make_texture("../../../assets/container.jpg"));
 
     // this kinda rolls well off the tongue
-    Shape cube = make_shape(Shapes::Cube);
-    cube.texture = texture_pack[0]; // use path relative to build file location
-
     Shape sphere = make_shape(Shapes::Sphere);
     sphere.texture = create_default_texture();
 
+    Shape gun = loadModel("../../../assets/gun.gltf", 0);
+    gun.transform.scale = vec3(0.01);
+    
     Camera camera = create_camera({0, 0, 0}, 80.0);
 
     Light light = Light::empty();
@@ -122,6 +124,8 @@ int main() {
     float dt = 0.0f;
     float speed = 5.5f;
     float sensitivity = 0.1;
+    bool shoot = false;
+    static float recoil_timer = 0.f;
 
     bool lock_cursor = false;
     bool running = true;
@@ -130,7 +134,7 @@ int main() {
         dt = (now - last)/1000.0f;
         last = now;
 
-        light.position = camera.position;
+        light.position = camera.position + vec3(5.0, 5.0, 5.);
         
         update_ubo<Light>(ubo, &light);
 
@@ -158,7 +162,11 @@ int main() {
                     running = false;
                 }
             }
-
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
+                if (event.button.button == SDL_BUTTON_LEFT){
+                    shoot = true;
+                }
+            }
             if (event.type == SDL_EVENT_WINDOW_RESIZED) {
                 int w, h;
                 SDL_GetWindowSize(window, &w, &h);
@@ -171,14 +179,31 @@ int main() {
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-        cube.draw(program, camera);
         sphere.draw(program, camera);
+        gun.draw(program, camera);
 
         camera.update();
+        
+        if (shoot) {
+            recoil_timer += 1.f;
+            shoot = false;
+        }
 
-        cube.transform.position = camera.position + camera.front*1.0f + (-camera.up);
-        glm::quat q = glm::quatLookAt(camera.front, camera.up);
-        cube.transform.rotation = q;
+        vec3 goal = camera.position + camera.front*0.3f + -camera.right * 0.12f - camera.up * 0.1f;
+        goal -= camera.front * (recoil_timer * 0.08f);
+
+        recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
+
+        float recoil_amount = recoil_timer * -1.0f;
+
+        glm::quat base = glm::quatLookAt(-camera.right, -camera.up);
+        glm::quat recoil_q = glm::angleAxis(recoil_amount, camera.right);
+
+        glm::quat target_rot = recoil_q * base;
+
+        gun.transform.rotation = glm::slerp(gun.transform.rotation, target_rot, 0.15f);
+
+        gun.transform.position = glm::mix(gun.transform.position, goal, 0.5f);
 
         SDL_GL_SwapWindow(window);
 

@@ -1,7 +1,9 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm.hpp"
 #include "gtc/quaternion.hpp"
+#include "gtx/quaternion.hpp"
 #include "gtc/matrix_transform.hpp"
 
 struct Transform {

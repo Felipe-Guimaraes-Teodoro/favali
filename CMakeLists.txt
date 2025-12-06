@@ -11,7 +11,8 @@ add_executable(shenanigans
     src/graphics/mesh.cpp
     src/graphics/shaders.cpp
     src/graphics/texture.cpp
-    # src/graphics/model.cpp
+    src/graphics/model.cpp
+    src/graphics/shapes.cpp
 )
 
 target_include_directories(shenanigans PUBLIC

@@ -1,55 +1,134 @@
 #include "model.hpp"
+#include "texture.h"
 
 #include <vector>
+using std::vector;
 
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
-#include "assimp/postprocess.h"
+#define CGLTF_IMPLEMENTATION
+#include "cgltf.h"
 
-Mesh loadModel(const char *path){
-    Assimp::Importer imp;
-
-    const aiScene* scene = imp.ReadFile(
-        path,
-        aiProcess_Triangulate |
-        aiProcess_GenNormals |
-        aiProcess_FlipUVs
-    );
-
-    if(!scene || !scene->mRootNode || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE){
-        printf("Error when loading model: %s\n", imp.GetErrorString());
-    }
-
-    aiMesh* mesh = scene-> mMeshes[0];
-    std::vector<float> vertices;
-
-    for(unsigned int i = 0; i < mesh->mNumVertices; i++){
-        auto& v = mesh->mVertices[i];
-        vertices.push_back(v.x);
-        vertices.push_back(v.y);
-        vertices.push_back(v.z);
-        if(mesh->mTextureCoords[0]){
-            vertices.push_back(mesh->mTextureCoords[0][i].x);
-            vertices.push_back(mesh->mTextureCoords[0][i].y);
-        } else {
-            vertices.push_back(0);
-            vertices.push_back(0);
-        }
-
-        auto& n = mesh->mNormals[i];
-        vertices.push_back(n.x);
-        vertices.push_back(n.y);
-        vertices.push_back(n.z);
-    }
-
-    std::vector<unsigned int> indices;
-
-    for(unsigned int i = 0; i < mesh->mNumFaces; i++){
-        aiFace face = mesh->mFaces[i];
-        for(unsigned int j = 0; j < face.mNumIndices; j++){
-            indices.push_back(face.mIndices[j]);
+cgltf_accessor *get_accessor_from_primitive_type(const cgltf_primitive *prim, cgltf_attribute_type attr_type) {
+    for (int attr = 0; attr < prim->attributes_count; attr++) {
+        if (prim->attributes[attr].type == attr_type) {
+            return prim->attributes[attr].data;
         }
     }
 
-    return create_mesh(vertices, indices);
+    return NULL;
+}
+
+Shape loadModel(const char *path, int idx) {
+    static vector<Mesh> acquired_meshes = {};
+
+    cgltf_options options = {};
+    cgltf_data *data = NULL;
+    cgltf_result result = cgltf_parse_file(&options, path, &data);
+    cgltf_result buf_result = cgltf_load_buffers(&options, data, path);
+
+    Shape shape = make_shape(Shapes::Triangle);
+
+    if (result != cgltf_result_success) {
+        printf("failed to load gltf file\n");
+
+        return shape;
+    } else {
+
+    }
+
+    if (buf_result != cgltf_result_success) {
+        printf("failed to read gltf buffers\n");
+    }
+
+    vector<unsigned int> indices = {}; 
+    vector<float> vertices = {};
+
+    printf("");
+
+    for (int i = 0; i < data->meshes_count; i++) {
+        cgltf_mesh *current_mesh = &data->meshes[i];
+
+        for (int p = 0; p < current_mesh->primitives_count; p++) {
+            cgltf_primitive *primitive = &current_mesh->primitives[p];
+
+            if (primitive->indices) {
+                cgltf_accessor *indices_accessor = primitive->indices;
+
+                for (int index = 0; index < indices_accessor->count; index++) {
+                    indices.push_back(
+                        (unsigned int)cgltf_accessor_read_index(indices_accessor, index)
+                    );
+                }
+            } else {
+                printf("Mesh %u has no indices", i);
+            }
+
+            cgltf_accessor *pos_accessor = get_accessor_from_primitive_type(
+                primitive,  
+                cgltf_attribute_type_position
+            );
+            
+            cgltf_accessor *normal_accessor = get_accessor_from_primitive_type(
+                primitive,  
+                cgltf_attribute_type_normal
+            );
+            
+            cgltf_accessor *uv_accessor = get_accessor_from_primitive_type(
+                primitive,  
+                cgltf_attribute_type_texcoord
+            );
+
+            if (pos_accessor && normal_accessor && uv_accessor) {
+                float tmp_pos[3];
+                float tmp_norm[3];
+                float tmp_uv[2];
+
+                int stride = 8;
+                
+                vertices.resize(pos_accessor->count * stride);
+
+                for (int k = 0; k < pos_accessor->count; ++k) {
+                    cgltf_accessor_read_float(pos_accessor, k, tmp_pos, 3);
+                    cgltf_accessor_read_float(normal_accessor, k, tmp_norm, 3);
+                    cgltf_accessor_read_float(uv_accessor, k, tmp_uv, 2);
+                    
+                    int base = k * stride;
+
+                    vertices[base + 0] = tmp_pos[0];
+                    vertices[base + 1] = tmp_pos[1];
+                    vertices[base + 2] = tmp_pos[2];
+
+                    vertices[base + 3] = tmp_norm[0];
+                    vertices[base + 4] = tmp_norm[1];
+                    vertices[base + 5] = tmp_norm[2];
+
+                    vertices[base + 6] = tmp_uv[0];
+                    vertices[base + 7] = tmp_uv[1];
+                }
+            }
+
+            cgltf_material *material = primitive->material;
+
+            if (material) {
+                cgltf_texture *tex = material->pbr_metallic_roughness.base_color_texture.texture;
+
+                if (tex && tex->image) {
+                    cgltf_image *img = tex->image;
+
+                    if (img->uri) {
+                        printf("texture file\n %s", img->uri);
+                        shape.texture = make_texture(img->uri);
+                    }
+                    else if (img->buffer_view) {printf("texture has buffer view embedded\n");}
+                    else {
+                        printf("mesh has NO TEXTURE WHATSOEVER\n");
+                    }
+                }
+            }
+        } // for mesh primitives
+
+    }
+
+    shape.mesh = create_mesh(vertices, indices);
+
+    return shape;
 }

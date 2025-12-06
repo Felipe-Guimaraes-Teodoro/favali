@@ -35,6 +35,8 @@ void Mesh::draw(
 
 
 void setup_mesh(Mesh& mesh) {
+    mesh.setup = true;
+
     glGenVertexArrays(1, &mesh.VAO);
     glGenBuffers(1, &mesh.VBO);
     glGenBuffers(1, &mesh.EBO);
@@ -76,7 +78,6 @@ Mesh create_mesh(vector<float>& vertices, vector<unsigned int>& indices) {
     mesh.indices = indices;
     
     setup_mesh(mesh);
-    mesh.setup = true;
 
     return mesh;
 }

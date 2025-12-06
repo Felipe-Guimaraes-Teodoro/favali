@@ -1,5 +1,5 @@
 #pragma once
 
-#include "mesh.h"
+#include "shapes.h"
 
-Mesh loadModel(const char *path);
+Shape loadModel(const char *path, int idx);
