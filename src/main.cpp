@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <vector>
+#include <memory>
 using std::vector;
 #include <math.h>
 #include "SDL3/SDL.h"
@@ -17,6 +18,7 @@ using std::vector;
 #include "texture.h"
 #include "model.hpp"
 #include "level.h"
+#include "sod.h"
 
 #include "player.h"
 
@@ -41,6 +43,9 @@ void init() {
     SDL_GL_MakeCurrent(window, gl_context);
     
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
     glViewport(0, 0, w, h);
     glClearColor(0.1, 0.2, 0.3, 1.0);
 }
@@ -59,7 +64,8 @@ void onResize(int w, int h, Camera& camera) {
     );
 }
 
-Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float speed, float dt){
+void cameraMovement(bool lock_cursor, Camera& camera, SOD& camera_sod, float sensitivity, float speed, float dt){
+    static vec3 goal = {0.0, 0.0, 0.0};
     const bool *state = SDL_GetKeyboardState(NULL);
 
     float mouse_x, mouse_y;
@@ -71,36 +77,43 @@ Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float 
     }
 
     if (state[SDL_SCANCODE_W]){
-        camera.position += camera.front * dt * speed;
+        goal += camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_S]){
-        camera.position -= camera.front * dt * speed;
+        goal -= camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_A]){
-        camera.position += camera.right * dt * speed;
+        goal += camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_D]){
-        camera.position -= camera.right * dt * speed;
+        goal -= camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_SPACE]){
-        camera.position.y += dt * speed;
+        goal.y += dt * speed;
     }
     if (state[SDL_SCANCODE_LCTRL]){
-        camera.position.y -= dt * speed;
+        goal.y -= dt * speed;
     }
 
-    return camera;
+    update_sod(camera_sod, dt, goal);
+
+    camera.position = camera_sod.y;
 }
 
 
-struct Bullet{
-    Shape bullet;
+typedef struct {
+    std::unique_ptr<Shape> bullet;
     glm::vec3 dir;
+} Bullet;
 
-    Bullet() 
-        : bullet(make_shape(Shapes::Sphere)), dir(0.0f, 0.0f, 0.0f) {
-    }
-};
+Bullet create_bullet(const glm::vec3& muzzleWorld, const glm::vec3& forward) {
+    Bullet b;
+    b.bullet = std::make_unique<Shape>(make_shape(Shapes::Sphere));
+    b.bullet->transform.position = muzzleWorld;
+    b.bullet->transform.scale = glm::vec3(0.05f);
+    b.dir = forward;
+    return b;
+}
 
 int main() {
     init();
@@ -118,6 +131,7 @@ int main() {
     Level *level0 = create_level_from_gltf("../../../assets/level1.glb");
     gun.transform.scale = vec3(0.01);
     
+    SOD cam_sod = create_sod(1.5, 0.5, 0.5, vec3(0.0f));
     Camera camera = create_camera({0, 0, 0}, 80.0, (float)w/(float)h);
 
     Light light = Light::empty();
@@ -128,6 +142,8 @@ int main() {
     bind_ubo("Light", 0, ubo, fs);
 
     Uint64 last = SDL_GetTicks();
+
+    // todo: add bullet stuff into its separate thingy
     float fps = 60.0f;
     float dt = 0.0f;
     float speed = 5.5f;
@@ -151,6 +167,7 @@ int main() {
             if (event.type == SDL_EVENT_KEY_DOWN){
                 if (event.key.key == SDLK_F){
                     exec_script();
+                    bullets.clear();
                 }
 
                 if (event.key.key == SDLK_LALT){
@@ -171,25 +188,16 @@ int main() {
             }
             if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
                 if (event.button.button == SDL_BUTTON_LEFT){
-                    Shape bullet_s = make_shape(Shapes::Sphere);
                     glm::vec3 muzzleWorld = glm::vec3(
                         gun.transform.getModelMat() * glm::vec4(local_shoot_pos, 1.0)
                     );
-                    bullet_s.transform.position = muzzleWorld;
-                    bullet_s.transform.scale = vec3(0.05);
-                    
-                    Bullet bullet;
-                    bullet.bullet = bullet_s;
-                    // glm::vec4 cam_front(camera.front.x, camera.front.y, camera.front.z, 0.);
-                    // bullet.dir = glm::normalize(glm::vec3(bullet_s.transform.getModelMat() * cam_front));
-
                     glm::vec3 forward = glm::normalize(glm::vec3(gun.transform.getModelMat() * glm::vec4(1,0,0,0)));
-                    bullet.dir = forward;
 
-                    bullets.push_back(bullet);
+                    bullets.emplace_back(create_bullet(muzzleWorld, forward));
                     shoot = true;
                 }
             }
+
             if (event.type == SDL_EVENT_WINDOW_RESIZED) {
                 int w, h;
                 SDL_GetWindowSize(window, &w, &h);
@@ -197,8 +205,6 @@ int main() {
                 onResize(w, h, camera);
             }
         }
-
-        camera = cameraMovement(lock_cursor, camera, sensitivity, speed, dt);
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
@@ -208,7 +214,10 @@ int main() {
             shape.draw(program, camera);
         }
 
-        camera.update();
+        for (int i = 0; i < bullets.size(); i++){
+            bullets[i].bullet->draw(program, camera);
+            bullets[i].bullet->transform.position += bullets[i].dir * dt * 1.f;
+        }
         
         if (shoot) {
             recoil_timer += 1.f;
@@ -231,10 +240,8 @@ int main() {
         gun.transform.rotation = glm::slerp(gun.transform.rotation, target_rot, 0.15f);
         gun.transform.position = glm::mix(gun.transform.position, goal, 0.5f);
 
-        for (int i = 0; i < bullets.size(); i++){
-            bullets[i].bullet.draw(program, camera);
-            bullets[i].bullet.transform.position += bullets[i].dir * dt * 1.f;
-        }
+        camera.update();
+        cameraMovement(lock_cursor, camera, cam_sod, sensitivity, speed, dt);
 
         SDL_GL_SwapWindow(window);
 
@@ -244,7 +251,6 @@ int main() {
         if (frame_ms < target) {
             SDL_Delay((Uint32)(target - frame_ms));
         }
-
     }
 
     SDL_DestroyWindow(window);

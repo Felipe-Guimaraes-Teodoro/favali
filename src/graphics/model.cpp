@@ -185,7 +185,6 @@ Level *create_level_from_gltf(const char *path) {
 
         for (int p = 0; p < mesh->primitives_count; p++){
             cgltf_primitive* prim = &mesh->primitives[p];
-            // todo: get node transform and put it on shape
 
             vector<unsigned int> indices = {};
             vector<float> vertices = {};
@@ -201,9 +200,14 @@ Level *create_level_from_gltf(const char *path) {
             transform.rotation  = node_rot;
             transform.scale = node_scale;
 
-            Shape shape = make_shape(mesh, transform, texture);
+            Shape shape = Shape(
+                std::move(mesh), 
+                transform, 
+                glm::vec4(1.0),
+                texture
+            );
 
-            level->shapes.push_back(shape);
+            level->shapes.push_back(std::move(shape));
         }
     }
 

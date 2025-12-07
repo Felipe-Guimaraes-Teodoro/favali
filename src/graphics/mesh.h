@@ -11,7 +11,43 @@ struct Mesh {
     vector<float> vertices;
     vector<unsigned int> indices;
 
-    bool setup;
+    bool setup = false;
+
+    Mesh() = default;
+
+    // prevent copying
+    Mesh(const Mesh&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
+
+    // allow moving
+    Mesh(Mesh&& other) noexcept {
+        VBO = other.VBO;  other.VBO = 0;
+        VAO = other.VAO;  other.VAO = 0;
+        EBO = other.EBO;  other.EBO = 0;
+
+        vertices = std::move(other.vertices);
+        indices  = std::move(other.indices);
+        setup = other.setup;
+        other.setup = false;
+    }
+
+    Mesh& operator=(Mesh&& other) noexcept {
+        if (this != &other) {
+            destroy();
+
+            VBO = other.VBO;  other.VBO = 0;
+            VAO = other.VAO;  other.VAO = 0;
+            EBO = other.EBO;  other.EBO = 0;
+
+            vertices = std::move(other.vertices);
+            indices  = std::move(other.indices);
+            setup = other.setup;
+            other.setup = false;
+        }
+        return *this;
+    }
+
+    void destroy();
 
     void draw(
         unsigned int program, 
@@ -21,6 +57,8 @@ struct Mesh {
         glm::vec4 col, 
         unsigned int texture
     ) const;
+
+    ~Mesh();
 };
 
 void setup_mesh(Mesh& mesh);

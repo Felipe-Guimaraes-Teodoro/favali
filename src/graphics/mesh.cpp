@@ -2,6 +2,19 @@
 
 #include "shaders.h"
 
+Mesh::~Mesh() {
+    destroy();
+}
+
+void Mesh::destroy() {
+    if (VBO) glDeleteBuffers(1, &VBO);
+    if (EBO) glDeleteBuffers(1, &EBO);
+    if (VAO) glDeleteVertexArrays(1, &VAO);
+
+    VBO = VAO = EBO = 0; // bro i had no idea this could be done
+    setup = false;
+}
+
 void Mesh::draw(
     unsigned int program, 
     glm::mat4 model_mat, 

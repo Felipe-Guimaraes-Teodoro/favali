@@ -1,6 +1,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "texture.h"
 
+// todo: whenever this is called return A default texture
+// already stored somewhere instead of always creating the 
+// same white thing
 unsigned int create_default_texture() {
     unsigned char white_pixel[] = {255, 255, 255, 255}; // RGBA white
     

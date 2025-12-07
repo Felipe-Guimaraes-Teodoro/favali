@@ -20,14 +20,41 @@ enum Shapes {
     Empty,
 };
 
-typedef struct {
+struct Shape {
     Mesh mesh;
     Transform transform;
-    glm::vec4 color;
-    unsigned int texture;
+    glm::vec4 color = glm::vec4(1.0f);
+    unsigned int texture = 0;
+
+    Shape(Mesh&& m, Transform t, glm::vec4 c, unsigned int tex)
+        : mesh(std::move(m)), transform(t), color(c), texture(tex) {}
+        
+    // prevent copying
+    Shape(const Shape&) = delete;
+    Shape& operator=(const Shape&) = delete;
+
+     // allow moving
+    Shape(Shape&& other) noexcept
+        : mesh(std::move(other.mesh)),
+          transform(std::move(other.transform)),
+          color(other.color),
+          texture(other.texture)
+    {
+        other.texture = 0;
+    }
+
+    Shape& operator=(Shape&& other) noexcept {
+        if (this != &other) {
+            mesh = std::move(other.mesh);
+            transform = std::move(other.transform);
+            color = other.color;
+            texture = other.texture;
+            other.texture = 0;
+        }
+        return *this;
+    }
 
     void draw(unsigned int program, const Camera& camera) const;
-} Shape;
+};
 
-Shape make_shape(Mesh& mesh, Transform& transform, unsigned int texture);
 Shape make_shape(Shapes shape, unsigned int texture = 0);
