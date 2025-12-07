@@ -122,7 +122,7 @@ int main() {
     gun.transform.scale = vec3(0.01);
     std::vector<Bullet> bullets;
 
-    Level *level0 = create_level_from_gltf("../../../assets/level1.glb");
+    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
     std::vector<BVHNode*> worldBVHs;
     for (int i = 0; i < level0->shapes.size(); i++){
         std::vector<MeshTriangle> world_tris = get_level_tris(&level0->shapes[i]);
