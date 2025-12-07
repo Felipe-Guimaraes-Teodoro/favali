@@ -1,6 +1,7 @@
 #include "model.hpp"
 #include "texture.h"
 
+#include <stdlib.h>
 #include <vector>
 using std::vector;
 
@@ -17,30 +18,34 @@ cgltf_accessor *get_accessor_from_primitive_type(const cgltf_primitive *prim, cg
     return NULL;
 }
 
-void append_texture_from_material(Shape& dst, cgltf_material* material) {
-    if (material) {
-        cgltf_texture *tex = material->pbr_metallic_roughness.base_color_texture.texture;
-
-        if (tex && tex->image) {
-            cgltf_image *img = tex->image;
-
-            if (img->uri) {
-                printf("%s", img->uri);
-                dst.texture = make_texture(img->uri);
-            }
-            else if (img->buffer_view) {
-                const uint8_t *tex_data = cgltf_buffer_view_data(img->buffer_view);
-                int size = img->buffer_view->size;
-
-                printf("texture has buffer view embedded %u\n", size);
-
-                dst.texture = make_texture_from_memory(tex_data, size);
-            }
-            else {
-                printf("mesh has NO TEXTURE WHATSOEVER\n");
-            }
-        }
+unsigned int create_texture_from_material(cgltf_material* material) {
+    if (!material) {
+        return create_default_texture();
     }
+    cgltf_texture *tex = material->pbr_metallic_roughness.base_color_texture.texture;
+
+    if (!tex || !tex->image) {
+        return create_default_texture();
+    }
+
+    cgltf_image *img = tex->image;
+
+    if (img->uri) {
+        char path[512];
+        snprintf(path, sizeof(path), "assets/%s", img->uri);
+        return make_texture(path);
+    }
+
+    if (img->buffer_view) {
+        int size = img->buffer_view->size;
+        printf("texture has buffer view with size %u embedded\n");
+    
+        const uint8_t *tex_data = cgltf_buffer_view_data(img->buffer_view);
+
+        return make_texture_from_memory(tex_data, size);
+    }
+
+    return create_default_texture();
 }
 
 void append_vertex_data_from_primitive(cgltf_primitive* primitive, vector<float> &vertices) {
@@ -123,7 +128,7 @@ cgltf_data *load_gltf(const char* path) {
 }
 
 Shape create_shape_from_gltf(const char *path, int idx) {
-    Shape shape = make_shape(Shapes::Empty);
+    Shape shape = make_shape(Shapes::Triangle); // so if something goes wrong render placeholder shape
 
     cgltf_data *data = load_gltf(path);
 
@@ -132,6 +137,7 @@ Shape create_shape_from_gltf(const char *path, int idx) {
 
     vector<unsigned int> indices = {}; 
     vector<float> vertices = {};
+    int texture = 0;
 
     for (int i = 0; i < data->meshes_count; i++) {
         cgltf_mesh *current_mesh = &data->meshes[i];
@@ -141,12 +147,13 @@ Shape create_shape_from_gltf(const char *path, int idx) {
 
             append_index_data_from_primitive(primitive, indices);
             append_vertex_data_from_primitive(primitive, vertices);
-            append_texture_from_material(shape, primitive->material);
+            texture = create_texture_from_material(primitive->material);
         } // for primitives
 
     } // for meshes
 
     shape.mesh = create_mesh(vertices, indices);
+    shape.texture = texture;
 
     return shape;
 }
@@ -164,6 +171,7 @@ Level *create_level_from_gltf(const char *path) {
     }
 
     level->shapes.reserve(primitive_count);
+    unsigned int texture = 0;
 
     for (int i = 0; i < data->nodes_count; i++) {
         cgltf_node* node = &data->nodes[i];
@@ -171,19 +179,35 @@ Level *create_level_from_gltf(const char *path) {
 
         cgltf_mesh* mesh = node->mesh;
 
+        glm::vec3 node_pos(node->translation[0], node->translation[1], node->translation[2]);
+        glm::quat node_rot(node->rotation[3], glm::vec3(node->rotation[0], node->rotation[1], node->rotation[2]));
+        glm::vec3 node_scale(node->scale[0], node->scale[1], node->scale[2]);
+
         for (int p = 0; p < mesh->primitives_count; p++){
-            Shape shape = make_shape(Shapes::Empty);
-
             cgltf_primitive* prim = &mesh->primitives[p];
-            // todo: get node transform and put it on shape
 
-            append_index_data_from_primitive(prim, shape.mesh.indices);
-            append_vertex_data_from_primitive(prim, shape.mesh.vertices);
-            append_texture_from_material(shape, prim->material);
+            vector<unsigned int> indices = {};
+            vector<float> vertices = {};
 
-            setup_mesh(shape.mesh);
+            append_index_data_from_primitive(prim, indices);
+            append_vertex_data_from_primitive(prim, vertices);
+            texture = create_texture_from_material(prim->material);
 
-            level->shapes.push_back(shape);
+            Mesh mesh = create_mesh(vertices, indices);
+
+            Transform transform = Transform::empty();
+            transform.position = node_pos;
+            transform.rotation  = node_rot;
+            transform.scale = node_scale;
+
+            Shape shape = Shape(
+                std::move(mesh), 
+                transform, 
+                glm::vec4(1.0),
+                texture
+            );
+
+            level->shapes.push_back(std::move(shape));
         }
     }
 

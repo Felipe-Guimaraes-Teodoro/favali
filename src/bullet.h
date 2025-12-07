@@ -1,14 +1,13 @@
 #pragma once
 
 #include "shapes.h"
+#include <memory>
 
-struct Bullet{
-    Shape shape;
+struct Bullet {
+    std::unique_ptr<Shape> shape;
     glm::vec3 dir;
-
-    Bullet() 
-        : shape(make_shape(Shapes::Sphere)), dir(0.0f, 0.0f, 0.0f) {
-    }
 
     void update_bullet(float speed, float dt);
 };
+
+Bullet create_bullet(const glm::vec3& muzzleWorld, const glm::vec3& forward);

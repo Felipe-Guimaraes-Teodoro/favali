@@ -4,15 +4,13 @@ void Shape::draw(unsigned int program, const Camera& camera) const {
     mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color, texture);
 }
 
-
-Shape make_shape(Shapes shape) {
+Shape make_shape(Shapes shape, unsigned int texture) {
     vector<float> vertices;
     vector<unsigned int> indices;
 
     Mesh resulting_mesh = empty_mesh();
 
     switch (shape) {
-
         case Square: {
             vertices = {
                 // x y z      nx ny nz    u v
@@ -194,19 +192,20 @@ Shape make_shape(Shapes shape) {
         }
     }
 
-    resulting_mesh.vertices = vertices;
-    resulting_mesh.indices = indices;
+    resulting_mesh.vertices = std::move(vertices);
+    resulting_mesh.indices = std::move(indices);
 
-    if (vertices.size() > 0 && indices.size() > 0) {
+    if (!resulting_mesh.vertices.empty() && !resulting_mesh.indices.empty()) {
         setup_mesh(resulting_mesh);
+
+        if (texture == 0)
+            texture = create_default_texture();
     }
 
-    Shape result = {
-        .mesh = resulting_mesh,
-        .transform = Transform::empty(),
-        .color = glm::vec4(1.0f),
-        .texture = create_default_texture()
-    };
-
-    return result;
+    return Shape(
+        std::move(resulting_mesh),
+        Transform::empty(),
+        glm::vec4(1.0f),
+        texture
+    );
 }

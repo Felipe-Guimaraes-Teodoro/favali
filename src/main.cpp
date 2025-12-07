@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <vector>
+#include <memory>
 using std::vector;
 #include <math.h>
 #include "SDL3/SDL.h"
@@ -17,6 +18,7 @@ using std::vector;
 #include "texture.h"
 #include "model.hpp"
 #include "level.h"
+#include "sod.h"
 
 #include "player.h"
 #include "bullet.h"
@@ -29,8 +31,8 @@ using std::vector;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-int w = 900;
-int h = 600;
+int w = 1600;
+int h = 900;
 
 void init() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -47,6 +49,9 @@ void init() {
     SDL_GL_MakeCurrent(window, gl_context);
     
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
     glViewport(0, 0, w, h);
     glClearColor(0.1, 0.2, 0.3, 1.0);
 }
@@ -65,7 +70,8 @@ void onResize(int w, int h, Camera& camera) {
     );
 }
 
-Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float speed, float dt){
+void cameraMovement(bool lock_cursor, Camera& camera, float sensitivity, float speed, float dt){
+    static vec3 goal = {0.0, 0.0, 0.0};
     const bool *state = SDL_GetKeyboardState(NULL);
 
     float mouse_x, mouse_y;
@@ -77,27 +83,26 @@ Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float 
     }
 
     if (state[SDL_SCANCODE_W]){
-        camera.position += camera.front * dt * speed;
+        goal += camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_S]){
-        camera.position -= camera.front * dt * speed;
+        goal -= camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_A]){
-        camera.position += camera.right * dt * speed;
+        goal += camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_D]){
-        camera.position -= camera.right * dt * speed;
+        goal -= camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_SPACE]){
-        camera.position.y += dt * speed;
+        goal.y += dt * speed;
     }
     if (state[SDL_SCANCODE_LCTRL]){
-        camera.position.y -= dt * speed;
+        goal.y -= dt * speed;
     }
 
-    camera.position += GRAVITY*dt;
 
-    return camera;
+    camera.position = goal;
 }
 
 int main() {
@@ -108,14 +113,6 @@ int main() {
     Shader vs = create_shader(&default_vs, GL_VERTEX_SHADER);
     Shader fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);    
     unsigned int program = create_program(vs, fs);
-
-    vector<unsigned int> texture_pack;
-    // maybe move assets to build directory
-    texture_pack.push_back(make_texture("../../../assets/container.jpg"));
-
-    // this kinda rolls well off the tongue
-    Shape sphere = make_shape(Shapes::Sphere);
-    sphere.texture = create_default_texture();
 
     Shape gun = create_shape_from_gltf("../../../assets/gun.gltf", 0);
     glm::vec3 local_shoot_pos(3.2, -5.97, 0.);
@@ -131,13 +128,15 @@ int main() {
     float playerRadius = 1.0;
 
     Light light = Light::empty();
-    light.position = {1.0 ,1.0, 1.0};
+    light.position = {1.0 ,10.0, 5.0};
     light.color = {1.0, 1.0, 1.0};
 
     UniformBuffer ubo = create_ubo<Light>(&light);
     bind_ubo("Light", 0, ubo, fs);
 
     Uint64 last = SDL_GetTicks();
+
+    // todo: add bullet stuff into its separate thingy
     float fps = 60.0f;
     float dt = 0.0f;
     float speed = 5.5f;
@@ -161,6 +160,7 @@ int main() {
             if (event.type == SDL_EVENT_KEY_DOWN){
                 if (event.key.key == SDLK_F){
                     exec_script();
+                    bullets.clear();
                 }
 
                 if (event.key.key == SDLK_LALT){
@@ -181,21 +181,12 @@ int main() {
             }
             if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN){
                 if (event.button.button == SDL_BUTTON_LEFT){
-                    Shape bullet_s = make_shape(Shapes::Sphere);
                     glm::vec3 muzzleWorld = glm::vec3(
                         gun.transform.getModelMat() * glm::vec4(local_shoot_pos, 1.0)
                     );
-                    bullet_s.transform.position = muzzleWorld;
-                    bullet_s.transform.scale = vec3(0.025);
-
-                    Bullet bullet;
-                    bullet_s.color = glm::vec4(1., 0., 0., 1.);
-                    bullet.shape = bullet_s;
-
                     glm::vec3 forward = glm::normalize(glm::vec3(gun.transform.getModelMat() * glm::vec4(1,0,0,0)));
-                    bullet.dir = forward;
 
-                    bullets.push_back(bullet);
+                    bullets.emplace_back(create_bullet(muzzleWorld, forward));
                     shoot = true;
                 }
             }
@@ -207,7 +198,7 @@ int main() {
             }
         }
 
-        camera = cameraMovement(lock_cursor, camera, sensitivity, speed, dt);
+        cameraMovement(lock_cursor, camera, sensitivity, speed, dt);
 
         AABB query;
         query.min = camera.position - glm::vec3(playerRadius);
@@ -234,27 +225,29 @@ int main() {
         
         CLEAR_SCREEN;
     
-        sphere.draw(program, camera);
         gun.draw(program, camera);
 
         for (const Shape& shape : level0->shapes) {
             shape.draw(program, camera);
         }
 
-        camera.update();
+        for (int i = 0; i < bullets.size(); i++){
+            bullets[i].shape->draw(program, camera);
+            bullets[i].shape->transform.position += bullets[i].dir * dt * 1.f;
+        }
         
         if (shoot) {
             recoil_timer += 1.f;
-            recoil_timer = glm::min(recoil_timer, 2.0f);
+            recoil_timer = glm::min(recoil_timer, 1.5f);
             shoot = false;
         }
 
         vec3 goal = camera.position + camera.front*0.3f + -camera.right * 0.12f - camera.up * 0.1f;
-        goal -= camera.front * (recoil_timer * 0.08f);
+        goal -= camera.front * (recoil_timer * 0.04f);
 
         recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
-        float recoil_amount = recoil_timer * -1.0f;
+        float recoil_amount = recoil_timer * -0.3f;
 
         glm::quat base = glm::quatLookAt(-camera.right, -camera.up);
         glm::quat recoil_q = glm::angleAxis(recoil_amount, camera.right);
@@ -271,7 +264,7 @@ int main() {
             // r.origin = bullets[i].shape.transform.position;
             // r.direction = normalize(bullets[i].dir);
             
-            bullets[i].shape.draw(program, camera);
+            bullets[i].shape->draw(program, camera);
             bullets[i].update_bullet(speed, dt);
             
             // r.tMax = dt;
@@ -302,6 +295,7 @@ int main() {
 
         float target = 1000.0f / fps;
         float frame_ms = dt * 1000.0f;
+
         if (frame_ms < target) {
             SDL_Delay((Uint32)(target - frame_ms));
         }
