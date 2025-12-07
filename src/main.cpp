@@ -84,22 +84,22 @@ void cameraMovement(bool lock_cursor, vec3& goal, Camera& camera, float sensitiv
     }
 
     if (state[SDL_SCANCODE_W]){
-        goal += camera.front * dt * speed;
+        camera.position += camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_S]){
-        goal -= camera.front * dt * speed;
+        camera.position -= camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_A]){
-        goal += camera.right * dt * speed;
+        camera.position += camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_D]){
-        goal -= camera.right * dt * speed;
+        camera.position -= camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_SPACE]){
-        goal.y += dt * speed;
+        camera.position.y += dt * speed;
     }
     if (state[SDL_SCANCODE_LCTRL]){
-        goal.y -= dt * speed;
+        camera.position.y -= dt * speed;
     }
 
     update_sod(cam_sod, dt, goal);
@@ -129,7 +129,7 @@ int main() {
         worldBVHs.push_back(buildBVH(world_tris));
     }
     
-    Camera camera = create_camera({0, 0, 0}, 80.0);
+    Camera camera = create_camera({0, 0, 0}, 80.0, 1600.0 / 900.0);
     float playerRadius = 1.0;
 
     Light light = Light::empty();
@@ -141,7 +141,6 @@ int main() {
 
     Uint64 last = SDL_GetTicks();
 
-    // todo: add bullet stuff into its separate thingy
     float fps = 60.0f;
     float dt = 0.0f;
     float speed = 5.5f;
