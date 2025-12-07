@@ -8,7 +8,7 @@ on the codebase cause i freaking love physically based movement
 #include "glm.hpp"
 using glm::vec3;
 
-static vec3 GRAVITY = {0.0, -10.0, 0.0};
+constexpr glm::vec3 GRAVITY = glm::vec3(0.0f, -10.0f, 0.0f);
 
 typedef struct {
     vec3 size;

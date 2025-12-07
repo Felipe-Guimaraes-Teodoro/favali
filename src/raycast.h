@@ -1,9 +1,13 @@
 #pragma once
 
 #include "glm.hpp"
-using glm::vec3;
+#include "geometry.h"
 
-typedef struct {
-    vec3 origin;
-    vec3 direction;
-} Ray;
+struct Ray {
+    glm::vec3 origin;
+    glm::vec3 direction;
+    float tMax;
+    
+    bool hitTriangle(const MeshTriangle& t, float& outT);
+};
+

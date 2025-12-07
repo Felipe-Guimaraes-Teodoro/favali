@@ -19,6 +19,12 @@ using std::vector;
 #include "level.h"
 
 #include "player.h"
+#include "bullet.h"
+#include "BVH.h"
+#include "geometry.h"
+#include "raycast.h"
+
+#define CLEAR_SCREEN glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
 SDL_Window* window;
 SDL_GLContext gl_context;
@@ -89,18 +95,10 @@ Camera cameraMovement(bool lock_cursor, Camera camera, float sensitivity, float 
         camera.position.y -= dt * speed;
     }
 
+    camera.position += GRAVITY*dt;
+
     return camera;
 }
-
-
-struct Bullet{
-    Shape bullet;
-    glm::vec3 dir;
-
-    Bullet() 
-        : bullet(make_shape(Shapes::Sphere)), dir(0.0f, 0.0f, 0.0f) {
-    }
-};
 
 int main() {
     init();
@@ -120,14 +118,17 @@ int main() {
     sphere.texture = create_default_texture();
 
     Shape gun = create_shape_from_gltf("../../../assets/gun.gltf", 0);
-    glm::vec3 local_shoot_pos(-3.2, -5.97, 0.);
+    glm::vec3 local_shoot_pos(3.2, -5.97, 0.);
+    gun.transform.scale = vec3(0.01);
     std::vector<Bullet> bullets;
 
     Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
     merge_level_shapes(level0);
-    gun.transform.scale = vec3(0.01);
+    std::vector<MeshTriangle> world_tris = get_level_tris(level0);
+    BVHNode* worldBVH = buildBVH(world_tris);
     
     Camera camera = create_camera({0, 0, 0}, 80.0);
+    float playerRadius = 1.0;
 
     Light light = Light::empty();
     light.position = {1.0 ,1.0, 1.0};
@@ -151,8 +152,8 @@ int main() {
         dt = (now - last)/1000.0f;
         last = now;
 
-        // light.position = camera.position + vec3(5.0, 5.0, 5.);
-        // update_ubo<Light>(ubo, &light);
+        light.position = camera.position + vec3(0.0, 15.0, 0.);
+        update_ubo<Light>(ubo, &light);
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
@@ -188,9 +189,8 @@ int main() {
                     bullet_s.transform.scale = vec3(0.025);
 
                     Bullet bullet;
-                    bullet.bullet = bullet_s;
-                    // glm::vec4 cam_front(camera.front.x, camera.front.y, camera.front.z, 0.);
-                    // bullet.dir = glm::normalize(glm::vec3(bullet_s.transform.getModelMat() * cam_front));
+                    bullet_s.color = glm::vec4(1., 0., 0., 1.);
+                    bullet.shape = bullet_s;
 
                     glm::vec3 forward = glm::normalize(glm::vec3(gun.transform.getModelMat() * glm::vec4(1,0,0,0)));
                     bullet.dir = forward;
@@ -208,8 +208,31 @@ int main() {
         }
 
         camera = cameraMovement(lock_cursor, camera, sensitivity, speed, dt);
+
+        AABB query;
+        query.min = camera.position - glm::vec3(playerRadius);
+        query.max = camera.position + glm::vec3(playerRadius); // create bounding box roughly the size of the player
+
+        std::vector<MeshTriangle> candidates;
+        bvhQuery(worldBVH, query, candidates); // get possible triangles to intersect
+
+        for (auto& tri : candidates){
+            // closest tri to point
+            glm::vec3 closest = closestPointOnTriangle(camera.position, tri);
+
+            glm::vec3 diff = camera.position - closest;
+            float dist = glm::length(diff);
+
+            if (dist < playerRadius){
+                float intersect_dist = playerRadius - dist;
+                glm::vec3 n = glm::normalize(diff);
+
+                // push player outwards
+                camera.position += n * intersect_dist;
+            }
+        }
         
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        CLEAR_SCREEN;
     
         sphere.draw(program, camera);
         gun.draw(program, camera);
@@ -242,8 +265,37 @@ int main() {
         gun.transform.position = glm::mix(gun.transform.position, goal, 0.5f);
 
         for (int i = 0; i < bullets.size(); i++){
-            bullets[i].bullet.draw(program, camera);
-            bullets[i].bullet.transform.position += bullets[i].dir * dt * 10.f;
+            float speed = 50.0f;
+            
+            // Ray r;
+            // r.origin = bullets[i].shape.transform.position;
+            // r.direction = normalize(bullets[i].dir);
+            
+            bullets[i].shape.draw(program, camera);
+            bullets[i].update_bullet(speed, dt);
+            
+            // r.tMax = dt;
+
+            // AABB rayBox = makeAABB_from_ray(r);
+            // std::vector<MeshTriangle> candidates;
+            // bvhQuery(worldBVH, rayBox, candidates);
+
+            // float closestT = 999999.0f;
+            // bool hit = false;
+            // for(auto& tri : candidates){
+            //     float t;
+            //     if (r.hitTriangle(tri, t)){
+            //         if (t < closestT){
+            //             closestT = t;
+            //             hit = true;
+            //             break;
+            //         }
+            //     }
+            // }
+
+            // if (hit){
+            //     SDL_Log("Eita lasquerrrr bateu!!!");
+            // }
         }
 
         SDL_GL_SwapWindow(window);

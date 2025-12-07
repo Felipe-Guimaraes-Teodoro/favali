@@ -7,6 +7,10 @@ add_executable(shenanigans
     src/main.cpp
     src/scripting.c
     src/level.cpp
+    src/bullet.cpp
+    src/BVH.cpp
+    src/geometry.cpp
+    src/raycast.cpp
 
     src/graphics/camera.cpp
     src/graphics/mesh.cpp
