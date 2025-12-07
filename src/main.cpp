@@ -83,26 +83,25 @@ void cameraMovement(bool lock_cursor, Camera& camera, float sensitivity, float s
     }
 
     if (state[SDL_SCANCODE_W]){
-        goal += camera.front * dt * speed;
+        camera.position += camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_S]){
-        goal -= camera.front * dt * speed;
+        camera.position -= camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_A]){
-        goal += camera.right * dt * speed;
+        camera.position += camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_D]){
-        goal -= camera.right * dt * speed;
+        camera.position -= camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_SPACE]){
-        goal.y += dt * speed;
+        camera.position.y += dt * speed;
     }
     if (state[SDL_SCANCODE_LCTRL]){
-        goal.y -= dt * speed;
+        camera.position.y -= dt * speed;
     }
 
-
-    camera.position = goal;
+    camera.update();
 }
 
 int main() {
@@ -119,12 +118,12 @@ int main() {
     gun.transform.scale = vec3(0.01);
     std::vector<Bullet> bullets;
 
-    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
-    merge_level_shapes(level0);
+    Level *level0 = create_level_from_gltf("../../../assets/level1.glb");
+    // merge_level_shapes(level0);
     std::vector<MeshTriangle> world_tris = get_level_tris(level0);
     BVHNode* worldBVH = buildBVH(world_tris);
     
-    Camera camera = create_camera({0, 0, 0}, 80.0);
+    Camera camera = create_camera({0, 0, 0}, 80.0, 1600.0 / 900.0);
     float playerRadius = 1.0;
 
     Light light = Light::empty();
@@ -136,7 +135,6 @@ int main() {
 
     Uint64 last = SDL_GetTicks();
 
-    // todo: add bullet stuff into its separate thingy
     float fps = 60.0f;
     float dt = 0.0f;
     float speed = 5.5f;
