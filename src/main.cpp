@@ -31,8 +31,8 @@ using std::vector;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-int w = 1600;
-int h = 900;
+int w = 1600 * 0.6;
+int h = 900 * 0.6;
 
 void init() {
     SDL_Init(SDL_INIT_VIDEO);
@@ -70,8 +70,9 @@ void onResize(int w, int h, Camera& camera) {
     );
 }
 
-void cameraMovement(bool lock_cursor, Camera& camera, float sensitivity, float speed, float dt){
-    static vec3 goal = {0.0, 0.0, 0.0};
+void cameraMovement(bool lock_cursor, vec3& goal, Camera& camera, float sensitivity, float speed, float dt){
+    static SOD cam_sod = create_sod(1.5, 0.5, 0.5, goal);
+    
     const bool *state = SDL_GetKeyboardState(NULL);
 
     float mouse_x, mouse_y;
@@ -101,8 +102,10 @@ void cameraMovement(bool lock_cursor, Camera& camera, float sensitivity, float s
         goal.y -= dt * speed;
     }
 
+    update_sod(cam_sod, dt, goal);
 
-    camera.position = goal;
+    camera.position = cam_sod.y;
+    camera.update();
 }
 
 int main() {
@@ -119,10 +122,12 @@ int main() {
     gun.transform.scale = vec3(0.01);
     std::vector<Bullet> bullets;
 
-    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
-    merge_level_shapes(level0);
-    std::vector<MeshTriangle> world_tris = get_level_tris(level0);
-    BVHNode* worldBVH = buildBVH(world_tris);
+    Level *level0 = create_level_from_gltf("../../../assets/level1.glb");
+    std::vector<BVHNode*> worldBVHs;
+    for (int i = 0; i < level0->shapes.size(); i++){
+        std::vector<MeshTriangle> world_tris = get_level_tris(&level0->shapes[i]);
+        worldBVHs.push_back(buildBVH(world_tris));
+    }
     
     Camera camera = create_camera({0, 0, 0}, 80.0);
     float playerRadius = 1.0;
@@ -143,6 +148,7 @@ int main() {
     float sensitivity = 0.1;
     bool shoot = false;
     static float recoil_timer = 0.f;
+    vec3 camera_goal = camera.position;
 
     bool lock_cursor = false;
     bool running = true;
@@ -197,30 +203,34 @@ int main() {
                 onResize(w, h, camera);
             }
         }
-
-        cameraMovement(lock_cursor, camera, sensitivity, speed, dt);
+        
+        cameraMovement(lock_cursor, camera_goal, camera, sensitivity, speed, dt);
 
         AABB query;
-        query.min = camera.position - glm::vec3(playerRadius);
-        query.max = camera.position + glm::vec3(playerRadius); // create bounding box roughly the size of the player
+        query.min = camera_goal - glm::vec3(playerRadius);
+        query.max = camera_goal + glm::vec3(playerRadius); // create bounding box roughly the size of the player
 
         std::vector<MeshTriangle> candidates;
-        bvhQuery(worldBVH, query, candidates); // get possible triangles to intersect
+        for (int i = 0; i < worldBVHs.size(); i++){
+            bvhQuery(worldBVHs[i], query, candidates); // get possible triangles to intersect
+    
+            for (auto& tri : candidates){
+                // closest tri to point
+                glm::vec3 closest = closestPointOnTriangle(camera_goal, tri);
+    
+                glm::vec3 triNormal = tri.getTriangleNormal();
 
-        for (auto& tri : candidates){
-            // closest tri to point
-            glm::vec3 closest = closestPointOnTriangle(camera.position, tri);
+                glm::vec3 diff = camera_goal - closest;
+                float dist = length(diff);
 
-            glm::vec3 diff = camera.position - closest;
-            float dist = glm::length(diff);
+                if (dist < playerRadius) {
+                    float push = playerRadius - dist;
 
-            if (dist < playerRadius){
-                float intersect_dist = playerRadius - dist;
-                glm::vec3 n = glm::normalize(diff);
-
-                // push player outwards
-                camera.position += n * intersect_dist;
+                    // empurra pela normal do tri, nao pelo diff
+                    camera_goal += triNormal * push;
+                }
             }
+            candidates.clear();
         }
         
         CLEAR_SCREEN;
@@ -255,7 +265,7 @@ int main() {
         glm::quat target_rot = recoil_q * base;
 
         gun.transform.rotation = glm::slerp(gun.transform.rotation, target_rot, 0.15f);
-        gun.transform.position = glm::mix(gun.transform.position, goal, 0.5f);
+        gun.transform.position = goal;
 
         for (int i = 0; i < bullets.size(); i++){
             float speed = 50.0f;

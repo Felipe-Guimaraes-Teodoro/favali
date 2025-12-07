@@ -13,6 +13,7 @@ typedef struct {
     mat4 view;
 
     vec3 position;
+
     vec3 front;
     vec3 right;
     vec3 up;

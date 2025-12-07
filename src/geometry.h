@@ -6,7 +6,10 @@ struct Ray; // forward declaration so there's no circular definition (raycast.h 
 
 struct MeshTriangle {
     glm::vec3 a, b, c;
+    
+    glm::vec3 getTriangleNormal();
 };
+
 
 struct AABB {
     glm::vec3 min;

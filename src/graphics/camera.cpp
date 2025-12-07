@@ -1,5 +1,6 @@
 #include "camera.h"
 
+
 void Camera::update() {
     if (pitch > 89.9) 
         pitch = 89.9;

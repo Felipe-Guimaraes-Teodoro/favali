@@ -2,6 +2,15 @@
 #include "raycast.h"
 #include "glm.hpp"
 
+glm::vec3 MeshTriangle::getTriangleNormal(){
+
+    glm::vec3 ab = b - a;
+    glm::vec3 ac = c - a;
+
+    return glm::normalize(glm::cross(ab, ac));
+}
+
+
 glm::vec3 closestPointOnTriangle(const glm::vec3& p, MeshTriangle tri) {
 
     glm::vec3 ab = tri.b - tri.a;
