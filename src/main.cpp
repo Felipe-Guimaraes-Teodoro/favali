@@ -84,22 +84,22 @@ void cameraMovement(bool lock_cursor, vec3& goal, Camera& camera, float sensitiv
     }
 
     if (state[SDL_SCANCODE_W]){
-        camera.position += camera.front * dt * speed;
+        goal += camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_S]){
-        camera.position -= camera.front * dt * speed;
+        goal -= camera.front * dt * speed;
     }
     if (state[SDL_SCANCODE_A]){
-        camera.position += camera.right * dt * speed;
+        goal += camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_D]){
-        camera.position -= camera.right * dt * speed;
+        goal -= camera.right * dt * speed;
     }
     if (state[SDL_SCANCODE_SPACE]){
-        camera.position.y += dt * speed;
+        goal.y += dt * speed;
     }
     if (state[SDL_SCANCODE_LCTRL]){
-        camera.position.y -= dt * speed;
+        goal.y -= dt * speed;
     }
 
     update_sod(cam_sod, dt, goal);
