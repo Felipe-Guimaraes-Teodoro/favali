@@ -11,6 +11,9 @@ add_executable(shenanigans
     src/BVH.cpp
     src/geometry.cpp
     src/raycast.cpp
+    src/player.cpp
+    src/sod.cpp
+    src/gun.cpp
 
     src/graphics/camera.cpp
     src/graphics/mesh.cpp

@@ -21,6 +21,8 @@ typedef struct {
     float roll, yaw, pitch;
 
     void update();
+
+    void mouse_view(bool lock_cursor, float dx, float dy, float sensitivity);
 } Camera;
 
 Camera create_camera(

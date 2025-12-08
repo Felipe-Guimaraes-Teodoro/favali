@@ -24,6 +24,14 @@ void Camera::update() {
     );
 }
 
+// TODO: omg please find a better name for this... camera panning? look_around? i dunno just come up with something 💀💀💀
+void Camera::mouse_view(bool lock_cursor, float dx, float dy, float sensitivity){
+    if (!lock_cursor) {
+        yaw += dx * sensitivity;
+        pitch += -dy * sensitivity;
+    }
+}
+
 Camera create_camera(
     vec3 pos,
     float fov,
