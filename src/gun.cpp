@@ -2,6 +2,7 @@
 #include "camera.h"
 #include "glm.hpp"
 #include <vector>
+#include <deque>
 
 void Gun::update(float dt, Camera& camera){
     last_shot += dt;
@@ -50,7 +51,7 @@ void Gun::update(float dt, Camera& camera){
 void Gun::draw(unsigned int program, Camera& camera){
     shape->draw(program, camera);
 
-    std::vector<int> dead_bullets;
+    std::deque<int> dead_bullets;
 
     for (int i = 0; i < bullets.size(); i++){
         if (bullets[i].lifetime > 0.){
@@ -60,11 +61,11 @@ void Gun::draw(unsigned int program, Camera& camera){
         }
     }
 
-    // TODO: Fix this because I dont know how to delete bullets in this engine!
-    // for (int k = dead_bullets.size() - 1; k >= 0; k--){ // go backwards so theres no index mishap
-    //     int idx = dead_bullets[k];
-    //     bullets.erase(bullets.begin() + idx);
-    // }
+    for (int k = dead_bullets.size() - 1; k >= 0; k--){ // go backwards so theres no index mishap
+        int idx = dead_bullets[k];
+        bullets.erase(bullets.begin() + idx);
+        dead_bullets.pop_front();
+    }
 }
 
 Gun make_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot){
@@ -74,6 +75,7 @@ Gun make_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bu
     g.cooldown = cooldown;
     g.spread = spread;
     g.bullets_per_shot = bullets_per_shot;
+    g.is_shooting = false;
 
     return g;
 }

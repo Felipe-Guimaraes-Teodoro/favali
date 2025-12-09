@@ -1,9 +1,13 @@
+#include <vector>
+#include <algorithm>
+#include <stdio.h>
+
 #include "player.h"
+#include "gizmos.h"
 #include "geometry.h"
 #include "sod.h"
+#include "raycast.h"
 #include "SDL3/SDL.h"
-#include <vector>
-#include <stdio.h>
 
 void PlayerCollider::update(float dt) {
     // im gonna be honest playercollider is pretty much just a wrapper for some variables at this point...
@@ -27,12 +31,6 @@ void Player::update(float dt, bool lock_cursor, float sensitivity, Camera& camer
     player_movement(dt, lock_cursor, sensitivity, camera);
     collider.update(dt);
     collider.center = position;
-
-    if (SDL_rand(100000) == 1){
-        for (int i = 0; i < INT_MAX; i++){
-            printf("7121 	萚 	U+841A 	tuò7122 	菥 	U+83E5 	xī7123 	莿 	U+83BF 	cì7124 	䓫 	U+44EB qí7125 	勚 	U+52DA 	yì7126 	䓬 	U+44EC 	zhuó7127 	萆 	U+8406 	bì7128 	菂 	U+83C2 	dì7129 	菍 	U+83CD 	niè7130 	菼 	U+83FC 	tǎn7131 	萣 	U+8423 	dìng7132 	䓨 	U+44E8 	yīng7133 	菉 	U+83C9 	lù7134 	䓛 	U+44DB 	qū7135 	梼 	U+68BC 	táo7136 	梽 	U+68BD 	zhì7137 	桲 	U+6872 	bó, po7138 	梾 	U+68BE 	lái7139 	桯 	U+686F 	tīng7140 	梣 	U+68A3 	chén, qín7141 	梌 	U+688C 	tú7142 	桹 	U+6879 	láng7143 	敔 	U+6554 	yǔ7144 	厣 	U+53A3 	yǎn7145 	硔 	U+7854 	gǒng7146 	鿎 	U+9FCE 	dá, tǎ7147 	硙 	U+7859 	wèi7148 	硚 	U+785A 	qiáo7149 	硊 	U+784A 	huì7150 	硍 	U+784D 	yín7151 	勔 	U+52D4 	miǎn7152 	䴕 	U+4D15 	liè7153 	龁 	U+9F81 	hé7154 	逴 	U+9034 	chuō7155 	唪 	U+552A 	fěng7156 	啫 	U+556B 	zhě7157 	翈 	U+7FC8 	xiá7158 	㫰 	U+3AF0 	làng7159 	晙 	U+6659 	jùn7160 	畤 	U+7564 	zhì7161 	𬱖 	U+2CC56 	dí7162 	趼 	U+8DBC 	jiǎn7163 	跂 	U+8DC2 	qí7164 	蛃 	U+86C3 	bǐng7165 	蚲 	U+86B2 	píng7166 	𬟽 	U+2C7FD 	dōng7167 	蚺 	U+86BA 	rán7168 	啴 	U+5574 	chǎn7169 	䎃 	U+4383 	rǎn7170 	崧 	U+5D27 	sōng7171 	崟 	U+5D1F 	yín7172 	崞 	U+5D1E 	guō7173 	崒 	U+5D12 	zú7174 	崌 	U+5D0C 	jū7175 	崡 	U+5D21 	hán7176 	铏 	U+94CF 	xíng7177 	𫓯 	U+2B4EF 	jī7178 	𫟹 	U+2B7F9 	hóng7179 	铕 	U+94D5 	yǒu7180 	𫟼 	U+2B7FC 	dá7181 	铖 	U+94D6 	chéng7182 	铘 	U+94D8 	yé7183 	铚 	U+94DA 	zhì7184 	铞 	U+94DE 	diào7185 	铥 	U+94E5 	diū7186 	铴 	U+94F4 	tāng7187 	牻 	U+727B 	máng7188 	牿 	U+727F 	gù7189 	稆 	U+7A06 	lǚ7190 	笱 	U+7B31 	gǒu7191 	笯 	U+7B2F 	nú7192 	偰 	U+5070 	xiè7193 	偡 	U+5061 	zhàn7194 	鸺 	U+9E3A 	xiū7195 	偭 	U+506D 	miǎn7196 	偲 	U+5072 	cāi7197 	偁 	U+5041 	chēng7198 	㿠 	U+3FE0 	huàng7199 	鄅 	U+9105 	yǔ7200 	偓 	U+5053 	wò7201 	徛 	U+5F9B 	jì7202 	衒 	U+8852 	xuàn7203 	舳 	U+8233 	zhú7204 	舲 	U+8232 	líng7205 	鸼 	U+9E3C 	zhōu7206 	悆 	U+6086 	yù7207 	鄃 	U+9103 	shū7208 	瓻 	U+74FB 	chī7209 	䝙 	U+4759 	chū7210 	脶 	U+8136 	luó7211 	脞 	U+811E 	cuǒ7212 	脟 	U+811F 	liè7213 	䏲 	U+43F2 	tī7214 	鱾 	U+9C7E 	jǐ7215 	猇 	U+7307 	xiāo7216 	猊 	U+730A 	ní7217 	猄 	U+7304 	jīng7218 	觖 	U+89D6 	jué7219 	𠅤 	U+20164 	xí7220 	庱 	U+5EB1 	chěng7221 	庼 	U+5EBC 	qǐng7222 	庳 	U+5EB3 	bì7223 	痓 	U+75D3 	chì7224 	䴔 	U+4D14 	jiāo7225 	竫 	U+7AEB 	jìng7226 	堃 	U+5803 	kūn7227 	阌 	U+960C 	wén7228 	羝 	U+7F9D 	dī7229 	羕 	U+7F95 	yàng7230 	焆 	U+7106 	juān7231 	烺 	U+70FA 	lǎng7232 	焌 	U+710C 	jùn, qū7233 	淏 	U+6DCF 	hào7234 	𬇹 	U+2C1F9 	guó7235 	淟 	U+6DDF 	tiǎn7236 	淜 	U+6DDC 	péng7237 	淴 	U+6DF4 	hū7238 	淯 	U+6DEF 	yù7239 	湴 	U+6E74 	bàn7240 	涴 	U+6DB4 	yuān7241 	𬍡 	U+2C361 	dàng7242 	㥄 	U+3944 	líng7243 	惛 	U+60DB 	hūn7244 	惔 	U+60D4 	tán7245 	悰 	U+60B0 	cóng7246 	惙 	U+60D9 	chuò7247 	寁 	U+5BC1 	zǎn7248 	逭 	U+902D 	huàn7249 	𬤇 	U+2C907 	yīn7250 	𫍯 	U+2B36F 	xián7251 	袼 	U+88BC 	gē7252 	裈 	U+88C8 	kūn7253 	祲 	U+7972 	jìn7254 	𬤊 	U+2C90A 	shì7255 	𫍲 	U+2B372 	xiǎo7256 	谞 	U+8C1E 	xū7257 	艴 	U+8274 	bó7258 	弸 	U+5F38 	péng7259 	弶 	U+5F36 	jiàng7260 	𬯎 	U+2CBCE 	tuí7261 	隃 	U+9683 	shù7262 	婞 	U+5A5E 	xìng7263 	娵 	U+5A35 	jū7264 	婼 	U+5A7C 	ruò7265 	媖 	U+5A96 	yīng7266 	婳 	U+5A73 	huà7267 	婍 	U+5A4D 	qǐ7268 	婌 	U+5A4C 	shú7269 	婫 	U+5A6B 	kūn7270 	婤 	U+5A64 	zhōu7271 	婘 	U+5A58 	quán7272 	婠 	U+5A60 	wān7273 	𬘬 	U+2C62C 	qiàn7274 	𬘭 	U+2C62D 	chēn7275 	𬴂 	U+2CD02 	fēi7276 	𫘦 	U+2B626 	táo7277 	绹 	U+7EF9 	táo7278 	𫟅 	U+2B7C5 	liáng7279 	𬘯 	U+2C62F 	zhǔn7280 	骕 	U+9A95 	sù7281 	𫘧 	U+2B627 	lù7282 	絜 	U+7D5C 	jié, xié7283 	珷 	U+73F7 	wǔ7284 	琲 	U+7432 	bèi7285 	琡 	U+7421 	chù7286 	琟 	U+741F 	wéi7287 	琔 	U+7414 	diàn7288 	琭 	U+742D 	lù7289 	堾 	U+583E 	chūn7290 	堼 	U+583C 	hèng7291 	揕 	U+63D5 	zhèn7292 	㙘 	U+3658 	yāo7293 	堧 	U+5827 	ruán7294 	喆 	U+5586 	zhé7295 	堨 	U+5828 	è7296 	塅 	U+5845 	duàn7297 	堠 	U+5820 	hòu7298 	絷 	U+7D77 	zhí7299 	𪣻 	U+2A8FB 	lóu7300 	𡎚 	U+2139A 	piǎn7301 	葜 	U+845C 	qiā7302 	惎 	U+60CE 	jì7303 	萳 	U+8433 	nán7304 	葙 	U+8459 	xiāng7305 	靬 	U+976C 	qián7306 	葴 	U+8474 	zhēn7307 	蒇 	U+8487 	chǎn7308 	蒈 	U+8488 	kǎi7309 	鄚 	U+911A 	mào7310 	蒉 	U+8489 	kuì7311 	蓇 	U+84C7 	gū7312 	萩 	U+8429 	qiū7313 	蒐 	U+8490 	sōu7314 	葰 	U+8470 	jùn, suǒ7315 	葎 	U+844E 	lǜ7316 	鄑 	U+9111 	zī7317 	蒎 	U+848E 	pài7318 	葖 	U+8456 	tū7319 	蒄 	U+8484 	guān7320 	萹 	U+8439 	biān7321 	棤 	U+68E4 	cuò7322 	棽 	U+68FD 	chēn, shēn7323 	棫 	U+68EB 	yù7324 	椓 	U+6913 	zhuó7325 	椑 	U+6911 	bēi7326 	𬃊 	U+2C0CA 	zhì7327 	鹀 	U+9E40 	wú7328 	椆 	U+6906 	chóu7329 	棓 	U+68D3 	bèi7330 	棬 	U+68EC 	quān7331 	棪 	U+68EA 	yǎn7332 	椀 	U+6900 	wǎn7333 	楗 	U+6957 	jiàn7334 	𬷕 	U+2CDD5 	bǔ7335 	甦 	U+7526 	sū7336 	酦 	U+9166 	pō7337 	觌 	U+89CC 	dí7338 	奡 	U+5961 	ào7339 	皕 	U+7695 	bì7340 	硪 	U+786A 	wò7341 	欹 	U+6B39 	qī7342 	詟 	U+8A5F 	zhé7343 	𫐐 	U+2B410 	ní7344 	辌 	U+8F8C 	liáng7345 	棐 	U+68D0 	fěi7346 	龂 	U+9F82 	yín7347 	𬹼 	U+2CE7C 	xiè7348 	黹 	U+9EF9 	zhǐ7349 	牚 	U+725A 	chèng7350 	睎 	U+774E 	xī7351 	晫 	U+666B 	zhuó7352 	晪 	U+666A 	tiǎn7353 	晱 	U+6671 	shǎn7354 	𧿹 	U+27FF9 	mǔ7355 	蛑 	U+86D1 	móu7356 	畯 	U+756F 	jùn7357 	斝 	U+659D 	jiǎ7358 	喤 	U+55A4 	huáng7359 	崶 	U+5D36 	fēng7360 	嵁 	U+5D41 	kān7361 	𫶇 	U+2BD87 	dié7362 	崾 	U+5D3E 	yào7363 	嵅 	U+5D45 	hán7364 	崿 	U+5D3F 	è7365 	嵚 	U+5D5A 	qīn7366 	翙 	U+7FD9 	huì7367 	𫖮 	U+2B5AE 	yǐ7368 	圌 	U+570C 	chuí7369 	圐 	U+5710 	kū7370 	赑 	U+8D51 	bì7371 	淼 	U+6DFC 	miǎo7372 	赒 	U+8D52 	zhōu7373 	鿏 	U+9FCF 	mài7374 	铹 	U+94F9 	láo7375 	𬭊 	U+2CB4A 	dù7376 	铽 	U+94FD 	tè7377 	𨱇 	U+28C47 	qiú7378 	𫓶 	U+2B4F6 	xuān7379 	锊 	U+950A 	lüè7380 	锍 	U+950D 	liǔ7381 	锎 	U+950E 	kāi7382 	𬭎 	U+2CB4E 	hóng7383 	锓 	U+9513 	qǐn7384 	犇 	U+7287 	bēn7385 	颋 	U+988B 	tǐng7386 	稌 	U+7A0C 	tú7387 	筀 	U+7B40 	guì7388 	筘 	U+7B58 	kòu7389 	筜 	U+7B5C 	dāng7390 	筥 	U+7B65 	jǔ7391 	筅 	U+7B45 	xiǎn7392 	傃 	U+5083 	sù7393 	傉 	U+5089 	nù7394 	翛 	U+7FDB 	xiāo7395 	傒 	U+5092 	xī7396 	傕 	U+5095 	jué7397 	舾 	U+823E 	xī7398 	畬 	U+756C 	yú7399 	𫖯 	U+2B5AF 	fǔ7400 	脿 	U+813F 	biǎo7401 	腘 	U+8158 	guó7402 	䐃 	U+4403 	jùn7403 	腙 	U+8159 	zōng7404 	腒 	U+8152 	jū7405 	𬱟 	U+2CC5F 	wěi7406 	鲃 	U+9C83 	bā7407 	猰 	U+7330 	yà7408 	𫛭 	U+2B6ED 	kuáng7409 	猯 	U+732F 	tuān7410 	㺄 	U+3E84 	yǔ7411 	馉 	U+9989 	gǔ7412 	凓 	U+51D3 	lì7413 	鄗 	U+9117 	hào7414 	𫷷 	U+2BDF7 	xīn7415 	廋 	U+5ECB 	sōu7416 	廆 	U+5EC6 	wěi7417 	鄌 	U+910C 	táng7418 	粢 	U+7CA2 	zī7419 	遆 	U+9046 	tí7420 	旐 	U+65D0 	zhào7421 	𬮱 	U+2CBB1 	yīn7422 	焞 	U+711E 	tūn7423 	𬊤 	U+2C2A4 	chǎn7424 	欻 	U+6B3B 	xū7425 	𣸣 	U+23E23 	fén7426 	溚 	U+6E9A 	dá7427 	溁 	U+6E81 	yíng7428 	湝 	U+6E5D 	jiē7429 	渰 	U+6E30 	yǎn7430 	湓 	U+6E53 	pén7431 	㴔 	U+3D14 	jí7432 	渟 	U+6E1F 	tíng7433 	溠 	U+6EA0 	zhà7434 	渼 	U+6E3C 	měi7435 	溇 	U+6E87 	lóu7436 	湣 	U+6E63 	mǐn7437 	湑 	U+6E51 	xù7438 	溞 	U+6E9E 	sāo7439 	愐 	U+6110 	miǎn7440 	愃 	U+6103 	xuān7441 	敩 	U+6569 	xiào7442 	甯 	U+752F 	nìng7443 	棨 	U+68E8 	qǐ7444 	扊 	U+624A 	yǎn7445 	裣 	U+88E3 	liǎn7446 	祼 	U+797C 	guàn7447 	婻 	U+5A7B 	nàn7448 	媆 	U+5A86 	ruǎn7449 	媞 	U+5A9E 	shì7450 	㛹 	U+36F9 	pián7451 	媓 	U+5A93 	huáng7452 	媂 	U+5A82 	dì7453 	媄 	U+5A84 	měi7454 	毵 	U+6BF5 	sān7455 	矞 	U+77DE 	yù7456 	𬴃 	U+2CD03 	huō7457 	𫘨 	U+2B628 	tí7458 	缊 	U+7F0A 	yùn7459 	缐 	U+7F10 	xiàn7460 	骙 	U+9A99 	kuí7461 	瑃 	U+7443 	chūn7462 	瑓 	U+7453 	liàn7463 	瑅 	U+7445 	tí7464 	瑆 	U+7446 	xīng7465 	䴖 	U+4D16 	jīng7466 	瑖 	U+7456 	duàn7467 	瑝 	U+745D 	huáng7468 	瑔 	U+7454 	quán7469 	瑀 	U+7440 	yǔ7470 	𤧛 	U+249DB 	dì7471 	瑳 	U+7473 	cuō7472 	瑂 	U+7442 	méi7473 	嶅 	U+5D85 	áo7474 	瑑 	U+7451 	zhuàn7475 	遘 	U+9058 	gòu7476 	髢 	U+9AE2 	dí7477 	塥 	U+5865 	gé7478 	堽 	U+583D 	gāng7479 	赪 	U+8D6A 	chēng7480 	摛 	U+645B 	chī7481 	塝 	U+585D 	bàng7482 	搒 	U+6412 	bàng, péng7483 	搌 	U+640C 	zhǎn7484 	蒱 	U+84B1 	pú7485 	蒨 	U+84A8 	qiàn7486 	蓏 	U+84CF 	luǒ7487 	蔀 	U+8500 	bù7488 	蓢 	U+84E2 	lǎng7489 	蓂 	U+84C2 	mì7490 	蒻 	U+84BB 	ruò7491 	蓣 	U+84E3 	yù7492 	椹 	U+6939 	shèn7493 	楪 	U+696A 	dié7494 	榃 	U+6983 	tán7495 	榅 	U+6985 	wēn7496 	楒 	U+6952 	sī7497 	楞 	U+695E 	léng7498 	楩 	U+6969 	pián7499 	榇 	U+6987 	chèn7500 	椸 	U+6938 	yí7501 	楙 	U+6959 	mào7502 	歅 	U+6B45 	yīn7503 	𬪩 	U+2CAA9 	nóng7504 	碃 	U+7883 	qìng7505 	碏 	U+788F 	què7506 	𬒔 	U+2C494 	gěng7507 	碈 	U+7888 	hūn7508 	䃅 	U+40C5 	dī7509 	硿 	U+787F 	kòng7510 	鄠 	U+9120 	hù7511 	辒 	U+8F92 	wēn7512 	𬨎 	U+2CA0E 	yóu7513 	𫐓 	U+2B413 	róu7514 	龆 	U+9F86 	tiáo7515 	觜 	U+89DC 	zī7516 	䣘 	U+48D8 	táng7517 	暕 	U+6695 	jiǎn7518 	鹍 	U+9E4D 	kūn7519 	𫫇 	U+2BAC7 	è7520 	㬊 	U+3B0A 	huǎn7521 	暅 	U+6685 	gèng7522 	跱 	U+8DF1 	zhì7523 	蜐 	U+8710 	jié7524 	蜎 	U+870E 	yuān7525 	嵲 	U+5D72 	niè7526 	赗 	U+8D57 	fèng7527 	骱 	U+9AB1 	jiè7528 	锖 	U+9516 	qiāng7529 	𫓹 	U+2B4F9 	jī7530 	锘 	U+9518 	nuò7531 	锳 	U+9533 	yīng7532 	锧 	U+9527 	zhì7533 	锪 	U+952A 	huō7534 	𬭚 	U+2CB5A 	chún7535 	锫 	U+952B 	péi7536 	锬 	U+952C 	tán7537 	𬭛 	U+2CB5B 	bō7538 	稑 	U+7A11 	lù7539 	稙 	U+7A19 	zhī7540 	䅟 	U+415F 	cǎn7541 	𬕂 	U+2C542 	lǒng7542 	筻 	U+7B7B 	gàng7543 	筼 	U+7B7C 	yún7544 	筶 	U+7B76 	gào7545 	筦 	U+7B66 	guǎn7546 	筤 	U+7B64 	láng7547 	傺 	U+50BA 	chì7548 	鹎 	U+9E4E 	bēi7549 	僇 	U+50C7 	lù7550 	艅 	U+8245 	yú7551 	艉 	U+8249 	wěi7552 	谼 	U+8C3C 	hóng7553 	貆 	U+8C86 	huán7554 	腽 	U+817D 	wà7555 	腨 	U+8168 	shuàn7556 	腯 	U+816F 	tú7557 	鲉 	U+9C89 	yóu7558 	鲊 	U+9C8A 	zhǎ7559 	鲌 	U+9C8C 	bó7560 	䲟 	U+4C9F 	yìn7561 	𬶋 	U+2CD8B 	jū7562 	𬶍 	U+2CD8D 	tuó7563 	鲏 	U+9C8F 	pí7564 	雊 	U+96CA 	gòu7565 	猺 	U+733A 	yáo7566 	飔 	U+98D4 	sī7567 	觟 	U+89DF 	huà7568 	𦝼 	U+2677C 	lóu, lǘ7569 	馌 	U+998C 	yè7570 	裛 	U+88DB 	yì7571 	廒 	U+5ED2 	áo7572 	瘀 	U+7600 	yū7573 	瘅 	U+7605 	dān, dàn7574 	鄘 	U+9118 	yōng7575 	鹒 	U+9E52 	gēng7576 	鄜 	U+911C 	fū7577 	麀 	U+9E80 	yōu7578 	鄣 	U+9123 	zhāng7579 	阘 	U+9618 	tà7580 	𫔶 	U+2B536 	niè7581 	煁 	U+7141 	chén7582 	煃 	U+7143 	kuǐ7583 	煴 	U+7174 	yūn7584 	煋 	U+714B 	xīng7585 	煟 	U+715F 	wèi7586 	煓 	U+7153 	tuān7587 	滠 	U+6EE0 	shè7588 	溍 	U+6E8D 	jìn7589 	溹 	U+6EB9 	suǒ7590 	滆 	U+6EC6 	gé7591 	滉 	U+6EC9 	huàng7592 	溦 	U+6EA6 	wēi7593 	溵 	U+6EB5 	yīn7594 	漷 	U+6F37 	huǒ7595 	滧 	U+6EE7 	xiào7596 	滘 	U+6ED8 	jiào7597 	滍 	U+6ECD 	zhì7598 	愭 	U+612D 	qí7599 	慥 	U+6165 	zào7600 	慆 	U+6146 	tāo7601 	塱 	U+5871 	lǎng7602 	𫌀 	U+2B300 	jī7603 	裼 	U+88FC 	tì, xī7604 	禋 	U+798B 	yīn7605 	禔 	U+7994 	zhī7606 	禘 	U+7998 	dì7607 	禒 	U+7992 	xiǎn7608 	谫 	U+8C2B 	jiǎn7609 	鹔 	U+9E54 	sù7610 	𫖳 	U+2B5B3 	yūn7611 	愍 	U+610D 	mǐn7612 	嫄 	U+5AC4 	yuán7613 	媱 	U+5AB1 	yáo7614 	戤 	U+6224 	gài7615 	勠 	U+52E0 	lù7616 	戣 	U+6223 	kuí7617 	𫘪 	U+2B62A 	yuán7618 	𫘬 	U+2B62C 	xí7619 	缞 	U+7F1E 	cuī7620 	耤 	U+8024 	jí7621 	瑧 	U+7467 	zhēn7622 	𫞩 	U+2B7A9 	mén7623 	瑨 	U+7468 	jìn7624 	瑱 	U+7471 	tiàn7625 	瑷 	U+7477 	ài7626 	瑢 	U+7462 	róng7627 	斠 	U+65A0 	jiào7628 	摏 	U+644F 	chōng7629 	墕 	U+5895 	yān7630 	墈 	U+5888 	kàn7631 	墐 	U+5890 	jìn7632 	墘 	U+5898 	qián7633 	摴 	U+6474 	chū7634 	銎 	U+928E 	qióng7635 	𡐓 	U+21413 	kāng7636 	墚 	U+589A 	liáng7637 	撖 	U+6496 	hàn7638 	𪤗 	U+2A917 	liào7639 	靽 	U+977D 	bàn7640 	鞁 	U+9781 	bèi7641 	蔌 	U+850C 	sù7642 	蔈 	U+8508 	piào7643 	蓰 	U+84F0 	xǐ7644 	蔹 	U+8539 	liǎn7645 	蔊 	U+850A 	hǎn, hàn7646 	嘏 	U+560F 	gǔ7647 	榰 	U+69B0 	zhī7648 	榑 	U+6991 	fú7649 	槚 	U+69DA 	jiǎ7650 	𣗋 	U+235CB 	dǎng7651 	槜 	U+69DC 	zuì7652 	榍 	U+698D 	xiè7653 	疐 	U+7590 	zhì7654 	𬸘 	U+2CE18 	yǎn7655 	酺 	U+917A 	pú7656 	酾 	U+917E 	shī7657 	酲 	U+9172 	chéng7658 	酴 	U+9174 	tú7659 	碶 	U+78B6 	qì7660 	䃎 	U+40CE 	zhà7661 	𬒗 	U+2C497 	lán7662 	碨 	U+78A8 	wèi7663 	𥔲 	U+25532 	è7664 	碹 	U+78B9 	xuàn7665 	碥 	U+78A5 	biǎn7666 	劂 	U+5282 	jué7667 	𫚖 	U+2B696 	cǐ7668 	䴗 	U+4D17 	jú7669 	夥 	U+5925 	huǒ7670 	瞍 	U+778D 	sǒu7671 	鹖 	U+9E56 	hé7672 	㬎 	U+3B0E 	xiǎn7673 	跽 	U+8DFD 	jì7674 	蜾 	U+873E 	guǒ7675 	幖 	U+5E56 	biāo7676 	嶍 	U+5D8D 	xí7677 	圙 	U+5719 	lüè7678 	𨱏 	U+28C4F 	dā7679 	锺 	U+953A 	zhōng7680 	锼 	U+953C 	sōu7681 	锽 	U+953D 	huáng7682 	𬭤 	U+2CB64 	hóu7683 	锾 	U+953E 	huán7684 	锿 	U+953F 	āi7685 	镃 	U+9543 	zī7686 	镄 	U+9544 	fèi7687 	镅 	U+9545 	méi7688 	馝 	U+999D 	bì7689 	鹙 	U+9E59 	qiū7690 	箨 	U+7BA8 	tuò7691 	箖 	U+7B96 	lín7692 	劄 	U+5284 	zhá7693 	僬 	U+50EC 	jiāo7694 	僦 	U+50E6 	jiù7695 	僔 	U+50D4 	zǔn7696 	僎 	U+50CE 	zhuàn7697 	槃 	U+69C3 	pán7698 	㙦 	U+3666 	xié7699 	鲒 	U+9C92 	jié7700 	鲕 	U+9C95 	ér7701 	𫚕 	U+2B695 	shī7702 	鲖 	U+9C96 	tóng7703 	鲗 	U+9C97 	zéi7704 	鲘 	U+9C98 	hòu7705 	鲙 	U+9C99 	kuài7706 	𬶐 	U+2CD90 	zhào7707 	𬶏 	U+2CD8F 	wéi7708 	𩽾 	U+29F7E 	ān7709 	夐 	U+5910 	xiòng7710 	獍 	U+734D 	jìng7711 	飗 	U+98D7 	liú7712 	𬸚 	U+2CE1A 	yuè7713 	凘 	U+51D8 	sī7714 	廑 	U+5ED1 	jǐn7715 	廙 	U+5ED9 	yì7716 	瘗 	U+7617 	yì7717 	瘥 	U+7625 	chài7718 	瘕 	U+7615 	jiǎ7719 	鲝 	U+9C9D 	zhǎ7720 	鄫 	U+912B 	zēng7721 	熇 	U+7187 	hè7722 	漹 	U+6F39 	yān7723 	漖 	U+6F16 	jiào7724 	潆 	U+6F46 	yíng7725 	漤 	U+6F24 	lǎn7726 	潩 	U+6F69 	yì7727 	漼 	U+6F3C 	cuǐ7728 	漴 	U+6F34 	chóng, shuāng7729 	㽏 	U+3F4F 	gàn7730 	漈 	U+6F08 	jì7731 	漋 	U+6F0B 	lóng7732 	漻 	U+6F3B 	liáo7733 	慬 	U+616C 	qín7734 	窬 	U+7AAC 	yú7735 	窭 	U+7AAD 	jù7736 	㮾 	U+3BBE 	lǎng7737 	𬤝 	U+2C91D 	huì7738 	褕 	U+8915 	yú7739 	禛 	U+799B 	zhēn7740 	禚 	U+799A 	zhuó7741 	隩 	U+96A9 	ào7742 	嫕 	U+5AD5 	yì7743 	嫭 	U+5AED 	hù7744 	嫜 	U+5ADC 	zhāng7745 	嫪 	U+5AEA 	lào7746 	𬙂 	U+2C642 	yǎn7747 	㻬 	U+3EEC 	tū7748 	麹 	U+9EB9 	qū7749 	璆 	U+7486 	qiú7750 	漦 	U+6F26 	chí7751 	叇 	U+53C7 	dài7752 	墣 	U+58A3 	pú7753 	墦 	U+58A6 	fán7754 	墡 	U+58A1 	shàn7755 	劐 	U+5290 	huō7756 	薁 	U+8581 	ào7757 	蕰 	U+8570 	wēn7758 	蔃 	U+8503 	qiáng7759 	鼒 	U+9F12 	zī7760 	槱 	U+69F1 	yǒu7761 	鹝 	U+9E5D 	yì7762 	磏 	U+78CF 	qiān7763 	磉 	U+78C9 	sǎng7764 	殣 	U+6BA3 	jìn7765 	慭 	U+616D 	yìn7766 	霅 	U+9705 	zhà7767 	暵 	U+66B5 	hàn7768 	暲 	U+66B2 	zhāng7769 	暶 	U+66B6 	xuán7770 	踦 	U+8E26 	yǐ7771 	踣 	U+8E23 	bó7772 	䗖 	U+45D6 	dì7773 	蝘 	U+8758 	yǎn7774 	蝲 	U+8772 	là7775 	蝤 	U+8764 	qiú, yóu7776 	噇 	U+5647 	chuáng7777 	噂 	U+5642 	zǔn7778 	噀 	U+5640 	xùn7779 	罶 	U+7F76 	liǔ7780 	嶲 	U+5DB2 	xī7781 	嶓 	U+5D93 	bō7782 	㠇 	U+3807 	jiù7783 	嶟 	U+5D9F 	zūn7784 	嶒 	U+5D92 	céng7785 	镆 	U+9546 	mò7786 	镈 	U+9548 	bó7787 	镋 	U+954B 	tǎng7788 	镎 	U+954E 	ná7789 	𬭩 	U+2CB69 	wēng7790 	镕 	U+9555 	róng7791 	稹 	U+7A39 	zhěn7792 	儇 	U+5107 	xuān7793 	皞 	U+769E 	hào7794 	皛 	U+769B 	xiǎo7795 	䴘 	U+4D18 	tī7796 	艎 	U+824E 	huáng7797 	艏 	U+824F 	shǒu7798 	鹟 	U+9E5F 	wēng7799 	𩾃 	U+29F83 	miǎn7800 	鲦 	U+9CA6 	tiáo7801 	鲪 	U+9CAA 	jūn7802 	鲬 	U+9CAC 	yǒng7803 	橥 	U+6A65 	zhū7804 	觭 	U+89ED 	jī7805 	鹠 	U+9E60 	liú7806 	鹡 	U+9E61 	jí7807 	糇 	U+7CC7 	hóu7808 	糈 	U+7CC8 	xǔ7809 	翦 	U+7FE6 	jiǎn7810 	鹢 	U+9E62 	yì7811 	鹣 	U+9E63 	jiān7812 	熛 	U+719B 	biāo7813 	潖 	U+6F56 	pá7814 	潵 	U+6F75 	sǎ7815 	㵐 	U+3D50 	jué7816 	澂 	U+6F82 	chéng7817 	澛 	U+6F9B 	lǔ7818 	瑬 	U+746C 	liú7819 	潽 	U+6F7D 	pū7820 	潾 	U+6F7E 	lín7821 	潏 	U+6F4F 	yù7822 	憭 	U+61AD 	liǎo7823 	憕 	U+6195 	chéng7824 	𬸣 	U+2CE23 	xiān7825 	戭 	U+622D 	yǎn7826 	褯 	U+892F 	jiè7827 	禤 	U+79A4 	xuān7828 	𫍽 	U+2B37D 	xuān7829 	嫽 	U+5AFD 	liáo7830 	遹 	U+9079 	yù7831 	𬴊 	U+2CD0A 	lín7832 	璥 	U+74A5 	jǐng7833 	璲 	U+74B2 	suì7834 	璒 	U+7492 	dēng7835 	憙 	U+6199 	xǐ7836 	擐 	U+64D0 	huàn7837 	鄹 	U+9139 	zōu7838 	薳 	U+85B3 	wěi7839 	鞔 	U+9794 	mán7840 	黇 	U+9EC7 	tiān7841 	𬞟 	U+2C79F 	pín7842 	蕗 	U+8557 	lù7843 	薢 	U+85A2 	xiè7844 	蕹 	U+8579 	wèng7845 	橞 	U+6A5E 	huì7846 	橑 	U+6A51 	liáo7847 	橦 	U+6A66 	tóng7848 	醑 	U+9191 	xǔ7849 	觱 	U+89F1 	bì7850 	磡 	U+78E1 	kàn7851 	𥕢 	U+25562 	cáo7852 	磜 	U+78DC 	qì7853 	豮 	U+8C6E 	fén7854 	𫟦 	U+2B7E6 	suì7855 	𬺈 	U+2CE88 	yǐ7856 	𫠜 	U+2B81C 	ní7857 	鹾 	U+9E7E 	cuó7858 	虤 	U+8664 	yán7859 	暿 	U+66BF 	xī7860 	曌 	U+66CC 	zhào7861 	曈 	U+66C8 	tóng7862 	㬚 	U+3B1A 	chè7863 	蹅 	U+8E45 	chǎ7864 	踶 	U+8E36 	dì7865 	䗛 	U+45DB 	xiū7866 	螗 	U+8797 	táng7867 	疁 	U+7581 	liú7868 	㠓 	U+3813 	méng7869 	幪 	U+5E6A 	méng7870 	𪩘 	U+2AA58 	yǎn7871 	嶦 	U+5DA6 	shàn7872 	𬭬 	U+2CB6C 	huì7873 	𨱑 	U+28C51 	huáng7874 	𬭯 	U+2CB6F 	piě7875 	馞 	U+999E 	bó7876 	穄 	U+7A44 	jì7877 	篚 	U+7BDA 	fěi7878 	篯 	U+7BEF 	jiān7879 	簉 	U+7C09 	zào7880 	鼽 	U+9F3D 	qiú7881 	衠 	U+8860 	zhūn7882 	盦 	U+76E6 	ān7883 	螣 	U+87A3 	téng7884 	縢 	U+7E22 	téng7885 	鲭 	U+9CAD 	qīng7886 	鲯 	U+9CAF 	qí7887 	鲰 	U+9CB0 	zōu7888 	鲺 	U+9CBA 	shī7889 	鲹 	U+9CB9 	shēn7890 	𫗴 	U+2B5F4 	zhān7891 	亸 	U+4EB8 	duǒ7892 	癀 	U+7640 	huáng7893 	瘭 	U+762D 	biāo7894 	𬸦 	U+2CE26 	zhuó7895 	羱 	U+7FB1 	yuán7896 	糒 	U+7CD2 	bèi7897 	燋 	U+71CB 	jiāo7898 	熻 	U+71BB 	xī7899 	燊 	U+71CA 	shēn7900 	燚 	U+71DA 	yì7901 	燏 	U+71CF 	yù7902 	濩 	U+6FE9 	huò7903 	濋 	U+6FCB 	chǔ7904 	澪 	U+6FAA 	líng7905 	澽 	U+6FBD 	jù7906 	澴 	U+6FB4 	huán7907 	澭 	U+6FAD 	yōng7908 	澼 	U+6FBC 	pì7909 	憷 	U+61B7 	chù7910 	憺 	U+61BA 	dàn7911 	懔 	U+61D4 	lǐn7912 	黉 	U+9EC9 	hóng7913 	嬛 	U+5B1B 	xuān7914 	鹨 	U+9E68 	liù7915 	翯 	U+7FEF 	hè7916 	𫄷 	U+2B137 	yì7917 	璱 	U+74B1 	sè7918 	𤩽 	U+24A7D 	huán7919 	璬 	U+74AC 	jiǎo7920 	璮 	U+74AE 	tǎn7921 	髽 	U+9AFD 	zhuā7922 	擿 	U+64FF 	tī7923 	薿 	U+85BF 	nǐ7924 	薸 	U+85B8 	piáo7925 	檑 	U+6A91 	léi7926 	櫆 	U+6AC6 	kuí7927 	檞 	U+6A9E 	jiě7928 	醨 	U+91A8 	lí7929 	繄 	U+7E44 	yī7930 	磹 	U+78F9 	tán7931 	磻 	U+78FB 	pán7932 	瞫 	U+77AB 	shěn7933 	瞵 	U+77B5 	lín7934 	蹐 	U+8E50 	jí7935 	蟏 	U+87CF 	xiāo7936 	㘎 	U+360E 	hǎn7937 	𬭳 	U+2CB73 	xǐ7938 	镤 	U+9564 	pú7939 	𬭶 	U+2CB76 	hēi7940 	𫔍 	U+2B50D 	fán7941 	镥 	U+9565 	lǔ7942 	镨 	U+9568 	pǔ7943 	𬭸 	U+2CB78 	lín7944 	𨱔 	U+28C54 	zūn7945 	𬭼 	U+2CB7C 	suì7946 	𫔎 	U+2B50E 	jué7947 	矰 	U+77F0 	zēng7948 	穙 	U+7A59 	pú7949 	穜 	U+7A5C 	tóng7950 	穟 	U+7A5F 	suì7951 	簕 	U+7C15 	lè7952 	簃 	U+7C03 	yí7953 	簏 	U+7C0F 	lù7954 	儦 	U+5126 	biāo7955 	魋 	U+9B4B 	tuí7956 	斶 	U+65B6 	chù7957 	艚 	U+825A 	cáo7958 	𬸪 	U+2CE2A 	fán7959 	谿 	U+8C3F 	xī7960 	䲠 	U+4CA0 	chūn7961 	𬶟 	U+2CD9F 	là7962 	鲾 	U+9CBE 	bī7963 	𬶠 	U+2CDA0 	liàn7964 	鲿 	U+9CBF 	cháng7965 	鳁 	U+9CC1 	wēn7966 	鳂 	U+9CC2 	wēi7967 	鳈 	U+9CC8 	quán7968 	鳉 	U+9CC9 	jiāng7969 	獯 	U+736F 	xūn7970 	䗪 	U+45EA 	zhè7971 	馘 	U+9998 	guó7972 	襕 	U+8955 	lán7973 	襚 	U+895A 	suì7974 	𬶨 	U+2CDA8 	jì7975 	螱 	U+87B1 	wèi7976 	甓 	U+7513 	pì7977 	嬬 	U+5B2C 	rú7978 	嬥 	U+5B25 	tiǎo7979 	𦈡 	U+26221 	xū7980 	𫄸 	U+2B138 	xūn7981 	瓀 	U+74C0 	ruǎn7982 	釐 	U+91D0 	xī7983 	鬶 	U+9B36 	guī7984 	爇 	U+7207 	ruò7985 	鞳 	U+97B3 	tà7986 	鞮 	U+97AE 	dī7987 	𬟁 	U+2C7C1 	yì7988 	藟 	U+85DF 	lěi7989 	藦 	U+85E6 	mó7990 	藨 	U+85E8 	biāo7991 	鹲 	U+9E72 	méng7992 	檫 	U+6AAB 	chá7993 	黡 	U+9EE1 	yǎn7994 	礞 	U+791E 	méng7995 	礌 	U+790C 	léi7996 	𥖨 	U+255A8 	zào7997 	蹢 	U+8E62 	dí7998 	蹜 	U+8E5C 	sù7999 	蟫 	U+87EB 	yín8000 	䗴 	U+45F4 	tíng8001 	嚚 	U+569A 	yín8002 	髃 	U+9AC3 	yú8003 	镮 	U+956E 	huán8004 	镱 	U+9571 	yì8005 	酂 	U+9142 	zàn8006 	馧 	U+99A7 	yūn8007 	簠 	U+7C20 	fǔ8008 	簝 	U+7C1D 	liáo8009 	簰 	U+7C30 	pái8010 	鼫 	U+9F2B 	shí8011 	鼩 	U+9F29 	qú8012 	皦 	U+76A6 	jiǎo8013 	臑 	U+81D1 	nào8014 	䲢 	U+4CA2 	téng8015 	鳑 	U+9CD1 	páng8016 	鳒 	U+9CD2 	jiān8017 	鹱 	U+9E71 	hù8018 	鹯 	U+9E6F 	zhān8019 	癗 	U+7657 	lěi8020 	𦒍 	U+2648D 	tóng8021 	旞 	U+65DE 	suì8022 	翷 	U+7FF7 	lín8023 	冁 	U+5181 	chǎn8024 	䎖 	U+4396 	zēng8025 	瀔 	U+7014 	gǔ8026 	瀍 	U+700D 	chán8027 	瀌 	U+700C 	biāo8028 	襜 	U+895C 	chān8029 	䴙 	U+4D19 	pì8030 	𬙊 	U+2C64A 	mò8031 	嚭 	U+56AD 	pǐ8032 	㰀 	U+3C00 	lí8033 	鬷 	U+9B37 	zōng8034 	醭 	U+91AD 	bú8035 	蹯 	U+8E6F 	fán8036 	蠋 	U+880B 	zhú8037 	翾 	U+7FFE 	xuān8038 	鳘 	U+9CD8 	mǐn8039 	儳 	U+5133 	chán8040 	儴 	U+5134 	ráng8041 	鼗 	U+9F17 	táo8042 	𬶭 	U+2CDAD 	jì8043 	𩾌 	U+29F8C 	kāng8044 	鳚 	U+9CDA 	wèi8045 	鳛 	U+9CDB 	xí8046 	麑 	U+9E91 	ní8047 	麖 	U+9E96 	jīng8048 	蠃 	U+8803 	luǒ8049 	彟 	U+5F5F 	yuē8050 	嬿 	U+5B3F 	yàn8051 	鬒 	U+9B12 	zhěn8052 	蘘 	U+8618 	ráng8053 	欂 	U+6B02 	bó8054 	醵 	U+91B5 	jù8055 	颥 	U+98A5 	rú8056 	甗 	U+7517 	yǎn8057 	𨟠 	U+287E0 	quān8058 	巇 	U+5DC7 	xī8059 	酅 	U+9145 	xī8060 	髎 	U+9ACE 	liáo8061 	犨 	U+72A8 	chōu8062 	𬶮 	U+2CDAE 	xǐ8063 	𨭉 	U+28B49 	bān8064 	㸌 	U+3E0C 	huò8065 	爔 	U+7214 	xī8066 	瀱 	U+7031 	jì8067 	瀹 	U+7039 	yuè8068 	瀼 	U+703C 	ráng, ràng8069 	瀵 	U+7035 	fèn8070 	襫 	U+896B 	shì8071 	孅 	U+5B45 	xiān8072 	骦 	U+9AA6 	shuāng8073 	𬙋 	U+2C64B 	xiāng8074 	耰 	U+8030 	yōu8075 	𤫉 	U+24AC9 	xiè8076 	瓖 	U+74D6 	xiāng8077 	鬘 	U+9B18 	mán8078 	趯 	U+8DAF 	tì8079 	𬺓 	U+2CE93 	chǔ8080 	罍 	U+7F4D 	léi8081 	鼱 	U+9F31 	jīng8082 	鳠 	U+9CE0 	hù8083 	鳡 	U+9CE1 	gǎn8084 	鳣 	U+9CE3 	zhān8085 	爟 	U+721F 	guàn8086 	爚 	U+721A 	yuè8087 	灈 	U+7048 	qú8088 	韂 	U+97C2 	chàn8089 	糵 	U+7CF5 	niè8090 	蘼 	U+863C 	mí8091 	礵 	U+7935 	shuāng8092 	鹴 	U+9E74 	shuāng8093 	躔 	U+8E94 	chán8094 	皭 	U+76AD 	jiào8095 	龢 	U+9FA2 	hé8096 	鳤 	U+9CE4 	guǎn8097 	亹 	U+4EB9 	wěi8098 	籥 	U+7C65 	yuè8099 	鼷 	U+9F37 	xī8100 	𫚭 	U+2B6AD 	liè8101 	玃 	U+7383 	jué8102 	醾 	U+91BE 	mí8103 	齇 	U+9F47 	zhā8104 	觿 	U+89FF 	xī8105 	蠼 	U+883C 	qú ");
-        }
-    }
 }
 
 void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
@@ -44,11 +42,13 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
     for (int i = 0; i < worldBVHs.size(); i++){
         bvhQuery(worldBVHs[i], query, candidates); // get possible triangles to intersect
 
-        for (auto& tri : candidates){
+        for (auto& tri : candidates) {
             // closest tri to point
             glm::vec3 closest = closestPointOnTriangle(position, tri);
 
             glm::vec3 triNormal = tri.getTriangleNormal();
+
+            push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), {0.0, 0.0, 1.0, 1.0});
 
             glm::vec3 diff = position - closest;
             float dist = length(diff);
@@ -62,10 +62,42 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
         }
         candidates.clear();
     }
+
+    push_gizmo(Shapes::Cube, query, {1.0, 1.0, 0.0, 1.0});
+
+    AABB feet;
+    makeAABB_from_ray((Ray) {
+        .origin = position,
+        .direction = -UP,
+        .tMax = collider.radius * 2.0,
+    });
+
+    push_gizmo(Shapes::Cube, feet, {1.0, 0.0, 0.0, 1.0});
+
+    for (int i = 0; i < worldBVHs.size(); i++){
+        bvhQuery(worldBVHs[i], feet, candidates);
+
+        for (auto& tri : candidates) {
+            glm::vec3 feetCenter = (feet.min + feet.max) * 0.5f;
+            glm::vec3 closest = closestPointOnTriangle(feetCenter, tri);
+
+            push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), {0.0, 1.0, 0.0, 1.0});
+
+            glm::vec3 diff = feetCenter - closest;
+            float dist = length(diff);
+
+            if (dist < collider.radius) {
+                grounded = true;
+                printf("Player is grounded\n");
+            }
+        }
+        candidates.clear();
+    }
 }
 
 void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Camera& camera){
     static SOD cam_sod = create_sod(1.5, 0.5, 0.5, position);
+    last_pos = position;
     
     const bool *state = SDL_GetKeyboardState(NULL);
 
@@ -74,35 +106,75 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     
     camera.mouse_view(lock_cursor, mouse_x, mouse_y, sensitivity);
 
+    wishdir = vec3(0);
     if (state[SDL_SCANCODE_W]){
-        position += camera.front * dt * speed;
+        wishdir += camera.front;
     }
     if (state[SDL_SCANCODE_S]){
-        position -= camera.front * dt * speed;
+        wishdir -= camera.front;
     }
     if (state[SDL_SCANCODE_A]){
-        position += camera.right * dt * speed;
+        wishdir += camera.right;
     }
     if (state[SDL_SCANCODE_D]){
-        position -= camera.right * dt * speed;
+        wishdir -= camera.right;
     }
     if (state[SDL_SCANCODE_SPACE]){
-        position.y += dt * speed;
-    }
-    if (state[SDL_SCANCODE_LCTRL]){
-        position.y -= dt * speed;
+        jump_current = jump_force;
+
+        position += UP*  dt * speed; // temp
+        // grounded = false;
     }
 
-    update_sod(cam_sod, dt, position);
+    if (state[SDL_SCANCODE_LCTRL]){ // temp
+        position -= UP*  dt * speed; // temp
+        // grounded = false;
+    }
 
+    wishdir.y = 0; // only move on the XZ plane with WASD
+    if (glm::length(wishdir) > 0.1) {
+        wishdir = glm::normalize(wishdir) * speed;
+    }
+    position += wishdir * dt;
+
+    // jump_force += GRAVITY.y * damping;
+    // if (jump_force < 0) {
+    //     jump_force = 0;
+    // }
+    // velocity.y += (GRAVITY.y + jump_force) * dt;
+    // velocity *= damping;
+
+    // if (grounded){
+    //     jump_current = 0.f;
+    //     velocity.y = 0;
+    // }
+
+    // velocity *= damping;
+    position += velocity * dt;
+
+    Ray grounded_ray = (Ray){
+        .origin = position,
+        .direction = -UP,
+        .tMax = collider.radius*0.55f, // go half of player's size
+    };
+
+    // printf("player vel: %f\n", current_speed);
+
+    update_sod(cam_sod, dt, position + head_ofs);
     camera.position = cam_sod.y;
+    current_speed = glm::length(last_pos - position);
+
     camera.update();
 }
 
 Player create_player() {
     Player player = {};
     player.collider = default_player_collider();
-    player.head_ofs = vec3(0.0, 0.0, 0.0);
-    
+    player.head_ofs = vec3(0.0, 0.5, 0.0);
+    player.speed = 5.8;
+    player.damping = 0.9;
+    player.grounded = true;
+    player.jump_force = 100.5;
+
     return player;
 }

@@ -1,5 +1,7 @@
 #include "shapes.h"
 
+#include "texture.h"
+
 void Shape::draw(unsigned int program, const Camera& camera) const {
     mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color, texture);
 }
@@ -117,7 +119,7 @@ Shape make_shape(Shapes shape, unsigned int texture) {
                 4, 5, 6,   4, 6, 7,
 
                 // BOTTOM
-                8, 9, 10,  8, 10, 11,
+                10, 9, 8,  11, 10, 8,
 
                 // TOP
                 12, 13, 14, 12, 14, 15,

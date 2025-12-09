@@ -21,7 +21,8 @@ void Mesh::draw(
     glm::mat4 view_mat, 
     glm::mat4 proj_mat, 
     glm::vec4 col, 
-    unsigned int texture
+    unsigned int texture,
+    unsigned int draw_mode // = GL_TRIANGLES by default
 ) const {
     if (!setup) {
         printf("WARNING: Attempting to draw deleted or incomplete mesh\n"); 
@@ -39,7 +40,7 @@ void Mesh::draw(
     glBindTexture(GL_TEXTURE_2D, texture);
     glBindVertexArray(VAO);
     glDrawElements(
-        GL_TRIANGLES,
+        draw_mode,
         indices.size(), 
         GL_UNSIGNED_INT, 
         0

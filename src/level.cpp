@@ -10,6 +10,12 @@ Level *create_level() {
     return l;
 }
 
+void draw_level(Level *l, Camera& cam, unsigned int program) {
+    for (const Shape& shape : l->shapes) {
+        shape.draw(program, cam);
+    }
+}
+
 /// Merge all static shapes into one big static shape
 /// Reduces draw calls but also reduces culling opportunities
 void merge_level_shapes(Level* level) {
@@ -63,9 +69,9 @@ std::vector<MeshTriangle> get_level_tris(Shape *shape){
         t.c = glm::vec3(verts[v2], verts[v2+1], verts[v2+2]);
 
         // optional: apply gltf transform
-        // t.a = mat * vec4(t.a, 1);
-        // t.b = mat * vec4(t.b, 1);
-        // t.c = mat * vec4(t.c, 1);
+        t.a = shape->transform.getModelMat() * glm::vec4(t.a, 1);
+        t.b = shape->transform.getModelMat() * glm::vec4(t.b, 1);
+        t.c = shape->transform.getModelMat() * glm::vec4(t.c, 1);
 
         worldTris.push_back(t);
     }

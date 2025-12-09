@@ -16,6 +16,8 @@ typedef struct {
 
 Level *create_level();
 
+void draw_level(Level *l, Camera& cam, unsigned int program);
+
 void merge_level_shapes(Level* level);
 
 // void create_level_collider() {}

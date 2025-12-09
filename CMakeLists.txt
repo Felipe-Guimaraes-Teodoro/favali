@@ -3,6 +3,17 @@ project(shenanigans VERSION 0.1.0 LANGUAGES C CXX)
 
 find_package(OpenGL REQUIRED)
 
+add_library(imgui
+    external/imgui/imgui.cpp
+    external/imgui/imgui_draw.cpp
+    external/imgui/imgui_widgets.cpp
+    external/imgui/imgui_tables.cpp
+
+    external/imgui/backends/imgui_impl_sdl3.cpp
+    external/imgui/backends/imgui_impl_opengl3.cpp
+)
+target_include_directories(imgui PUBLIC external/imgui)
+
 add_executable(shenanigans 
     src/main.cpp
     src/scripting.c
@@ -21,6 +32,11 @@ add_executable(shenanigans
     src/graphics/texture.cpp
     src/graphics/model.cpp
     src/graphics/shapes.cpp
+    src/graphics/gizmos.cpp
+)
+
+target_include_directories(imgui PUBLIC
+    ${CMAKE_SOURCE_DIR}/external/sdl3/include
 )
 
 target_include_directories(shenanigans PUBLIC
@@ -29,6 +45,7 @@ target_include_directories(shenanigans PUBLIC
     ${CMAKE_SOURCE_DIR}/external/glm
     ${CMAKE_SOURCE_DIR}/external/sdl3/include
     ${CMAKE_SOURCE_DIR}/external/lua/src
+    ${CMAKE_SOURCE_DIR}/external/imgui
 
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/graphics
@@ -45,11 +62,16 @@ target_link_options(shenanigans PRIVATE
     "-L${CMAKE_SOURCE_DIR}/external/sdl3"
 )
 
+target_link_libraries(imgui PUBLIC
+    SDL3
+)
+
 target_link_libraries(shenanigans PUBLIC
     OpenGL::GL
     glad
     SDL3
     lua
+    imgui
 )
 
 #copy DLL's onto output directory

@@ -55,7 +55,8 @@ struct Mesh {
         glm::mat4 view_mat, 
         glm::mat4 proj_mat, 
         glm::vec4 col, 
-        unsigned int texture
+        unsigned int texture,
+        unsigned int draw_mode = GL_TRIANGLES
     ) const;
 
     ~Mesh();

@@ -3,11 +3,6 @@
 #include "transform.h"
 #include "mesh.h"
 #include "camera.h"
-#include "glm.hpp"
-#include "texture.h"
-#include <vector>
-#include <cmath>
-using std::vector;
 
 constexpr float PI = 3.14159265358979323846f;
 
@@ -17,7 +12,9 @@ enum Shapes {
     Triangle,
     Cube,
     Sphere,
-    Empty,
+    Empty, /* WARNING: Empty HAS TO BE the last shape in this enum otherwise 
+        gizmos might break
+    */
 };
 
 struct Shape {

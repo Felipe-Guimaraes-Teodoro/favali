@@ -16,6 +16,18 @@ struct Transform {
         rotation = rot;
         scale = scl;
     }
+
+    Transform(glm::vec3 pos){
+        position = pos;
+        rotation = glm::quat_identity<float, glm::defaultp>();
+        scale = glm::vec3(1.0f);
+    }
+
+    Transform(glm::vec3 pos, glm::vec3 sca){
+        position = pos;
+        rotation = glm::quat_identity<float, glm::defaultp>();
+        scale = sca;
+    }
     
     static Transform empty() {
         return Transform(

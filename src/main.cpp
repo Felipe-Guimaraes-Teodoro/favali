@@ -7,6 +7,7 @@ using std::vector;
 #include "scripting.h"
 
 #include "glad/glad.h"
+#include "ui.h"
 
 #include "transform.h"
 #define UBO_DEFINITION
@@ -26,6 +27,7 @@ using std::vector;
 #include "geometry.h"
 #include "raycast.h"
 #include "gun.h"
+#include "gizmos.h"
 
 #define CLEAR_SCREEN glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -36,6 +38,7 @@ int w = 1600 * 0.6;
 int h = 900 * 0.6;
 
 void init() {
+    // sdl and gl
     SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
@@ -48,13 +51,19 @@ void init() {
         printf("could not initialize glad");
     }
     SDL_GL_MakeCurrent(window, gl_context);
+
+    // imgui
+    imgui_init(window, gl_context);
     
+    // gl, our renderer
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glViewport(0, 0, w, h);
     glClearColor(0.1, 0.2, 0.3, 1.0);
+
+    init_gizmos();
 }
 
 void onResize(int w, int h, Camera& camera) {
@@ -83,6 +92,7 @@ int main() {
     Player player = create_player();
     player.collider.radius = 1.0;
     player.speed = 5.5f;
+    player.jump_force = 200.0f;
 
     glm::vec3 local_shoot_pos(3.2, -5.97, 0.);
     Gun gun = make_gun(local_shoot_pos, 0.1f, 0., 1);
@@ -124,6 +134,8 @@ int main() {
         light.position = camera.position + vec3(0.0, 15.0, 0.);
         update_ubo<Light>(ubo, &light);
 
+        push_gizmo(Shapes::Cube, Transform(vec3(0.0, 1.0, 0.0)));
+
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
                 running = false;
@@ -162,6 +174,8 @@ int main() {
 
                 onResize(w, h, camera);
             }
+
+            ImGui_ImplSDL3_ProcessEvent(&event);
         }
 
         player.solve_collisions(worldBVHs);
@@ -172,9 +186,7 @@ int main() {
         gun.update(dt, camera);
         gun.draw(program, camera);
 
-        for (const Shape& shape : level0->shapes) {
-            shape.draw(program, camera);
-        }
+        draw_level(level0, camera, program);
 
         // for (int i = 0; i < bullets.size(); i++){
             
@@ -208,6 +220,9 @@ int main() {
         //     // }
         // }
 
+        render_gizmos(camera);
+        imgui_frame();
+
         SDL_GL_SwapWindow(window);
 
         float target = 1000.0f / fps;
@@ -221,6 +236,7 @@ int main() {
     SDL_DestroyWindow(window);
     SDL_GL_DestroyContext(gl_context);
     SDL_Quit();
+    imgui_shutdown();
     scripting_quit();
 
     return 0;

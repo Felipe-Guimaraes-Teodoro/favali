@@ -29,7 +29,19 @@ PlayerCollider default_player_collider();
 typedef struct {
     vec3 head_ofs;
     vec3 position;
+    vec3 last_pos;
+    
+    vec3 wishdir;
+    vec3 velocity;
+    float damping;
+    vec3 accel;
+
     float speed;
+    float current_speed;
+
+    bool grounded;
+    float jump_force;
+    float jump_current;
 
     PlayerCollider collider;
 

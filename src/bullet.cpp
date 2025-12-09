@@ -2,7 +2,6 @@
 
 void Bullet::update_bullet(float dt){
     if (lifetime <= 0.){
-        printf("Bullet is dead! Somebody should delete me inside gun.draw()...");
         return;
     }
     shape->transform.position += dir * speed * dt;
