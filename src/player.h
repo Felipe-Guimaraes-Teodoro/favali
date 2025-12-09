@@ -40,8 +40,10 @@ typedef struct {
     float current_speed;
 
     bool grounded;
+    float last_jumped;
     float jump_force;
     float jump_current;
+    float jump_decay;
 
     PlayerCollider collider;
 

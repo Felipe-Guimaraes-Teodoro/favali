@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL.h"
+#include "player.h"
 
 #include "imgui.h"
 #include "backends/imgui_impl_sdl3.h"
@@ -16,13 +17,13 @@ void imgui_init(SDL_Window *window, SDL_GLContext gl_ctx) {
     ImGui_ImplOpenGL3_Init("#version 420");
 }
 
-void imgui_frame() {
+void imgui_frame(Player& player) {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL3_NewFrame();
     ImGui::NewFrame();
 
     ImGui::Begin("Hello, ImGui!");
-    ImGui::Text("This is a test window.");
+    ImGui::Text("This is a test window. %u, %f, %f", player.grounded, player.jump_current, player.last_jumped);
     ImGui::End();
 
     ImGui::Render();

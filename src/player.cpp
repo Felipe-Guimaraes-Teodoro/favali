@@ -74,6 +74,8 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
 
     push_gizmo(Shapes::Cube, feet, {1.0, 0.0, 0.0, 1.0});
 
+    grounded = false;
+
     for (int i = 0; i < worldBVHs.size(); i++){
         bvhQuery(worldBVHs[i], feet, candidates);
 
@@ -86,7 +88,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
             glm::vec3 diff = feetCenter - closest;
             float dist = length(diff);
 
-            if (dist < collider.radius) {
+            if (dist < collider.radius * 0.5) {
                 grounded = true;
                 printf("Player is grounded\n");
             }
@@ -96,7 +98,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
 }
 
 void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Camera& camera){
-    static SOD cam_sod = create_sod(1.5, 0.5, 0.5, position);
+    static SOD cam_sod = create_sod(2.5, 0.5, 0.0, position);
     last_pos = position;
     
     const bool *state = SDL_GetKeyboardState(NULL);
@@ -119,16 +121,11 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     if (state[SDL_SCANCODE_D]){
         wishdir -= camera.right;
     }
-    if (state[SDL_SCANCODE_SPACE]){
+    if (state[SDL_SCANCODE_SPACE] && grounded && last_jumped < 0.0){
         jump_current = jump_force;
-
-        position += UP*  dt * speed; // temp
-        // grounded = false;
-    }
-
-    if (state[SDL_SCANCODE_LCTRL]){ // temp
-        position -= UP*  dt * speed; // temp
-        // grounded = false;
+        position.y += 0.1;
+        last_jumped = 0.1;
+        grounded = false;
     }
 
     wishdir.y = 0; // only move on the XZ plane with WASD
@@ -137,17 +134,19 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     }
     position += wishdir * dt;
 
-    // jump_force += GRAVITY.y * damping;
-    // if (jump_force < 0) {
-    //     jump_force = 0;
-    // }
-    // velocity.y += (GRAVITY.y + jump_force) * dt;
-    // velocity *= damping;
+    jump_current += GRAVITY.y * jump_decay;
+    if (jump_current < 0) {
+        jump_current = 0;
+    }
 
-    // if (grounded){
-    //     jump_current = 0.f;
-    //     velocity.y = 0;
-    // }
+    accel = GRAVITY;
+    velocity.y += (accel.y + jump_current) * dt;
+    last_jumped -= dt;
+
+    if (grounded) {
+        // jump_current = 0.f;
+        velocity.y = 0.f;
+    }
 
     // velocity *= damping;
     position += velocity * dt;
@@ -170,11 +169,14 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
 Player create_player() {
     Player player = {};
     player.collider = default_player_collider();
+    player.position = {0.0, 5.0, 0.0};
     player.head_ofs = vec3(0.0, 0.5, 0.0);
     player.speed = 5.8;
     player.damping = 0.9;
     player.grounded = true;
-    player.jump_force = 100.5;
+    player.jump_force = 300.0;
+    player.jump_decay = 5.0;
+    player.last_jumped = 0;
 
     return player;
 }

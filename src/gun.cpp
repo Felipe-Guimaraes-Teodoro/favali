@@ -4,10 +4,10 @@
 #include <vector>
 #include <deque>
 
-void Gun::update(float dt, Camera& camera){
+void Gun::update(float dt, Camera& camera, Player& player){
     last_shot += dt;
     
-    vec3 goal = camera.position + camera.front*0.3f + -camera.right * 0.12f - camera.up * 0.1f;
+    vec3 goal = glm::mix(camera.position, player.position + player.head_ofs, 0.05f) + camera.front*0.3f + -camera.right * 0.12f - camera.up * 0.1f;
     goal -= camera.front * (recoil_timer * 0.04f);
 
     recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
@@ -19,7 +19,7 @@ void Gun::update(float dt, Camera& camera){
 
     glm::quat target_rot = recoil_q * base;
 
-    shape->transform.rotation = glm::slerp(shape->transform.rotation, target_rot, 0.15f);
+    shape->transform.rotation = glm::slerp(shape->transform.rotation, target_rot, 0.3f);
     shape->transform.position = goal;
     
     if (last_shot >= cooldown && is_shooting){

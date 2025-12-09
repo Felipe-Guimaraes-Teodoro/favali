@@ -34,8 +34,8 @@ using std::vector;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-int w = 1600 * 0.6;
-int h = 900 * 0.6;
+int w = 1600 * 0.8;
+int h = 900 * 0.8;
 
 void init() {
     // sdl and gl
@@ -91,8 +91,6 @@ int main() {
 
     Player player = create_player();
     player.collider.radius = 1.0;
-    player.speed = 5.5f;
-    player.jump_force = 200.0f;
 
     glm::vec3 local_shoot_pos(3.2, -5.97, 0.);
     Gun gun = make_gun(local_shoot_pos, 0.1f, 0., 1);
@@ -100,7 +98,7 @@ int main() {
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();
 
-    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
+    Level *level0 = create_level_from_gltf("../../../assets/level1.glb");
     std::vector<BVHNode*> worldBVHs;
     for (int i = 0; i < level0->shapes.size(); i++){
         std::vector<MeshTriangle> world_tris = get_level_tris(&level0->shapes[i]);
@@ -134,8 +132,6 @@ int main() {
         light.position = camera.position + vec3(0.0, 15.0, 0.);
         update_ubo<Light>(ubo, &light);
 
-        push_gizmo(Shapes::Cube, Transform(vec3(0.0, 1.0, 0.0)));
-
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
                 running = false;
@@ -146,7 +142,7 @@ int main() {
 
                 if (event.key.key == SDLK_LALT){
                     SDL_SetWindowRelativeMouseMode(window, lock_cursor);
-                    lock_cursor != false;
+                    lock_cursor = !lock_cursor;
                     if (lock_cursor){
                         SDL_HideCursor();
                     }
@@ -183,7 +179,7 @@ int main() {
         
         CLEAR_SCREEN;
                     
-        gun.update(dt, camera);
+        gun.update(dt, camera, player);
         gun.draw(program, camera);
 
         draw_level(level0, camera, program);
@@ -221,7 +217,7 @@ int main() {
         // }
 
         render_gizmos(camera);
-        imgui_frame();
+        imgui_frame(player);
 
         SDL_GL_SwapWindow(window);
 

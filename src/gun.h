@@ -1,6 +1,7 @@
 #pragma once
 
 #include "bullet.h"
+#include "player.h"
 #include "glm.hpp"
 #include "SDL3/SDL.h"
 
@@ -17,7 +18,7 @@ typedef struct{
     float spread;
     unsigned int bullets_per_shot;
 
-    void update(float dt, Camera& camera);
+    void update(float dt, Camera& camera, Player& player);
 
     void draw(unsigned int program, Camera& camera);
 } Gun;
