@@ -94,7 +94,7 @@ int main() {
 
     glm::vec3 local_shoot_pos(3.2, -5.78, 0.);
     glm::vec3 muzzle_back_sample = glm::vec3(0., -5.78, 0.);
-    Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.1f, 0., 1);
+    Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.1f, 1., 5);
     gun.shape = std::make_unique<Shape>(create_shape_from_gltf("../../../assets/gun.gltf", 0));
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();

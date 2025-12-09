@@ -3,6 +3,7 @@
 #include "glm.hpp"
 #include <vector>
 #include <deque>
+#include <random>
 
 void Gun::update(float dt, Camera& camera, Player& player, std::vector<BVHNode*> worldBVHs){
     last_shot += dt;
@@ -24,16 +25,28 @@ void Gun::update(float dt, Camera& camera, Player& player, std::vector<BVHNode*>
     
     if (last_shot >= cooldown && is_shooting){
         last_shot = 0.0f;
-        glm::vec4 dir = glm::vec4(muzzle_pos - muzzle_back_sample, 0.);
-        dir -= glm::vec4(player.head_ofs, 0.);
-        glm::vec3 dir_norm = glm::normalize(glm::vec3(shape->transform.getModelMat() * dir));
-        glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
 
         recoil_timer += 1.f;
         recoil_timer = glm::min(recoil_timer, 1.5f);
+        
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<float> dist(-spread, spread);
 
+        glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
         
         for (int i = 0; i < bullets_per_shot; i++){
+            float x = dist(gen);
+            float y = dist(gen);
+            float z = dist(gen);
+
+            glm::vec3 rand_spread(x, y, z);
+            rand_spread *= 0.2;
+
+            glm::vec4 dir = glm::vec4(muzzle_pos - muzzle_back_sample, 0.);
+            dir -= glm::vec4(player.head_ofs+rand_spread, 0.);
+            glm::vec3 dir_norm = glm::normalize(glm::vec3(shape->transform.getModelMat() * dir));
+
             Bullet b = create_bullet(muzzle_world, dir_norm);
             b.damage = bullet_template.damage;
             b.lifetime = bullet_template.lifetime;
