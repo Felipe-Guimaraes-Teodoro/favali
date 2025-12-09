@@ -34,8 +34,8 @@ using std::vector;
 SDL_Window* window;
 SDL_GLContext gl_context;
 
-int w = 1600 * 0.8;
-int h = 900 * 0.8;
+int w = 1600 * 0.5;
+int h = 900 * 0.5;
 
 void init() {
     // sdl and gl
@@ -92,8 +92,9 @@ int main() {
     Player player = create_player();
     player.collider.radius = 1.0;
 
-    glm::vec3 local_shoot_pos(3.2, -5.97, 0.);
-    Gun gun = make_gun(local_shoot_pos, 0.1f, 0., 1);
+    glm::vec3 local_shoot_pos(3.2, -5.78, 0.);
+    glm::vec3 muzzle_back_sample = glm::vec3(0., -5.78, 0.);
+    Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.1f, 0., 1);
     gun.shape = std::make_unique<Shape>(create_shape_from_gltf("../../../assets/gun.gltf", 0));
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();
@@ -178,45 +179,13 @@ int main() {
         player.update(dt, lock_cursor, sensitivity, camera);
         
         CLEAR_SCREEN;
-                    
-        gun.update(dt, camera, player);
+        
+        gun.update(dt, camera, player, worldBVHs);
         gun.draw(program, camera);
 
         draw_level(level0, camera, program);
 
-        // for (int i = 0; i < bullets.size(); i++){
-            
-        //     // Ray r;
-        //     // r.origin = bullets[i].shape.transform.position;
-        //     // r.direction = normalize(bullets[i].dir);
-            
-        //     bullets[i].shape->draw(program, camera);
-            
-        //     // r.tMax = dt;
-
-        //     // AABB rayBox = makeAABB_from_ray(r);
-        //     // std::vector<MeshTriangle> candidates;
-        //     // bvhQuery(worldBVH, rayBox, candidates);
-
-        //     // float closestT = 999999.0f;
-        //     // bool hit = false;
-        //     // for(auto& tri : candidates){
-        //     //     float t;
-        //     //     if (r.hitTriangle(tri, t)){
-        //     //         if (t < closestT){
-        //     //             closestT = t;
-        //     //             hit = true;
-        //     //             break;
-        //     //         }
-        //     //     }
-        //     // }
-
-        //     // if (hit){
-        //     //     SDL_Log("Eita lasquerrrr bateu!!!");
-        //     // }
-        // }
-
-        render_gizmos(camera);
+        // render_gizmos(camera);
         imgui_frame(player);
 
         SDL_GL_SwapWindow(window);

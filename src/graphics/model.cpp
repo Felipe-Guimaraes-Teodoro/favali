@@ -38,7 +38,7 @@ unsigned int create_texture_from_material(cgltf_material* material) {
 
     if (img->buffer_view) {
         int size = img->buffer_view->size;
-        printf("texture has buffer view with size %u embedded\n");
+        // printf("texture has buffer view with size %u embedded\n");
     
         const uint8_t *tex_data = cgltf_buffer_view_data(img->buffer_view);
 

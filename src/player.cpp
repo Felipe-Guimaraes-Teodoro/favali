@@ -90,7 +90,6 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
 
             if (dist < collider.radius * 0.5) {
                 grounded = true;
-                printf("Player is grounded\n");
             }
         }
         candidates.clear();

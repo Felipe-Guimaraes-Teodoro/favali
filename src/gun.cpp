@@ -4,7 +4,7 @@
 #include <vector>
 #include <deque>
 
-void Gun::update(float dt, Camera& camera, Player& player){
+void Gun::update(float dt, Camera& camera, Player& player, std::vector<BVHNode*> worldBVHs){
     last_shot += dt;
     
     vec3 goal = glm::mix(camera.position, player.position + player.head_ofs, 0.05f) + camera.front*0.3f + -camera.right * 0.12f - camera.up * 0.1f;
@@ -24,17 +24,17 @@ void Gun::update(float dt, Camera& camera, Player& player){
     
     if (last_shot >= cooldown && is_shooting){
         last_shot = 0.0f;
-        glm::vec3 dir = glm::normalize(glm::vec3(shape->transform.getModelMat() * glm::vec4(1,0,0,0)));
-        glm::vec3 muzzle_world = glm::vec3(
-            shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0)
-        );
+        glm::vec4 dir = glm::vec4(muzzle_pos - muzzle_back_sample, 0.);
+        dir -= glm::vec4(player.head_ofs, 0.);
+        glm::vec3 dir_norm = glm::normalize(glm::vec3(shape->transform.getModelMat() * dir));
+        glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
 
         recoil_timer += 1.f;
         recoil_timer = glm::min(recoil_timer, 1.5f);
 
         
         for (int i = 0; i < bullets_per_shot; i++){
-            Bullet b = create_bullet(muzzle_world, dir);
+            Bullet b = create_bullet(muzzle_world, dir_norm);
             b.damage = bullet_template.damage;
             b.lifetime = bullet_template.lifetime;
             b.speed = bullet_template.speed;
@@ -45,6 +45,10 @@ void Gun::update(float dt, Camera& camera, Player& player){
 
     for (int i = 0; i < bullets.size(); i++){
         bullets[i].update_bullet(dt);
+        
+        if (bullets[i].handle_collisions(dt, worldBVHs)){
+            bullets[i].lifetime = 0.0f;
+        }
     }
 }
 
@@ -68,9 +72,10 @@ void Gun::draw(unsigned int program, Camera& camera){
     }
 }
 
-Gun make_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot){
+Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot){
     Gun g;
     g.recoil_timer = 0.;
+    g.muzzle_back_sample = muzzle_back_sample;
     g.muzzle_pos = muzzle_pos;
     g.cooldown = cooldown;
     g.spread = spread;
