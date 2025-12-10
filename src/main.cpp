@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <vector>
 #include <memory>
-using std::vector;
 #include <math.h>
 #include "SDL3/SDL.h"
 #include "scripting.h"
@@ -29,6 +28,8 @@ using std::vector;
 #include "gun.h"
 #include "gizmos.h"
 #include "ik.h"
+
+using std::vector;
 
 #define CLEAR_SCREEN glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -202,7 +203,7 @@ int main() {
         }
         controller.draw_dbg();
 
-        render_gizmos(camera);
+        // render_gizmos(camera);
         imgui_frame(player);
 
         SDL_GL_SwapWindow(window);

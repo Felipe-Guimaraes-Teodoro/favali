@@ -8,39 +8,50 @@ void Bullet::update_bullet(float dt){
     if (lifetime <= 0.){
         return;
     }
-    shape->transform.position += (dir * speed + GRAVITY) * dt;
+    shape->transform.position += dir * speed * dt;
+    shape->transform.position += GRAVITY * dt;
     lifetime -= dt;
 }
 
-bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs /* add enemy AABBs in the future here too */){
+bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
+    // calcula distancia maxima q o tiro anda no frame
+    float maxDist = speed * dt;
+
     Ray r;
     r.origin = shape->transform.position;
     r.direction = dir;
-    
-    r.tMax = dt;
+    r.tMax = maxDist;
+
+    float closestT = std::numeric_limits<float>::infinity();
+    bool hit = false;
 
     AABB rayBox = makeAABB_from_ray(r);
     std::vector<MeshTriangle> candidates;
 
-    for (int i = 0; i < worldBVHs.size(); i++){
+    for (int i = 0; i < (int)worldBVHs.size(); i++) {
+        candidates.clear();
         bvhQuery(worldBVHs[i], rayBox, candidates);
-        
-        float closestT = 999999.0f;
-        for(auto& tri : candidates){
+
+        for (auto &tri : candidates) {
             float t;
-            if (r.hitTriangle(tri, t)){
-                if (t < closestT){
+            if (r.hitTriangle(tri, t)) {
+                if (t < closestT) {
                     closestT = t;
-                    return true; // move return out of here so we can get the precise location of impact
+                    hit = true;
                 }
             }
         }
-        
-        candidates.clear();
+    }
+
+    if (hit) {
+        // opcional: mover projétil ate o ponto de impacto
+        // shape->transform.position = r.origin + r.direction * closestT;
+        return true;
     }
 
     return false;
 }
+
 
 Bullet create_bullet(const glm::vec3& muzzle_world, const glm::vec3& forward) {
     Bullet b;

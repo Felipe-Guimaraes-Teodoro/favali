@@ -57,11 +57,11 @@ void Gun::update(float dt, Camera& camera, Player& player, std::vector<BVHNode*>
     }
 
     for (int i = 0; i < bullets.size(); i++){
-        bullets[i].update_bullet(dt);
-        
         if (bullets[i].handle_collisions(dt, worldBVHs)){
             bullets[i].lifetime = 0.0f;
         }
+        
+        bullets[i].update_bullet(dt);
     }
 }
 
@@ -78,11 +78,11 @@ void Gun::draw(unsigned int program, Camera& camera){
         }
     }
 
-    for (int k = dead_bullets.size() - 1; k >= 0; k--){ // go backwards so theres no index mishap
+    for (int k = dead_bullets.size() - 1; k >= 0; k--) {
         int idx = dead_bullets[k];
         bullets.erase(bullets.begin() + idx);
-        dead_bullets.pop_front();
     }
+    dead_bullets.clear();
 }
 
 Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot){
