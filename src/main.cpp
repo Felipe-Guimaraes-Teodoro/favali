@@ -28,6 +28,7 @@ using std::vector;
 #include "raycast.h"
 #include "gun.h"
 #include "gizmos.h"
+#include "ik.h"
 
 #define CLEAR_SCREEN glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -125,6 +126,17 @@ int main() {
 
     bool lock_cursor = false;
     bool running = true;
+
+    IkController controller = create_ik_controller({0.0, 0.0, 0.0});
+    vec3 c[3] = {
+        vec3(1.0, 0.0, 0.0),
+        vec3(0.0, 1.0, 0.0),
+        vec3(0.0, 0.0, 1.0)
+    };
+    for (int i = 0; i < 6; i++) {
+        controller.push_node(create_ik_node((rand() % 5) / 3.0f, c[(i/2)%3]));
+    }
+
     while (running) {
         Uint64 now = SDL_GetTicks();
         dt = (now - last)/1000.0f;
@@ -184,8 +196,13 @@ int main() {
         gun.draw(program, camera);
 
         draw_level(level0, camera, program);
+        controller.update();
+        if (lua_ctx) {
+            controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
+        }
+        controller.draw_dbg();
 
-        // render_gizmos(camera);
+        render_gizmos(camera);
         imgui_frame(player);
 
         SDL_GL_SwapWindow(window);

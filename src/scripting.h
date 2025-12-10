@@ -16,6 +16,9 @@ extern "C" {
     FIELD(VOIDPTR, data) \
     FIELD(NUM_ARRAY, samples) \
     FIELD(STRING, message) \
+    FIELD(double, goal_x) \
+    FIELD(double, goal_y) \
+    FIELD(double, goal_z) \
 
 #define FIELD(type, name) MAP_##type(name)
 
@@ -29,6 +32,7 @@ typedef struct {
     DECLARATIONS
     pthread_mutex_t mtx;
     int busy;
+    int co_alive;
 
     #undef FIELD
 } LuaCtx;

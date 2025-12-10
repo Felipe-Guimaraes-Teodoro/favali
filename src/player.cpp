@@ -122,7 +122,9 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     }
     if (state[SDL_SCANCODE_SPACE] && grounded && last_jumped < 0.0){
         jump_current = jump_force;
-        position.y += 0.1;
+        // push the player enough so it doesnt 
+        // get detected as grounded mid jump
+        position.y += collider.radius * 0.5;
         last_jumped = 0.1;
         grounded = false;
     }

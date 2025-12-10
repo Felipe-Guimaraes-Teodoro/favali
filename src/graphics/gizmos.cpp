@@ -117,8 +117,6 @@ void push_gizmo(Shapes shape, AABB aabb, glm::vec4 col) {
     );
 }
 
-
-
 void push_gizmo_n_frames(Shapes shape, Transform t, int n, glm::vec4 col) {
     gizmo_queue->gizmos.push_back( 
         (Gizmo) {

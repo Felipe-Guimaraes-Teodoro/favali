@@ -11,7 +11,7 @@ on the codebase cause i freaking love physically based movement
 
 using glm::vec3;
 
-constexpr glm::vec3 GRAVITY = glm::vec3(0.0f, -10.0f, 0.0f);
+constexpr vec3 GRAVITY = vec3(0.0f, -10.0f, 0.0f);
 
 typedef struct {
     vec3 center;
@@ -40,10 +40,11 @@ typedef struct {
     float current_speed;
 
     bool grounded;
-    float last_jumped;
+    // float jump_delay
+    float last_jumped; // stores the duration in seconds the player last jumped
     float jump_force;
     float jump_current;
-    float jump_decay;
+    float jump_decay; // controls how fast the jump force should deplete
 
     PlayerCollider collider;
 

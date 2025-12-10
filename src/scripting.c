@@ -136,6 +136,11 @@ void *pt_lua_execute(void *arg) {
 
     while(tick(16)) {
         LOCK;
+        if (!lua_ctx->co_alive) {
+            UNLOCK;
+            break;
+        }
+
         lua_ctx->busy = true;
 
         int status = lua_resume(lua_co, NULL, 0, &nresults);
@@ -146,17 +151,20 @@ void *pt_lua_execute(void *arg) {
         }
 
         if (status == LUA_OK) {
+            lua_ctx->co_alive = false;
+            lua_ctx->busy = false;
             UNLOCK;
             break;
         }
 
         fprintf(stderr, "Lua error: %s\n", lua_tostring(lua_co, -1));
         lua_pop(lua_co, 1);
+        lua_ctx->co_alive = false;
+        lua_ctx->busy = false;
+
+        UNLOCK;
         break;
     }
-    
-    lua_ctx->busy = false;
-    UNLOCK;
 
     return NULL;
 }
@@ -191,9 +199,14 @@ void exec_script() {
         pthread_create(&lua_synchronization_thread, NULL, pt_lua_sync, lua);
         pthread_detach(lua_synchronization_thread);
     }
-    if (lua_ctx->busy) { return; }
+
+    LOCK;
+    lua_ctx->co_alive = false;
+    lua_co = NULL;
+    UNLOCK;
 
     lua_co = lua_newthread(lua);
+    lua_ctx->co_alive = true;
 
     if (luaL_loadfile(lua_co, "script.lua") != LUA_OK) {
         fprintf(stderr, "Load error: %s\n", lua_tostring(lua_co, -1));
