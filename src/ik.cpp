@@ -30,7 +30,6 @@ glm::quat rotate_from_to(const vec3& from, const vec3& to) {
     // nearly same
     if (cosTheta > 0.999)
         return glm::identity<quat>();
-
     vec3 axis = glm::cross(f, t);
     float angle = glm::acos(glm::clamp(cosTheta, -1.0f, 1.0f));
 

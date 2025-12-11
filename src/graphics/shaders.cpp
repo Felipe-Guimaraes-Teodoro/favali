@@ -58,6 +58,63 @@ void main() {
 }
 )";
 
+const char* default_vs_instanced = R"(
+#version 420 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoord;
+layout (location = 3) in mat4 aModel; // per instance
+
+out vec3 FragPos;
+out vec3 Normal;
+out vec2 TexCoord;
+
+uniform mat4 view;
+uniform mat4 projection;
+
+void main() {
+    gl_Position = projection * view * aModel * vec4(aPos, 1.0f);
+
+    FragPos = vec3(aModel * vec4(aPos, 1.0));
+    Normal = normalize(mat3(transpose(inverse(aModel))) * aNormal);
+    TexCoord = aTexCoord;
+}
+)";
+
+const char* default_fs_instanced = R"(
+#version 420 core
+
+in vec3 FragPos;
+in vec3 Normal;
+in vec2 TexCoord;
+
+out vec4 FragColor;
+
+uniform mat4 view;
+uniform vec4 color;
+uniform sampler2D ourTexture;
+
+layout (std140, binding = 0) uniform Light {
+    vec3 position;
+    vec3 color;
+} light;
+
+vec3 ambient = vec3(0.1);
+
+// uniform PointLight pointLights[16];
+
+void main() {
+    vec3 viewPos = -transpose(mat3(view)) * view[3].xyz;
+    vec3 viewDir = normalize(viewPos - FragPos);
+
+    vec3 lightDir = normalize(light.position - FragPos);
+    float diff = max(dot(Normal, lightDir), 0.1);
+
+    vec3 result = color.rgb * light.color * (diff + ambient) * texture(ourTexture, TexCoord).rgb;
+    FragColor = vec4(result, color.a);
+}
+)";
+
 Shader create_shader(const GLchar *const * src, GLenum type) {
     Shader sha = {};
 

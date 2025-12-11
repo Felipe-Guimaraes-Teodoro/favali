@@ -89,7 +89,10 @@ int main() {
 
     Shader vs = create_shader(&default_vs, GL_VERTEX_SHADER);
     Shader fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);    
+    Shader vs_instanced = create_shader(&default_vs_instanced, GL_VERTEX_SHADER);
+    Shader fs_instanced = create_shader(&default_fs_instanced, GL_FRAGMENT_SHADER);    
     unsigned int program = create_program(vs, fs);
+    unsigned int program_instanced = create_program(vs_instanced, fs_instanced);
 
     Player player = create_player();
     player.collider.radius = 1.0;
@@ -101,7 +104,7 @@ int main() {
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();
 
-    Level *level0 = create_level_from_gltf("../../../assets/level1.glb");
+    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
     std::vector<BVHNode*> worldBVHs;
     for (int i = 0; i < level0->shapes.size(); i++){
         std::vector<MeshTriangle> world_tris = get_level_tris(&level0->shapes[i]);
@@ -138,6 +141,23 @@ int main() {
         controller.push_node(create_ik_node((rand() % 5) / 3.0f, c[(i/2)%3]));
     }
 
+    Shape tmp = make_shape(Shapes::Cube, 6);
+    vector<mat4> instances = {};
+    InstancedMesh i_mesh = mesh_to_instanced(tmp.mesh);
+
+    for (int i = 0; i < 200; i++) {
+        for (int j = 0; j < 200; j++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            push_instance(
+                i_mesh,
+                glm::translate(model, vec3(i * 2, (rand() % 100) / 100.0, j * 2)) *
+                glm::scale(model, vec3(1.6, powf((rand() % 20) / 10.0, 2), 1.6))
+            );
+        }
+    }
+
+    update_instances(i_mesh);
+
     while (running) {
         Uint64 now = SDL_GetTicks();
         dt = (now - last)/1000.0f;
@@ -151,6 +171,8 @@ int main() {
                 running = false;
             if (event.type == SDL_EVENT_KEY_DOWN){
                 if (event.key.key == SDLK_F){
+                    clear_instances(i_mesh);
+                    update_instances(i_mesh);
                     exec_script();
                 }
 
@@ -195,6 +217,7 @@ int main() {
         
         gun.update(dt, camera, player, worldBVHs);
         gun.draw(program, camera);
+        i_mesh.draw(program_instanced, camera.view, camera.proj, glm::vec4(1.0), tmp.texture);
 
         draw_level(level0, camera, program);
         controller.update();
@@ -203,7 +226,7 @@ int main() {
         }
         controller.draw_dbg();
 
-        // render_gizmos(camera);
+        render_gizmos(camera);
         imgui_frame(player);
 
         SDL_GL_SwapWindow(window);

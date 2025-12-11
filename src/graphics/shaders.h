@@ -7,8 +7,10 @@
 #include "gtc/type_ptr.hpp"
 
 extern const char* default_vs;
-
 extern const char* default_fs;
+
+extern const char* default_vs_instanced;
+extern const char* default_fs_instanced;
 
 typedef struct {
     unsigned int id;
