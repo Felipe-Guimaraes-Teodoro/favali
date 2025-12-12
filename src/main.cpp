@@ -41,7 +41,7 @@ int h = 900 * 0.5;
 
 void init() {
     // sdl and gl
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -104,21 +104,18 @@ int main() {
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();
 
-    Level *level0 = create_level_from_gltf("../../../assets/level0.glb");
+    SDL_Surface surface;
+    SDL_Renderer *sr = SDL_CreateSoftwareRenderer(&surface);
+
+    Level *level0 = create_level_from_gltf("../../../assets/lights.glb");
     std::vector<BVHNode*> worldBVHs;
     for (int i = 0; i < level0->shapes.size(); i++){
         std::vector<MeshTriangle> world_tris = get_level_tris(&level0->shapes[i]);
         worldBVHs.push_back(buildBVH(world_tris));
     }
+    printf("level loading complete\n");
     
     Camera camera = create_camera({0, 0, 0}, 80.0, 1600.0 / 900.0);
-
-    Light light = Light::empty();
-    light.position = {1.0 ,10.0, 5.0};
-    light.color = {1.0, 1.0, 1.0};
-
-    UniformBuffer ubo = create_ubo<Light>(&light);
-    bind_ubo("Light", 0, ubo, fs);
 
     Uint64 last = SDL_GetTicks();
 
@@ -131,30 +128,33 @@ int main() {
     bool lock_cursor = false;
     bool running = true;
 
+
+    Level *arm = create_level_from_gltf("../../../assets/arm.glb");
     IkController controller = create_ik_controller({0.0, 0.0, 0.0});
-    vec3 c[3] = {
-        vec3(1.0, 0.0, 0.0),
-        vec3(0.0, 1.0, 0.0),
-        vec3(0.0, 0.0, 1.0)
-    };
-    for (int i = 0; i < 6; i++) {
-        controller.push_node(create_ik_node((rand() % 5) / 3.0f, c[(i/2)%3]));
+    int i = 0;
+    for (const Shape &shape : arm->shapes) {
+        controller.push_node(create_ik_node(shape.transform.scale.y * 2.0));
+        i++;
     }
 
     Shape tmp = make_shape(Shapes::Cube, 6);
     vector<mat4> instances = {};
     InstancedMesh i_mesh = mesh_to_instanced(tmp.mesh);
 
-    for (int i = 0; i < 200; i++) {
-        for (int j = 0; j < 200; j++) {
-            glm::mat4 model = glm::mat4(1.0f);
-            push_instance(
-                i_mesh,
-                glm::translate(model, vec3(i * 2, (rand() % 100) / 100.0, j * 2)) *
-                glm::scale(model, vec3(1.6, powf((rand() % 20) / 10.0, 2), 1.6))
-            );
-        }
-    }
+    Lights lights = level0->lights;
+    UniformBuffer ubo = create_ubo<Lights>(&lights, sizeof(Lights));
+    bind_ubo("Light", 0, ubo, fs);
+
+    // for (int i = 0; i < 200; i++) {
+    //     for (int j = 0; j < 200; j++) {
+    //         glm::mat4 model = glm::mat4(1.0f);
+    //         push_instance(
+    //             i_mesh,
+    //             glm::translate(model, vec3(i * 2, (rand() % 100) / 100.0, j * 2)) *
+    //             glm::scale(model, vec3(1.6, powf((rand() % 20) / 10.0, 2), 1.6))
+    //         );
+    //     }
+    // }
 
     update_instances(i_mesh);
 
@@ -163,8 +163,7 @@ int main() {
         dt = (now - last)/1000.0f;
         last = now;
 
-        light.position = camera.position + vec3(0.0, 15.0, 0.);
-        update_ubo<Light>(ubo, &light);
+        update_ubo<void>(ubo, &lights);
 
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT)
@@ -211,22 +210,24 @@ int main() {
         }
 
         player.solve_collisions(worldBVHs);
-        player.update(dt, lock_cursor, sensitivity, camera);
         
         CLEAR_SCREEN;
         
-        gun.update(dt, camera, player, worldBVHs);
+        player.update(dt, lock_cursor, sensitivity, camera);
+        controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
+        controller.update(0.01, 10, 0.01);
+        controller.set_arm_transform(arm);
+        gun.update(dt, camera, controller, player, worldBVHs);
         gun.draw(program, camera);
         i_mesh.draw(program_instanced, camera.view, camera.proj, glm::vec4(1.0), tmp.texture);
 
         draw_level(level0, camera, program);
-        controller.update();
+        draw_level(arm, camera, program);
         if (lua_ctx) {
             controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
         }
-        controller.draw_dbg();
 
-        render_gizmos(camera);
+        // render_gizmos(camera);
         imgui_frame(player);
 
         SDL_GL_SwapWindow(window);

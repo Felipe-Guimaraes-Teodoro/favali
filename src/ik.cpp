@@ -91,10 +91,10 @@ void IkController::update(float tolerance, int max_iter, float alpha) {
         IkNode* current = leaf;
         while (current != nullptr) {
             if (glm::length2(goal - current->origin) > 0.0001f && glm::length2(current->end - current->origin) > 0.0001f) {
-                glm::quat r = rotate_from_to_constrained(
+                glm::quat r = rotate_from_to(
                     current->end - current->origin, 
-                    goal - current->origin,
-                    current->axis
+                    goal - current->origin
+                    // current->axis
                 );
                 
                 // dont rotate all at once
@@ -117,6 +117,46 @@ void IkController::update(float tolerance, int max_iter, float alpha) {
         i++;
     }
 }
+
+void IkController::set_arm_transform(Level* arm) {
+    IkNode* cur = root;
+    int i = 0;
+
+    const static quat y90 = glm::angleAxis(glm::radians(90.0f), vec3(1.0, 0.0, 0.0));
+
+    while (cur) {
+        vec3 dir = cur->end - cur->origin;
+        float length = glm::length(dir);
+        if (length < 1e-6f) dir = vec3(1, 0, 0);
+        dir = normalize(dir);
+
+        vec3 forward = dir;
+        vec3 right = glm::normalize(glm::cross(UP, forward));
+        if (glm::length(right) < 1e-6f) {
+            right = normalize(cross(vec3(1,0,0), forward));
+        }
+        vec3 up = glm::cross(forward, right);
+
+        glm::mat3 rot_mat(right, up, forward);
+        quat rot = glm::quat_cast(rot_mat);
+
+        vec3 mid = cur->origin + dir * 0.5f * length;
+
+        arm->shapes[i].transform.rotation = rot * y90;
+        arm->shapes[i].transform.position = mid;
+
+        if (i == 0) {
+            visual_root_rot = rot;
+        }
+        if (i == arm->shapes.size() - 1) {
+            visual_leaf_rot = rot;
+        }
+
+        cur = cur->next;
+        i++;
+    }
+}
+
 
 void IkController::draw_dbg() {
     IkNode* cur = root;

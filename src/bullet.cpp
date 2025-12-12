@@ -2,14 +2,22 @@
 #include "raycast.h"
 #include "BVH.h"
 #include "player.h"
+#include "gizmos.h"
 #include <stdio.h>
 
 void Bullet::update_bullet(float dt){
     if (lifetime <= 0.){
         return;
     }
+    if (speed < 0.1f) {
+        lifetime = 0.0f;
+        return;
+    }
     shape->transform.position += dir * speed * dt;
-    shape->transform.position += GRAVITY * dt;
+    dir += GRAVITY * dt / speed; 
+    shape->transform.scale = vec3(.05, .05, std::max(speed * .025, 0.01));
+    shape->transform.rotation = glm::quatLookAt(dir, UP);
+
     lifetime -= dt;
 }
 
@@ -34,10 +42,14 @@ bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
 
         for (auto &tri : candidates) {
             float t;
+
             if (r.hitTriangle(tri, t)) {
                 if (t < closestT) {
                     closestT = t;
+                    normal = tri.getTriangleNormal();
                     hit = true;
+
+                    break;
                 }
             }
         }

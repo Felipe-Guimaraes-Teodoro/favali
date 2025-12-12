@@ -4,6 +4,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/quaternion.hpp"
 
+#include "level.h"
+
 struct IkNode {
     // JointKind joint;
 
@@ -32,11 +34,15 @@ struct IkController {
     glm::vec3 origin;
     glm::vec3 goal;
 
+    glm::quat visual_leaf_rot;
+    glm::quat visual_root_rot;
+
     ~IkController();
 
     // FABRIK
     void update(float tolerance = 0.01f, int max_iter = 1, float alpha = 0.01f);
 
+    void set_arm_transform(Level* arm);
     void draw_dbg();
 
     void push_node(IkNode* node);

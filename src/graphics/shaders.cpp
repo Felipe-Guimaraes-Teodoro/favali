@@ -37,23 +37,40 @@ uniform mat4 view;
 uniform vec4 color;
 uniform sampler2D ourTexture;
 
-layout (std140, binding = 0) uniform Light {
-    vec3 position;
-    vec3 color;
-} light;
+const int MAX_LIGHTS = 20;
 
-vec3 ambient = vec3(0.1);
+layout(std140, binding = 0) uniform Lights {
+    vec3 positions[MAX_LIGHTS];
+    vec3 colors[MAX_LIGHTS];
+    int lightCount;
+};
+
+const vec3 ambient = vec3(0.1);
 
 // uniform PointLight pointLights[16];
 
 void main() {
-    vec3 viewPos = -transpose(mat3(view)) * view[3].xyz;
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewPos = -mat3(view) * view[3].xyz;
 
-    vec3 lightDir = normalize(light.position - FragPos);
-    float diff = max(dot(Normal, lightDir), 0.1);
+    vec3 normal = Normal;
+    vec3 texColor = texture(ourTexture, TexCoord).rgb;
 
-    vec3 result = color.rgb * light.color * (diff + ambient) * texture(ourTexture, TexCoord).rgb;
+    vec3 result = vec3(0.0);
+
+    for(int i = 0; i < lightCount; i++) {
+        vec3 lightPos = positions[i];
+        vec3 lightColor = colors[i];
+
+        float distance = length(lightPos - FragPos);
+        vec3 lightDir = normalize(lightPos - FragPos);
+
+        float diff = max(dot(normal, lightDir), 0.1);
+
+        float attenuation = 1.0 / max(pow(distance, 1.5), 0.01);
+
+        result += color.rgb * lightColor * (diff + ambient) * texColor * (attenuation * 100);
+    }
+
     FragColor = vec4(result, color.a);
 }
 )";
@@ -81,39 +98,7 @@ void main() {
 }
 )";
 
-const char* default_fs_instanced = R"(
-#version 420 core
-
-in vec3 FragPos;
-in vec3 Normal;
-in vec2 TexCoord;
-
-out vec4 FragColor;
-
-uniform mat4 view;
-uniform vec4 color;
-uniform sampler2D ourTexture;
-
-layout (std140, binding = 0) uniform Light {
-    vec3 position;
-    vec3 color;
-} light;
-
-vec3 ambient = vec3(0.1);
-
-// uniform PointLight pointLights[16];
-
-void main() {
-    vec3 viewPos = -transpose(mat3(view)) * view[3].xyz;
-    vec3 viewDir = normalize(viewPos - FragPos);
-
-    vec3 lightDir = normalize(light.position - FragPos);
-    float diff = max(dot(Normal, lightDir), 0.1);
-
-    vec3 result = color.rgb * light.color * (diff + ambient) * texture(ourTexture, TexCoord).rgb;
-    FragColor = vec4(result, color.a);
-}
-)";
+const char* default_fs_instanced = default_fs;
 
 Shader create_shader(const GLchar *const * src, GLenum type) {
     Shader sha = {};

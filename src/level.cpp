@@ -18,6 +18,8 @@ void draw_level(Level *l, Camera& cam, unsigned int program) {
 
 /// Merge all static shapes into one big static shape
 /// Reduces draw calls but also reduces culling opportunities
+/// Todo: merge only shapes that share the same material
+/// aka: texture (since theres no actual material def)
 void merge_level_shapes(Level* level) {
     unsigned int base_index = 0;
 

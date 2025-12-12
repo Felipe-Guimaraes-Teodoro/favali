@@ -13,6 +13,7 @@ typedef struct {
 typedef struct {
     std::unique_ptr<Shape> shape;
     glm::vec3 dir; // always normalize!
+    glm::vec3 normal;
     float damage;
     float lifetime;
     float speed;

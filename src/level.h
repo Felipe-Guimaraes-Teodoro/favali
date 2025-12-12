@@ -4,10 +4,12 @@
 
 #include "shapes.h"
 #include "geometry.h"
+#include "light.h"
 
 using std::vector;
 
 typedef struct {
+    Lights lights;
     vector<Shape> shapes;
     // vector<Collider> colliders;
     // vector<Entity> entities; // shapes that move

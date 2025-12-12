@@ -36,24 +36,28 @@ unsigned int create_program(Shader& vs, Shader& fs);
 
 typedef struct {
     unsigned int UBO;
+    size_t size;
 } UniformBuffer;
 
-template<typename T>
-UniformBuffer create_ubo(const T *data) {
+template <typename T>
+UniformBuffer create_ubo(const T *data, size_t size) {
     UniformBuffer ub = {0};
+    ub.size = size;
     glGenBuffers(1, &ub.UBO);
 
     glBindBuffer(GL_UNIFORM_BUFFER, ub.UBO);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(T), data, GL_STATIC_DRAW);
+        glBufferData(GL_UNIFORM_BUFFER, size, data, GL_STATIC_DRAW);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     return ub;
 }
 
+/// Warning: UBO size will not change. 
+/// Make sure the buffer has been initialized with proper size
 template<typename T>
 void update_ubo(UniformBuffer& buf, const T* data) {
     glBindBuffer(GL_UNIFORM_BUFFER, buf.UBO);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(T), data);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, buf.size, data);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 

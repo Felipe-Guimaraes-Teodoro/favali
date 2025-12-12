@@ -171,10 +171,34 @@ Level *create_level_from_gltf(const char *path) {
     }
 
     level->shapes.reserve(primitive_count);
+    printf("%u shapes\n", primitive_count);
     unsigned int texture = 0;
+    int light_count = 0;
+
+    std::vector<unsigned int> indices;
+    std::vector<float> vertices;
 
     for (int i = 0; i < data->nodes_count; i++) {
         cgltf_node* node = &data->nodes[i];
+        printf("loading node %s\n", node->name);
+
+        // load lights
+        if (node->light) {
+            printf("loading light\n");
+            cgltf_light *light = node->light;
+
+            vec3 translation = vec3(0);
+            if (node->has_translation) {
+                translation = {node->translation[0], node->translation[1], node->translation[2]};
+            }
+
+            level->lights.position[light_count].v = translation;
+            level->lights.color[light_count].v = {light->color[0], light->color[1], light->color[2]};
+            light_count++;
+            level->lights.count = light_count;
+        }
+
+        // load meshes
         if (!node->mesh) continue;
 
         cgltf_mesh* mesh = node->mesh;
@@ -186,28 +210,37 @@ Level *create_level_from_gltf(const char *path) {
         for (int p = 0; p < mesh->primitives_count; p++){
             cgltf_primitive* prim = &mesh->primitives[p];
 
-            vector<unsigned int> indices = {};
-            vector<float> vertices = {};
+            vertices.clear();
+            indices.clear();
 
             append_index_data_from_primitive(prim, indices);
             append_vertex_data_from_primitive(prim, vertices);
             texture = create_texture_from_material(prim->material);
 
+            // this part is extremely slow
             Mesh mesh = create_mesh(vertices, indices);
+            // todo: merge all meshes with the same material
+            // onto one big shared mesh. it would reduce draw calls too
 
             Transform transform = Transform::empty();
             transform.position = node_pos;
             transform.rotation  = node_rot;
             transform.scale = node_scale;
 
-            Shape shape = Shape(
-                std::move(mesh), 
-                transform, 
-                glm::vec4(1.0),
+            level->shapes.emplace_back(
+                std::move(mesh),
+                transform,
+                glm::vec4(1.0f),
                 texture
             );
+        }
 
-            level->shapes.push_back(std::move(shape));
+        // append_instance_data_from_node(): 
+        if (node->has_mesh_gpu_instancing) {
+            printf("Node has gpu instancing\n");
+            for (int attr = 0; attr < node->mesh_gpu_instancing.attributes_count; attr++) {
+                printf("%s\n", node->mesh_gpu_instancing.attributes->name);
+            }
         }
     }
 

@@ -4,6 +4,7 @@
 #include "player.h"
 #include "glm.hpp"
 #include "SDL3/SDL.h"
+#include "ik.h"
 
 typedef struct{
     std::unique_ptr<Shape> shape;
@@ -19,7 +20,7 @@ typedef struct{
     float spread;
     unsigned int bullets_per_shot;
 
-    void update(float dt, Camera& camera, Player& player, std::vector<BVHNode*> worldBVHs);
+    void update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs);
 
     void draw(unsigned int program, Camera& camera);
 } Gun;
