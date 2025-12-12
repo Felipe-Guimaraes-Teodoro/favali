@@ -28,6 +28,7 @@
 #include "gun.h"
 #include "gizmos.h"
 #include "ik.h"
+#include "audio.h"
 
 using std::vector;
 
@@ -41,7 +42,7 @@ int h = 900 * 0.5;
 
 void init() {
     // sdl and gl
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+    SDL_Init(SDL_INIT_VIDEO);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
@@ -53,6 +54,9 @@ void init() {
         printf("could not initialize glad");
     }
     SDL_GL_MakeCurrent(window, gl_context);
+
+    init_audio();
+    audio_ctx->smp = load_wav("assets/sound.wav");
 
     // imgui
     imgui_init(window, gl_context);
@@ -95,6 +99,7 @@ int main() {
     unsigned int program_instanced = create_program(vs_instanced, fs_instanced);
 
     Player player = create_player();
+    audio_ctx->ud = &player;
     player.collider.radius = 1.0;
 
     glm::vec3 local_shoot_pos(3.2, -5.78, 0.);
@@ -105,7 +110,6 @@ int main() {
     gun.bullet_template = create_bullet_template();
 
     SDL_Surface surface;
-    SDL_Renderer *sr = SDL_CreateSoftwareRenderer(&surface);
 
     Level *level0 = create_level_from_gltf("../../../assets/lights.glb");
     std::vector<BVHNode*> worldBVHs;
@@ -128,7 +132,6 @@ int main() {
     bool lock_cursor = false;
     bool running = true;
 
-
     Level *arm = create_level_from_gltf("../../../assets/arm.glb");
     IkController controller = create_ik_controller({0.0, 0.0, 0.0});
     int i = 0;
@@ -145,16 +148,18 @@ int main() {
     UniformBuffer ubo = create_ubo<Lights>(&lights, sizeof(Lights));
     bind_ubo("Light", 0, ubo, fs);
 
-    // for (int i = 0; i < 200; i++) {
-    //     for (int j = 0; j < 200; j++) {
-    //         glm::mat4 model = glm::mat4(1.0f);
-    //         push_instance(
-    //             i_mesh,
-    //             glm::translate(model, vec3(i * 2, (rand() % 100) / 100.0, j * 2)) *
-    //             glm::scale(model, vec3(1.6, powf((rand() % 20) / 10.0, 2), 1.6))
-    //         );
-    //     }
-    // }
+    /*
+    for (int i = 0; i < 200; i++) {
+        for (int j = 0; j < 200; j++) {
+            glm::mat4 model = glm::mat4(1.0f);
+            push_instance(
+                i_mesh,
+                glm::translate(model, vec3(i * 2, (rand() % 100) / 100.0, j * 2)) *
+                glm::scale(model, vec3(1.6, powf((rand() % 20) / 10.0, 2), 1.6))
+            );
+        }
+    }
+    */
 
     update_instances(i_mesh);
 
@@ -227,7 +232,7 @@ int main() {
             controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
         }
 
-        // render_gizmos(camera);
+        render_gizmos(camera);
         imgui_frame(player);
 
         SDL_GL_SwapWindow(window);
@@ -245,6 +250,7 @@ int main() {
     SDL_Quit();
     imgui_shutdown();
     scripting_quit();
+    audio_quit();
 
     return 0;
 }

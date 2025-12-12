@@ -8,6 +8,7 @@
 #include "sod.h"
 #include "raycast.h"
 #include "SDL3/SDL.h"
+#include "audio.h"
 
 void PlayerCollider::update(float dt) {
     // im gonna be honest playercollider is pretty much just a wrapper for some variables at this point...
@@ -69,7 +70,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
     makeAABB_from_ray((Ray) {
         .origin = position,
         .direction = -UP,
-        .tMax = collider.radius * 2.0,
+        .tMax = collider.radius * 2.0f,
     });
 
     push_gizmo(Shapes::Cube, feet, {1.0, 0.0, 0.0, 1.0});
@@ -120,6 +121,18 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     if (state[SDL_SCANCODE_D]){
         wishdir -= camera.right;
     }
+    if (state[SDL_SCANCODE_LSHIFT]){
+        if (speed < speed_cap)
+            speed += sprint_accel * dt;
+        if (speed > speed_cap)
+            speed = speed_cap;
+    } else 
+        speed = speed_base;
+    if (state[SDL_SCANCODE_LCTRL]) {
+        crouching = true;
+    } else 
+        crouching = false;
+
     if (state[SDL_SCANCODE_SPACE] && grounded && last_jumped < 0.0){
         jump_current = jump_force;
         // push the player enough so it doesnt 
@@ -133,7 +146,28 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     if (glm::length(wishdir) > 0.1) {
         wishdir = glm::normalize(wishdir) * speed;
     }
-    position += wishdir * dt;
+    if (!crouching) {
+        collider.radius = 1.0;
+        velocity.x *= damping;
+        velocity.z *= damping;
+        velocity += wishdir;
+    } else {
+        collider.radius = 0.5;
+        if (!grounded && dive_boost) {
+            dive_boost = false;
+            velocity.x *= 1.6;
+            velocity.y *= 0.7;
+            velocity.z *= 1.6;
+        }
+        // position += wishdir * dt;
+        wishdir = vec3(0);
+
+        if (grounded) {
+            velocity.x *= powf(damping, 0.02);
+            velocity.z *= powf(damping, 0.02);
+        }
+        velocity.y += GRAVITY.y * dt * 2.5f;
+    }
 
     jump_current += GRAVITY.y * jump_decay;
     if (jump_current < 0) {
@@ -145,6 +179,7 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     last_jumped -= dt;
 
     if (grounded) {
+        dive_boost = true;
         // jump_current = 0.f;
         velocity.y = 0.f;
     }
@@ -172,9 +207,14 @@ Player create_player() {
     player.collider = default_player_collider();
     player.position = {0.0, 5.0, 0.0};
     player.head_ofs = vec3(0.0, 0.5, 0.0);
-    player.speed = 5.8;
-    player.damping = 0.9;
+    player.speed = 3.3;
+    player.speed_base = player.speed;
+    player.speed_cap = player.speed * 1.2;
+    player.sprint_accel = 4.0;
+    player.damping = 0.6;
     player.grounded = true;
+    player.crouching = false;
+    player.dive_boost = false;
     player.jump_force = 300.0;
     player.jump_decay = 5.0;
     player.last_jumped = 0;

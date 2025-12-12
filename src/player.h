@@ -36,10 +36,15 @@ typedef struct {
     float damping;
     vec3 accel;
 
+    float sprint_accel; // how fast the player can reach max speed
+    float speed_cap;
+    float speed_base;
     float speed;
     float current_speed;
 
     bool grounded;
+    bool crouching;
+    bool dive_boost;
     // float jump_delay
     float last_jumped; // stores the duration in seconds the player last jumped
     float jump_force;

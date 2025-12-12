@@ -26,6 +26,7 @@ add_executable(shenanigans
     src/sod.cpp
     src/gun.cpp
     src/ik.cpp
+    src/audio.cpp
 
     src/graphics/camera.cpp
     src/graphics/mesh.cpp

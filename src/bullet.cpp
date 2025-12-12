@@ -39,7 +39,7 @@ bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
     for (int i = 0; i < (int)worldBVHs.size(); i++) {
         candidates.clear();
         bvhQuery(worldBVHs[i], rayBox, candidates);
-
+        
         for (auto &tri : candidates) {
             float t;
 

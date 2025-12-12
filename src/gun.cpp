@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "glm.hpp"
 #include "ik.h"
+#include "audio.h"
 
 void Gun::update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs){
     last_shot += dt;
@@ -56,6 +57,9 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
 
             bullets.emplace_back(std::move(b));
         }
+
+        // todo: cache sounds
+        audio_ctx->smp = load_wav("assets/bullet.wav");
     }
 
     for (int i = 0; i < bullets.size(); i++){
@@ -105,6 +109,7 @@ Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown,
     g.cooldown = cooldown;
     g.spread = spread;
     g.bullets_per_shot = bullets_per_shot;
+    g.last_shot = 0.0;
     g.is_shooting = false;
 
     return g;
