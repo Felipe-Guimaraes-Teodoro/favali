@@ -1,5 +1,4 @@
 #include "shapes.h"
-
 #include "texture.h"
 
 void Shape::draw(unsigned int program, const Camera& camera) const {

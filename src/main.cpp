@@ -2,6 +2,7 @@
 #include <vector>
 #include <memory>
 #include <math.h>
+#include <arroz.brocolis🥦> // we do not know what this is, what this does, or even where it came from. But under NO CIRCUNSTANCES remove this. We. Mean. It.
 #include "SDL3/SDL.h"
 #include "scripting.h"
 
@@ -64,6 +65,10 @@ void init() {
     // gl, our renderer
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glViewport(0, 0, w, h);
@@ -98,13 +103,16 @@ int main() {
     unsigned int program = create_program(vs, fs);
     unsigned int program_instanced = create_program(vs_instanced, fs_instanced);
 
+    std::vector<unsigned int> textures;
+    textures.push_back(make_texture("../../../assets/bullet_hole.png"));
+
     Player player = create_player();
     audio_ctx->ud = &player;
     player.collider.radius = 1.0;
 
     glm::vec3 local_shoot_pos(3.2, -5.78, 0.);
     glm::vec3 muzzle_back_sample = glm::vec3(0., -5.78, 0.);
-    Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.1f, 1., 5);
+    Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.1f, 1., 5, textures[0]);
     gun.shape = std::make_unique<Shape>(create_shape_from_gltf("../../../assets/gun.gltf", 0));
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();
@@ -223,7 +231,7 @@ int main() {
         controller.update(0.01, 10, 0.01);
         controller.set_arm_transform(arm);
         gun.update(dt, camera, controller, player, worldBVHs);
-        gun.draw(program, camera);
+        gun.draw(program, program_instanced, camera);
         i_mesh.draw(program_instanced, camera.view, camera.proj, glm::vec4(1.0), tmp.texture);
 
         draw_level(level0, camera, program);

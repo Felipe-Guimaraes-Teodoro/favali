@@ -50,10 +50,11 @@ const vec3 ambient = vec3(0.1);
 // uniform PointLight pointLights[16];
 
 void main() {
+    vec4 texColor = texture(ourTexture, TexCoord);
+
     vec3 viewPos = -mat3(view) * view[3].xyz;
 
     vec3 normal = Normal;
-    vec3 texColor = texture(ourTexture, TexCoord).rgb;
 
     vec3 result = vec3(0.0);
 
@@ -68,10 +69,10 @@ void main() {
 
         float attenuation = 1.0 / max(pow(distance, 1.5), 0.01);
 
-        result += color.rgb * lightColor * (diff + ambient) * texColor * (attenuation * 100);
+        result += color.rgb * lightColor * (diff + ambient) * (attenuation * 100);
     }
 
-    FragColor = vec4(result, color.a);
+    FragColor = vec4(result, color.a) * texColor;
 }
 )";
 

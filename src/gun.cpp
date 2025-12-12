@@ -59,7 +59,7 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
         }
 
         // todo: cache sounds
-        audio_ctx->smp = load_wav("assets/bullet.wav");
+        // audio_ctx->smp = load_wav("assets/bullet.wav");
     }
 
     for (int i = 0; i < bullets.size(); i++){
@@ -76,12 +76,22 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
                 bullets[i].lifetime = 0.0f;
             }
 
+            if (bullets[i].lifetime == 0.0f){
+                Transform t = Transform::empty();
+                t.position = bullets[i].shape->transform.position;
+                t.position += bullets[i].normal*0.01f;
+                t.rotation = glm::rotation(glm::vec3(0,0,-1), bullets[i].normal);
+                t.scale *= 0.2;
+
+                push_instance(bullet_hole_mesh, t.getModelMat());
+                update_instances(bullet_hole_mesh);
+            }
         }
         bullets[i].update_bullet(dt);
     }
 }
 
-void Gun::draw(unsigned int program, Camera& camera){
+void Gun::draw(unsigned int program, unsigned int instanced_program, Camera& camera){
     shape->draw(program, camera);
 
     std::deque<int> dead_bullets;
@@ -94,6 +104,10 @@ void Gun::draw(unsigned int program, Camera& camera){
         }
     }
 
+    glEnable(GL_BLEND);
+    bullet_hole_mesh.draw(instanced_program, camera.view, camera.proj, glm::vec4(1.), bullet_hole_tex);
+    glDepthMask(GL_TRUE);
+
     for (int k = dead_bullets.size() - 1; k >= 0; k--) {
         int idx = dead_bullets[k];
         bullets.erase(bullets.begin() + idx);
@@ -101,7 +115,7 @@ void Gun::draw(unsigned int program, Camera& camera){
     dead_bullets.clear();
 }
 
-Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot){
+Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot, unsigned int bullet_hole_tex){
     Gun g;
     g.recoil_timer = 0.;
     g.muzzle_back_sample = muzzle_back_sample;
@@ -111,6 +125,10 @@ Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown,
     g.bullets_per_shot = bullets_per_shot;
     g.last_shot = 0.0;
     g.is_shooting = false;
+    
+    g.bullet_hole_tex = bullet_hole_tex;
+    Shape bs = make_shape(Shapes::Square, bullet_hole_tex); // Bullet Shape :)
+    g.bullet_hole_mesh = mesh_to_instanced(bs.mesh);
 
     return g;
 }

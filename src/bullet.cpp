@@ -56,11 +56,10 @@ bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
     }
 
     if (hit) {
-        // opcional: mover projétil ate o ponto de impacto
-        // shape->transform.position = r.origin + r.direction * closestT;
+        // optional: move bullet to hit position
+        shape->transform.position = r.origin + r.direction * closestT;
         return true;
     }
-
     return false;
 }
 
