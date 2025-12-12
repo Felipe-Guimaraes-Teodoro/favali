@@ -12,3 +12,4 @@ void push_gizmo_n_frames(Shapes shape, Transform t, int n, glm::vec4 col = {1.0,
 void pop_gizmo();
 
 void render_gizmos(Camera& cam);
+void end_frame_gizmos();

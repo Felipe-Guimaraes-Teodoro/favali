@@ -2,11 +2,11 @@
 
 
 void Camera::update() {
-    if (pitch > 89.9) 
-        pitch = 89.9;
+    if (pitch > 83.9) 
+        pitch = 83.9;
 
-    if (pitch < -89.9) 
-        pitch = -89.9;
+    if (pitch < -83.9) 
+        pitch = -83.9;
 
     front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
     front.y = sin(glm::radians(pitch));

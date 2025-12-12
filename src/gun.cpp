@@ -59,7 +59,11 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
         }
 
         // todo: cache sounds
-        // audio_ctx->smp = load_wav("assets/bullet.wav");
+        if (audio_ctx->smp) {
+            audio_ctx->smp->cursor = 0;
+        } else {
+            audio_ctx->smp = load_wav("assets/bullet.wav");
+        }
     }
 
     for (int i = 0; i < bullets.size(); i++){
@@ -74,18 +78,20 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
                 );
             } else {
                 bullets[i].lifetime = 0.0f;
-            }
 
-            if (bullets[i].lifetime == 0.0f){
+                int r = (rand() % 1000) - 500;
+            
                 Transform t = Transform::empty();
                 t.position = bullets[i].shape->transform.position;
                 t.position += bullets[i].normal*0.01f;
-                t.rotation = glm::rotation(glm::vec3(0,0,-1), bullets[i].normal);
-                t.scale *= 0.2;
+                t.rotation = glm::rotation(glm::vec3(0,0,-1), bullets[i].normal)
+                    * glm::angleAxis(r / 500.0f, vec3(0, 0, -1));
+                t.scale *= 0.2 + r / 5000.0f;
 
                 push_instance(bullet_hole_mesh, t.getModelMat());
                 update_instances(bullet_hole_mesh);
             }
+
         }
         bullets[i].update_bullet(dt);
     }
@@ -104,7 +110,7 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, Camera& cam
         }
     }
 
-    glEnable(GL_BLEND);
+    glDepthMask(GL_FALSE); // prevents Z-fighting
     bullet_hole_mesh.draw(instanced_program, camera.view, camera.proj, glm::vec4(1.), bullet_hole_tex);
     glDepthMask(GL_TRUE);
 

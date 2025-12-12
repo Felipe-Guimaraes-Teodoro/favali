@@ -57,7 +57,7 @@ void init() {
     SDL_GL_MakeCurrent(window, gl_context);
 
     init_audio();
-    audio_ctx->smp = load_wav("assets/sound.wav");
+    // audio_ctx->smp = load_wav("assets/sound.wav");
 
     // imgui
     imgui_init(window, gl_context);
@@ -119,7 +119,7 @@ int main() {
 
     SDL_Surface surface;
 
-    Level *level0 = create_level_from_gltf("../../../assets/lights.glb");
+    Level *level0 = create_level_from_gltf("../../../assets/level2.glb");
     std::vector<BVHNode*> worldBVHs;
     for (int i = 0; i < level0->shapes.size(); i++){
         std::vector<MeshTriangle> world_tris = get_level_tris(&level0->shapes[i]);
@@ -186,6 +186,8 @@ int main() {
                     clear_instances(i_mesh);
                     update_instances(i_mesh);
                     exec_script();
+                    clear_instances(gun.bullet_hole_mesh);
+                    update_instances(gun.bullet_hole_mesh);
                 }
 
                 if (event.key.key == SDLK_LALT){
@@ -229,18 +231,23 @@ int main() {
         player.update(dt, lock_cursor, sensitivity, camera);
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
-        controller.set_arm_transform(arm);
+        controller.set_arm_transform(arm, camera);
         gun.update(dt, camera, controller, player, worldBVHs);
-        gun.draw(program, program_instanced, camera);
         i_mesh.draw(program_instanced, camera.view, camera.proj, glm::vec4(1.0), tmp.texture);
 
         draw_level(level0, camera, program);
         draw_level(arm, camera, program);
+
+        // draw gun (and thus bullet holes) at last 
+        gun.draw(program, program_instanced, camera);
+
         if (lua_ctx) {
-            controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
+            // controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
         }
 
-        render_gizmos(camera);
+        // render_gizmos(camera); // automatically calls "end_frame_gizmos"
+        end_frame_gizmos(); 
+
         imgui_frame(player);
 
         SDL_GL_SwapWindow(window);
@@ -251,6 +258,8 @@ int main() {
         if (frame_ms < target) {
             SDL_Delay((Uint32)(target - frame_ms));
         }
+
+        // printf("%.1f\n", frame_ms);
     }
 
     SDL_DestroyWindow(window);

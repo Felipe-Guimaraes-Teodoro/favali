@@ -3,6 +3,7 @@
 #include "glm.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/quaternion.hpp"
+#include "camera.h"
 
 #include "level.h"
 
@@ -42,7 +43,7 @@ struct IkController {
     // FABRIK
     void update(float tolerance = 0.01f, int max_iter = 1, float alpha = 0.01f);
 
-    void set_arm_transform(Level* arm);
+    void set_arm_transform(Level* arm, Camera& camera);
     void draw_dbg();
 
     void push_node(IkNode* node);

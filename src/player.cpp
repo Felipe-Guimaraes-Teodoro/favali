@@ -109,11 +109,13 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     camera.mouse_view(lock_cursor, mouse_x, mouse_y, sensitivity);
 
     wishdir = vec3(0);
+    vec3 zx_front = glm::normalize(vec3(camera.front.x, 0.0, camera.front.z));
+
     if (state[SDL_SCANCODE_W]){
-        wishdir += camera.front;
+        wishdir += zx_front;
     }
     if (state[SDL_SCANCODE_S]){
-        wishdir -= camera.front;
+        wishdir -= zx_front;
     }
     if (state[SDL_SCANCODE_A]){
         wishdir += camera.right;
@@ -153,29 +155,31 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
         velocity += wishdir;
     } else {
         collider.radius = 0.5;
-        if (!grounded && dive_boost) {
+        if (!grounded && dive_boost && last_jumped < 0.0) {
             dive_boost = false;
             velocity.x *= 1.6;
             velocity.y *= 0.7;
             velocity.z *= 1.6;
         }
-        // position += wishdir * dt;
-        wishdir = vec3(0);
 
         if (grounded) {
+            position += wishdir * dt;
+
             velocity.x *= powf(damping, 0.02);
             velocity.z *= powf(damping, 0.02);
         }
+        wishdir = vec3(0);
+        // fall faster
         velocity.y += GRAVITY.y * dt * 2.5f;
     }
 
-    jump_current += GRAVITY.y * jump_decay;
+    jump_current += GRAVITY.y * jump_decay * dt;
     if (jump_current < 0) {
         jump_current = 0;
     }
 
-    accel = GRAVITY;
-    velocity.y += (accel.y + jump_current) * dt;
+    accel = GRAVITY * dt;
+    velocity.y += accel.y + jump_current;
     last_jumped -= dt;
 
     if (grounded) {
@@ -215,8 +219,8 @@ Player create_player() {
     player.grounded = true;
     player.crouching = false;
     player.dive_boost = false;
-    player.jump_force = 300.0;
-    player.jump_decay = 5.0;
+    player.jump_force = 10.0;
+    player.jump_decay = 50.0;
     player.last_jumped = 0;
 
     return player;

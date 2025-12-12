@@ -133,7 +133,7 @@ void pop_gizmo() {
         gizmo_queue->gizmos.pop_back();
 }
 
-void end_frame() {
+void end_frame_gizmos() {
     for (int i = (int)(gizmo_queue->gizmos.size()) - 1; i >= 0; --i) {
         if (gizmo_queue->gizmos[i].frames <= 0) {
             gizmo_queue->gizmos.erase(gizmo_queue->gizmos.begin() + i);
@@ -160,7 +160,7 @@ void render_gizmos(Camera& cam) {
         gizmo.frames--;
     }
 
-    end_frame();
+    end_frame_gizmos();
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_CULL_FACE);

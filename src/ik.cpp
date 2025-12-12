@@ -118,7 +118,7 @@ void IkController::update(float tolerance, int max_iter, float alpha) {
     }
 }
 
-void IkController::set_arm_transform(Level* arm) {
+void IkController::set_arm_transform(Level* arm, Camera& camera) {
     IkNode* cur = root;
     int i = 0;
 
@@ -131,7 +131,7 @@ void IkController::set_arm_transform(Level* arm) {
         dir = normalize(dir);
 
         vec3 forward = dir;
-        vec3 right = glm::normalize(glm::cross(UP, forward));
+        vec3 right = glm::normalize(glm::cross(camera.up, forward));
         if (glm::length(right) < 1e-6f) {
             right = normalize(cross(vec3(1,0,0), forward));
         }
