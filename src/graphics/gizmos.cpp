@@ -135,6 +135,8 @@ void pop_gizmo() {
 
 void end_frame_gizmos() {
     for (int i = (int)(gizmo_queue->gizmos.size()) - 1; i >= 0; --i) {
+        gizmo_queue->gizmos[i].frames--;
+
         if (gizmo_queue->gizmos[i].frames <= 0) {
             gizmo_queue->gizmos.erase(gizmo_queue->gizmos.begin() + i);
         }
@@ -156,8 +158,6 @@ void render_gizmos(Camera& cam) {
             gizmo.color,
             0
         );
-
-        gizmo.frames--;
     }
 
     end_frame_gizmos();

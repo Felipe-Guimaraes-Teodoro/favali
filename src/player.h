@@ -48,8 +48,6 @@ typedef struct {
     // float jump_delay
     float last_jumped; // stores the duration in seconds the player last jumped
     float jump_force;
-    float jump_current;
-    float jump_decay; // controls how fast the jump force should deplete
 
     PlayerCollider collider;
 

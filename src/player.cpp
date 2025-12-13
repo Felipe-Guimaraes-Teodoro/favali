@@ -136,7 +136,7 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
         crouching = false;
 
     if (state[SDL_SCANCODE_SPACE] && grounded && last_jumped < 0.0){
-        jump_current = jump_force;
+        velocity.y = jump_force;
         // push the player enough so it doesnt 
         // get detected as grounded mid jump
         position.y += collider.radius * 0.5;
@@ -170,19 +170,14 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
         }
         wishdir = vec3(0);
         // fall faster
-        velocity.y += GRAVITY.y * dt * 2.5f;
-    }
-
-    jump_current += GRAVITY.y * jump_decay * dt;
-    if (jump_current < 0) {
-        jump_current = 0;
+        velocity.y -= jump_force * dt * 2.5f;
     }
 
     accel = GRAVITY * dt;
-    velocity.y += accel.y + jump_current;
+    velocity.y += accel.y;
     last_jumped -= dt;
 
-    if (grounded) {
+    if (grounded && last_jumped < 0.0) {
         dive_boost = true;
         // jump_current = 0.f;
         velocity.y = 0.f;
@@ -213,14 +208,13 @@ Player create_player() {
     player.head_ofs = vec3(0.0, 0.5, 0.0);
     player.speed = 3.3;
     player.speed_base = player.speed;
-    player.speed_cap = player.speed * 1.2;
+    player.speed_cap = player.speed * 1.6;
     player.sprint_accel = 4.0;
     player.damping = 0.6;
     player.grounded = true;
     player.crouching = false;
     player.dive_boost = false;
-    player.jump_force = 10.0;
-    player.jump_decay = 50.0;
+    player.jump_force = 6.5;
     player.last_jumped = 0;
 
     return player;
