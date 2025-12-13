@@ -65,10 +65,7 @@ void init() {
     // gl, our renderer
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-    
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+        
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
     glViewport(0, 0, w, h);
@@ -102,22 +99,34 @@ int main() {
     Shader fs_instanced = create_shader(&default_fs_instanced, GL_FRAGMENT_SHADER);
     Shader vs_cube_map = create_shader(&cube_map_vs, GL_VERTEX_SHADER);
     Shader fs_cube_map = create_shader(&cube_map_fs, GL_FRAGMENT_SHADER);
+    Shader vs_sun = create_shader(&sun_vs, GL_VERTEX_SHADER);
+    Shader fs_sun = create_shader(&sun_fs, GL_FRAGMENT_SHADER);
     
     unsigned int program = create_program(vs, fs);
     unsigned int program_instanced = create_program(vs_instanced, fs_instanced);
     unsigned int program_cube_mesh = create_program(vs_cube_map, fs_cube_map);
+    unsigned int program_sun = create_program(vs_sun, fs_sun);
 
     std::vector<unsigned int> textures;
     textures.push_back(make_texture("../../../assets/bullet_hole.png"));
 
-    CubeMapMesh cube_map = create_cube_map();
-    cube_map.texture = make_cube_map_texture({
-        "../../../assets/skybox/right.jpg",
-        "../../../assets/skybox/left.jpg",
-        "../../../assets/skybox/top.jpg",
-        "../../../assets/skybox/bottom.jpg",
-        "../../../assets/skybox/front.jpg",
-        "../../../assets/skybox/back.jpg"
+    CubeMapMesh sky = create_cube_map();
+    sky.day_texture = make_cube_map_texture({
+        "../../../assets/skybox/day/day_right.jpg",
+        "../../../assets/skybox/day/day_left.jpg",
+        "../../../assets/skybox/day/day_top.jpg",
+        "../../../assets/skybox/day/day_bottom.jpg",
+        "../../../assets/skybox/day/day_front.jpg",
+        "../../../assets/skybox/day/day_back.jpg"
+    });
+
+    sky.night_texture = make_cube_map_texture({
+        "../../../assets/skybox/night/night_right.jpg",
+        "../../../assets/skybox/night/night_left.jpg",
+        "../../../assets/skybox/night/night_top.jpg",
+        "../../../assets/skybox/night/night_bottom.jpg",
+        "../../../assets/skybox/night/night_front.jpg",
+        "../../../assets/skybox/night/night_back.jpg"
     });
 
     Player player = create_player();
@@ -147,6 +156,7 @@ int main() {
 
     float fps = 60.0f;
     float dt = 0.0f;
+    float time = 50.0f;
     float sensitivity = 0.1;
     bool shoot = false;
     static float recoil_timer = 0.0f;
@@ -242,8 +252,6 @@ int main() {
         
         CLEAR_SCREEN;
 
-
-        
         player.update(dt, lock_cursor, sensitivity, camera);
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
@@ -254,11 +262,7 @@ int main() {
         draw_level(level0, camera, program);
         draw_level(arm, camera, program);
 
-        glDepthMask(GL_FALSE);
-        glDepthFunc(GL_LEQUAL);
-        cube_map.draw(program_cube_mesh, glm::mat4(1.0f), glm::mat4(glm::mat3(camera.view)), camera.proj);
-        glDepthMask(GL_TRUE);
-        glDepthFunc(GL_LESS);
+        sky.draw(program_cube_mesh, program_sun, camera, time); // last to draw for optimisation purposes
 
         // draw gun (and thus bullet holes) at last 
         gun.draw(program, program_instanced, camera);
@@ -282,6 +286,7 @@ int main() {
         }
 
         // printf("%.1f\n", frame_ms);
+        time += dt;
     }
 
     SDL_DestroyWindow(window);

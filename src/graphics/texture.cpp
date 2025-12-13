@@ -1,5 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "texture.h"
+#include "PerlinNoise.hpp"
 #include <string>
 
 // todo: whenever this is called return A default texture
@@ -106,4 +107,68 @@ unsigned int make_cube_map_texture(const std::vector<const char*> &faces){
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return texture;
+}
+
+unsigned int make_random_texture(){
+    int size = 256;
+    std::vector<unsigned char> data(size*size);
+
+    for(int y=0; y<size; y++){
+        for(int x=0; x<size; x++){
+            data[y*size + x] = rand() % 256;
+        }
+    }
+
+    GLuint noiseTex;
+    glGenTextures(1, &noiseTex);
+    glBindTexture(GL_TEXTURE_2D, noiseTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, size, size, 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    return noiseTex;
+}
+
+using namespace siv;
+
+
+unsigned int make_perlin_texture(int size = 512){
+    siv::PerlinNoise perlin(1234);
+    std::vector<unsigned char> data(size*size);
+
+    for(int y=0; y<size; y++){
+        for(int x=0; x<size; x++){
+            double nx = double(x)/double(size);
+            double ny = double(y)/double(size);
+
+            double n = 0.0;
+            double freq = 1.0;
+            double amp = 1.0;
+
+            // fractal noise 5 octaves
+            for(int o=0; o<5; o++){
+                n += amp * perlin.noise2D_01(nx*freq, ny*freq); // 0..1
+                freq *= 2.0;
+                amp *= 0.5;
+            }
+
+            n = std::clamp(n, 0.0, 1.0);
+            data[y*size + x] = static_cast<unsigned char>(n * 255);
+        }
+    }
+
+    GLuint noiseTex;
+    glGenTextures(1, &noiseTex);
+    glBindTexture(GL_TEXTURE_2D, noiseTex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, size, size, 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return noiseTex;
 }

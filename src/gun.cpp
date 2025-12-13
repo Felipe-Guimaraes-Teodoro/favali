@@ -47,7 +47,7 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
             rand_spread *= 0.2;
 
             glm::vec4 dir = glm::vec4(muzzle_pos - muzzle_back_sample, 0.);
-            dir -= glm::vec4(player.head_ofs+rand_spread, 0.);
+            dir -= glm::vec4(rand_spread, 0.);
             glm::vec3 dir_norm = glm::normalize(glm::vec3(shape->transform.getModelMat() * dir));
 
             Bullet b = create_bullet(muzzle_world, dir_norm);
@@ -110,9 +110,12 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, Camera& cam
         }
     }
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE); // prevents Z-fighting
     bullet_hole_mesh.draw(instanced_program, camera.view, camera.proj, glm::vec4(1.), bullet_hole_tex);
     glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 
     for (int k = dead_bullets.size() - 1; k >= 0; k--) {
         int idx = dead_bullets[k];

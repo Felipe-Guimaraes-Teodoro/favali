@@ -4,6 +4,7 @@
 using std::vector;
 #include "glad/glad.h"
 #include "gtc/type_ptr.hpp"
+#include "camera.h"
 
 struct Mesh {
     unsigned int VBO, VAO, EBO;
@@ -152,7 +153,12 @@ struct CubeMapMesh {
     vector<float> vertices;
     vector<unsigned int> indices;
 
-    unsigned int texture;
+    unsigned int day_texture;
+    unsigned int night_texture;
+
+    unsigned int clouds_texture;
+
+    Mesh sun;
 
     bool setup = false;
 
@@ -193,10 +199,10 @@ struct CubeMapMesh {
     void destroy();
 
     void draw(
-        unsigned int program, 
-        glm::mat4 model_mat, 
-        glm::mat4 view_mat, 
-        glm::mat4 proj_mat
+        unsigned int program,
+        unsigned int sun,
+        Camera& camera,
+        float time
     ) const;
 
     ~CubeMapMesh();
