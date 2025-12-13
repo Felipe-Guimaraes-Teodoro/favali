@@ -1,5 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "texture.h"
+#include <string>
 
 // todo: whenever this is called return A default texture
 // already stored somewhere instead of always creating the 
@@ -70,6 +71,39 @@ unsigned int make_texture_from_memory(const uint8_t* src, int size) {
     }
     
     stbi_image_free(data);
+
+    return texture;
+}
+
+unsigned int make_cube_map_texture(const std::vector<const char*> &faces){
+    unsigned int texture;
+    
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+    
+    int width, height, nrChannels;
+    for (int i = 0; i < faces.size(); i++){
+        unsigned char *data = stbi_load(faces[i], &width, &height, &nrChannels, 0);
+        
+        GLenum format = GL_RGB;
+        if (nrChannels == 1) format = GL_RED;
+        else if (nrChannels == 3) format = GL_RGB;
+        else if (nrChannels == 4) format = GL_RGBA;
+        
+        if (data){
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            stbi_image_free(data);
+        }
+        else{
+            printf("Failed to load cubemap texture %s. Error: %s\n", faces[i], stbi_failure_reason());
+        }
+    }
+
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return texture;
 }

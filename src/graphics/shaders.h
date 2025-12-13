@@ -12,6 +12,9 @@ extern const char* default_fs;
 extern const char* default_vs_instanced;
 extern const char* default_fs_instanced;
 
+extern const char* cube_map_vs;
+extern const char* cube_map_fs;
+
 typedef struct {
     unsigned int id;
 } Shader;

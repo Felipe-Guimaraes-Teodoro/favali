@@ -99,12 +99,26 @@ int main() {
     Shader vs = create_shader(&default_vs, GL_VERTEX_SHADER);
     Shader fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);    
     Shader vs_instanced = create_shader(&default_vs_instanced, GL_VERTEX_SHADER);
-    Shader fs_instanced = create_shader(&default_fs_instanced, GL_FRAGMENT_SHADER);    
+    Shader fs_instanced = create_shader(&default_fs_instanced, GL_FRAGMENT_SHADER);
+    Shader vs_cube_map = create_shader(&cube_map_vs, GL_VERTEX_SHADER);
+    Shader fs_cube_map = create_shader(&cube_map_fs, GL_FRAGMENT_SHADER);
+    
     unsigned int program = create_program(vs, fs);
     unsigned int program_instanced = create_program(vs_instanced, fs_instanced);
+    unsigned int program_cube_mesh = create_program(vs_cube_map, fs_cube_map);
 
     std::vector<unsigned int> textures;
     textures.push_back(make_texture("../../../assets/bullet_hole.png"));
+
+    CubeMapMesh cube_map = create_cube_map();
+    cube_map.texture = make_cube_map_texture({
+        "../../../assets/skybox/right.jpg",
+        "../../../assets/skybox/left.jpg",
+        "../../../assets/skybox/top.jpg",
+        "../../../assets/skybox/bottom.jpg",
+        "../../../assets/skybox/front.jpg",
+        "../../../assets/skybox/back.jpg"
+    });
 
     Player player = create_player();
     audio_ctx->ud = &player;
@@ -227,6 +241,8 @@ int main() {
         player.solve_collisions(worldBVHs);
         
         CLEAR_SCREEN;
+
+
         
         player.update(dt, lock_cursor, sensitivity, camera);
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
@@ -237,6 +253,12 @@ int main() {
 
         draw_level(level0, camera, program);
         draw_level(arm, camera, program);
+
+        glDepthMask(GL_FALSE);
+        glDepthFunc(GL_LEQUAL);
+        cube_map.draw(program_cube_mesh, glm::mat4(1.0f), glm::mat4(glm::mat3(camera.view)), camera.proj);
+        glDepthMask(GL_TRUE);
+        glDepthFunc(GL_LESS);
 
         // draw gun (and thus bullet holes) at last 
         gun.draw(program, program_instanced, camera);

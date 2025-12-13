@@ -15,7 +15,7 @@ void Bullet::update_bullet(float dt){
     }
     shape->transform.position += dir * speed * dt;
     dir += GRAVITY * dt / speed; 
-    shape->transform.scale = vec3(.05, .05, std::max(speed * .025, 0.01));
+    shape->transform.scale = vec3(.05);
     shape->transform.rotation = glm::quatLookAt(dir, UP);
 
     lifetime -= dt;
@@ -56,7 +56,6 @@ bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
     }
 
     if (hit) {
-        // optional: move bullet to hit position
         shape->transform.position = r.origin + r.direction * closestT;
         return true;
     }

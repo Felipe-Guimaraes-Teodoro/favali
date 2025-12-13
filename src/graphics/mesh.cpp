@@ -278,3 +278,150 @@ void pop_instance(InstancedMesh& mesh) {
 void clear_instances(InstancedMesh& mesh) {
     mesh.instances = {glm::identity<glm::mat4>()};
 }
+
+// Cube Map business
+
+CubeMapMesh create_cube_map() {
+    std::vector<float> vertices = {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
+
+    std::vector<unsigned int> indices = {
+        0, 1, 2,
+        3, 4, 5,
+
+        6, 7, 8,
+        9, 10, 11,
+
+        12, 13, 14,
+        15, 16, 17,
+
+        18, 19, 20,
+        21, 22, 23,
+
+        24, 25, 26,
+        27, 28, 29,
+
+        30, 31, 32,
+        33, 34, 35
+    };
+
+    CubeMapMesh mesh;
+
+    mesh.vertices = vertices;
+    mesh.indices  = indices;
+
+    setup_cube_map_mesh(mesh);
+    return mesh;
+}
+
+void setup_cube_map_mesh(CubeMapMesh& mesh) {
+    mesh.setup = true;
+
+    glGenVertexArrays(1, &mesh.VAO);
+    glGenBuffers(1, &mesh.VBO);
+    glGenBuffers(1, &mesh.EBO);
+    
+    glBindVertexArray(mesh.VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh.VBO);
+            glBufferData(GL_ARRAY_BUFFER, 
+                mesh.vertices.size() * sizeof(float), 
+                mesh.vertices.data(), 
+                GL_STATIC_DRAW
+            );
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
+                mesh.indices.size() * sizeof(unsigned int), 
+                mesh.indices.data(), 
+                GL_STATIC_DRAW
+            );
+
+        // POSITION
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0); 
+    glBindVertexArray(0);
+}
+
+CubeMapMesh::~CubeMapMesh() {
+    destroy();
+}
+
+void CubeMapMesh::destroy() {
+    if (VBO) glDeleteBuffers(1, &VBO);
+    if (EBO) glDeleteBuffers(1, &EBO);
+    if (VAO) glDeleteVertexArrays(1, &VAO);
+
+    VBO = VAO = EBO = 0;
+    setup = false;
+}
+
+void CubeMapMesh::draw(
+    unsigned int program, 
+    glm::mat4 model_mat, 
+    glm::mat4 view_mat, 
+    glm::mat4 proj_mat
+) const {
+    if (!setup) {
+        printf("WARNING: Attempting to draw deleted or incomplete cube map mesh\n"); 
+        return;
+    }
+
+    glUseProgram(program);
+    
+    shader_uniform_mat4(program, "model", model_mat);
+    shader_uniform_mat4(program, "view", view_mat);
+    shader_uniform_mat4(program, "projection", proj_mat);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+    glBindVertexArray(VAO);
+    glDrawElements(
+        GL_TRIANGLES,
+        indices.size(), 
+        GL_UNSIGNED_INT, 
+        0
+    );
+}

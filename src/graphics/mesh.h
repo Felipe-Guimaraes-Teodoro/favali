@@ -145,3 +145,63 @@ void update_instances(InstancedMesh& mesh);
 void push_instance(InstancedMesh& mesh, const glm::mat4& instance);
 void pop_instance(InstancedMesh& mesh);
 void clear_instances(InstancedMesh& mesh);
+
+struct CubeMapMesh {
+    unsigned int VBO, VAO, EBO;
+
+    vector<float> vertices;
+    vector<unsigned int> indices;
+
+    unsigned int texture;
+
+    bool setup = false;
+
+    CubeMapMesh() = default;
+
+    // prevent copying
+    CubeMapMesh(const CubeMapMesh&) = delete;
+    CubeMapMesh& operator=(const CubeMapMesh&) = delete;
+
+    // allow moving
+    CubeMapMesh(CubeMapMesh&& other) noexcept {
+        VBO = other.VBO;  other.VBO = 0;
+        VAO = other.VAO;  other.VAO = 0;
+        EBO = other.EBO;  other.EBO = 0;
+
+        vertices = std::move(other.vertices);
+        indices  = std::move(other.indices);
+        setup = other.setup;
+        other.setup = false;
+    }
+
+    CubeMapMesh& operator=(CubeMapMesh&& other) noexcept {
+        if (this != &other) {
+            destroy();
+
+            VBO = other.VBO;  other.VBO = 0;
+            VAO = other.VAO;  other.VAO = 0;
+            EBO = other.EBO;  other.EBO = 0;
+
+            vertices = std::move(other.vertices);
+            indices  = std::move(other.indices);
+            setup = other.setup;
+            other.setup = false;
+        }
+        return *this;
+    }
+
+    void destroy();
+
+    void draw(
+        unsigned int program, 
+        glm::mat4 model_mat, 
+        glm::mat4 view_mat, 
+        glm::mat4 proj_mat
+    ) const;
+
+    ~CubeMapMesh();
+};
+
+void setup_cube_map_mesh(CubeMapMesh& mesh);
+
+CubeMapMesh create_cube_map();
