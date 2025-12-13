@@ -23,7 +23,7 @@ void imgui_frame(Player& player) {
     ImGui::NewFrame();
 
     ImGui::Begin("Hello, ImGui!");
-    ImGui::Text("This is a test window. %u, %f, %f", player.grounded, player.jump_current, player.last_jumped);
+    ImGui::Text("This is a test window. %u, %f", player.grounded, player.last_jumped);
     ImGui::End();
 
     ImGui::Render();

@@ -58,11 +58,11 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
             bullets.emplace_back(std::move(b));
         }
 
-        // todo: cache sounds
-        if (audio_ctx->smp) {
-            audio_ctx->smp->cursor = 0;
+        if (audio_ctx->samples[0]) {
+            audio_ctx->samples[0]->cursor = 0;
         } else {
-            audio_ctx->smp = load_wav("assets/bullet.wav");
+            audio_ctx->samples[0] = load_wav("assets/bullet.wav", 0.1, false);
+            // audio_ctx->samples[0]->pan = 1.0;
         }
     }
 
@@ -76,6 +76,14 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
                 bullets[i].dir = glm::normalize(
                     bullets[i].dir - 2.0f * dot * bullets[i].normal
                 );
+
+                if (audio_ctx->samples[1]) {
+                    audio_ctx->samples[1]->cursor = 500 * sizeof(float) * 2;
+                } else {
+                    audio_ctx->samples[1] = load_wav("assets/bullet.wav", 0.1, false);
+                    audio_ctx->samples[1]->pitch = 1.5;
+                    // audio_ctx->samples[0]->pan = 1.0;
+                }
             } else {
                 bullets[i].lifetime = 0.0f;
 
@@ -90,6 +98,14 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
 
                 push_instance(bullet_hole_mesh, t.getModelMat());
                 update_instances(bullet_hole_mesh);
+
+                if (audio_ctx->samples[2]) {
+                    audio_ctx->samples[2]->cursor = 500 * sizeof(float) * 2;
+                } else {
+                    audio_ctx->samples[2] = load_wav("assets/bullet.wav", 0.1, false);
+                    audio_ctx->samples[2]->pitch = 0.5;
+                    // audio_ctx->samples[0]->pan = 1.0;
+                }
             }
 
         }

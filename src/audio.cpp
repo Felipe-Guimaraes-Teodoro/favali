@@ -2,7 +2,7 @@
 
 AudioCtx *audio_ctx = NULL;
 
-Sample *load_wav(const char *path) {
+Sample *load_wav(const char *path, float volume, bool delete_on_finished) {
     Sample *smp = (Sample*) calloc(1, sizeof(Sample));
 
     SDL_IOStream *file = SDL_IOFromFile(path, "rb");
@@ -37,59 +37,75 @@ Sample *load_wav(const char *path) {
     smp->length = out / sizeof(float);
     smp->cursor = 0;
     smp->pitch = 1.0;
-    smp->volume = 0.1;
+    smp->volume = volume;
+    smp->delete_on_finished = delete_on_finished;
 
     SDL_DestroyAudioStream(stream);
     return smp;
 }
 
+#define MAX_FRAMES 128
+
 void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int total_amm) {
-    static int sample = 0;
-    Player *p = (Player*)audio_ctx->ud;
-    Sample *s = (Sample*)audio_ctx->smp;
+    Samples& smp = audio_ctx->samples;
 
     additional_amm /= sizeof(float); // from bytes to samples
+    int frames_requested = additional_amm / 2;
 
-    while (additional_amm > 0 && p) {
-        float samples[512];
-        const int total = SDL_min(additional_amm, SDL_arraysize(samples));
-        int i;
-    /*
-        for (i = 0; i < total; i++) {
-            const int f = 220;
-            const float phase = sample * f / 44100.0f;
-            samples[i] = SDL_sinf(phase * 2 * SDL_PI_F) * 0.01;
-            sample++;
-        }
-      */  
-        if (s && s->buf && !s->finished()) {
-            size_t remain = s->length - s->cursor;
-            size_t n = SDL_min(total, remain);
+    while (frames_requested > 0) {
+        float out[MAX_FRAMES * 2]; // stereo interleaved
+        const int frames = SDL_min(frames_requested, MAX_FRAMES);
 
-            for (i = 0; i < (int)n; i++) {
-                float v = s->buf[s->cursor + i];
+        SDL_memset(out, 0, frames*2*sizeof(float));
+        
+        for (Sample* s : smp) {
+            if (!s || !s->buf || s->finished())
+                continue;
 
-                // i need to protect my hearing
-                if (v > 1.0f)  v = 1.0f;
-                if (v < -1.0f) v = -1.0f;
+            float vol = s->volume;
 
-                samples[i] = v * s->volume;
+            // equal power panning
+            float l_gain = SDL_cosf((s->pan + 1.0f) * 0.25f * M_PI) * vol;
+            float r_gain = SDL_sinf((s->pan + 1.0f) * 0.25f * M_PI) * vol;
+
+            size_t remain_frames = (s->length - s->cursor) / 2;
+            size_t to_mix = SDL_min((size_t)frames, remain_frames);
+
+            for (int i = 0; i < to_mix; i++) {
+                float cursor = s->cursor;
+                int frame_idx = (int)cursor;
+
+                if (frame_idx + 1 >= s->length / 2) {
+                    break;
+                }
+                
+                float frac = cursor - frame_idx;
+
+                float vl = s->buf[frame_idx*2 + 0] * (1.0f - frac) + s->buf[(frame_idx+1)*2 + 0] * frac + 1e-20f;
+                float vr = s->buf[frame_idx*2 + 1] * (1.0f - frac) + s->buf[(frame_idx+1)*2 + 1] * frac + 1e-20f;
+
+                out[i*2 + 0] += vl * l_gain;
+                out[i*2 + 1] += vr * r_gain;
+
+                // advance fractional cursor
+                s->cursor += s->pitch;
             }
 
-            s->cursor += n;
-        }
-
-        if (s && s->finished()) {
-            if (s->buf)
+            if (s->finished() && s->delete_on_finished) {
                 SDL_free(s->buf);
-            s->buf = NULL;
+                s->buf = nullptr;
+            }
+        } // for sample
+
+        // global (soft) limiter
+        for (int i = 0; i < frames * 2; i++) {
+            float x = out[i];
+            out[i] = x / (1.0f + fabsf(x));
         }
 
-        sample %= 44100; // avoid float precision errors;
+        SDL_PutAudioStreamData(stream, out, frames * 2 * sizeof(float));
 
-        SDL_PutAudioStreamData(stream, samples, total * sizeof(float));
-
-        additional_amm -= total;
+        frames_requested -= frames;
     }
 }
 
