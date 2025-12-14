@@ -80,14 +80,20 @@ void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int t
                 float distance = glm::distance(
                     audio_ctx->listener.pos, s->emitter.pos
                 ) * s->emitter.roll_off;
-                
+
                 float attenuation = 1.0 / (1.0 + distance*distance);
 
                 vol = s->volume * attenuation;
-                vec3 emmiter_dir = glm::normalize(s->emitter.pos - audio_ctx->listener.pos);
-                pan = glm::dot(glm::cross(audio_ctx->listener.dir, UP), emmiter_dir);
+                vec3 dir = glm::normalize(s->emitter.pos - audio_ctx->listener.pos);
+                pan = glm::dot(glm::cross(audio_ctx->listener.dir, UP), dir);
+                pan = glm::clamp(pan, -1.0f, 1.0f);
 
-                pitch += glm::length(s->emitter.vel - audio_ctx->listener.vel) * 100.0;
+                float v_listener = glm::dot(audio_ctx->listener.vel, dir);
+                float v_source = glm::dot(s->emitter.vel, dir);
+                float doppler = (SPEED_OF_SOUND + v_listener) / (SPEED_OF_SOUND + v_source);
+
+                pitch *= doppler;
+                pitch = glm::clamp(pitch, 0.1f, 10.0f);
 
                 l_gain = SDL_cosf((pan + 1.0f) * 0.25f * M_PI) * vol;
                 r_gain = SDL_sinf((pan + 1.0f) * 0.25f * M_PI) * vol;
@@ -101,17 +107,18 @@ void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int t
                 int frame_idx = (int)s->cursor;
 
                 if (frame_idx + 1 >= s->length / 2) {
-                    s->cursor = s->length;
+                    s->cursor = s->length; // mark as finished
                     break;
                 }
                 
                 float frac = cursor - frame_idx;
-
+                
+                // glm::mix(s->buf[frame_idx * 2 + 0], s->buf[(frame_idx + 1) * 2 + 0], frac);
                 float vl = s->buf[frame_idx * 2 + 0] * (1.0f - frac)
-                        + s->buf[(frame_idx + 1) * 2 + 0] * frac;
+                    + s->buf[(frame_idx + 1) * 2 + 0] * frac;
 
                 float vr = s->buf[frame_idx * 2 + 1] * (1.0f - frac)
-                        + s->buf[(frame_idx + 1) * 2 + 1] * frac;
+                    + s->buf[(frame_idx + 1) * 2 + 1] * frac;
 
                 out[i*2 + 0] += vl * l_gain;
                 out[i*2 + 1] += vr * r_gain;
@@ -162,6 +169,7 @@ void init_audio() {
         SDL_Log("could not create audio stream: %s", SDL_GetError());
         return;
     }
+    audio_ctx->listener.should_compute_velocity = true;
 
     SDL_ResumeAudioStreamDevice(audio_ctx->stream);
 }

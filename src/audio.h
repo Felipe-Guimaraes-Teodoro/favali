@@ -38,10 +38,9 @@ typedef struct {
 
 
 #define MAX_SAMPLE_CHANNELS 16
+#define SPEED_OF_SOUND 10.0 
 typedef std::array<Sample*, MAX_SAMPLE_CHANNELS> Samples;
 
-// todo: actual audio positioning
-// doppler effect, distance attenuation and panning
 typedef struct {
     SDL_AudioStream *stream = NULL;
     Player *ud;

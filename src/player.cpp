@@ -208,7 +208,7 @@ Player create_player() {
     player.head_ofs = vec3(0.0, 0.5, 0.0);
     player.speed = 3.3;
     player.speed_base = player.speed;
-    player.speed_cap = player.speed * 1.6;
+    player.speed_cap = player.speed * 1.6 * 50.0;
     player.sprint_accel = 4.0;
     player.damping = 0.6;
     player.grounded = true;
