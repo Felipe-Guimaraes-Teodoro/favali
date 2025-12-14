@@ -15,6 +15,9 @@ extern const char* default_fs_instanced;
 extern const char* cube_map_vs;
 extern const char* cube_map_fs;
 
+extern const char* sun_vs;
+extern const char* sun_fs;
+
 typedef struct {
     unsigned int id;
 } Shader;
@@ -31,6 +34,18 @@ void shader_uniform_vec4(
     unsigned int program, 
     std::string name,
     glm::vec4 vec
+);
+
+void shader_uniform_vec3(
+    unsigned int program, 
+    std::string name,
+    glm::vec3 vec
+);
+
+void shader_uniform_float(
+    unsigned int program, 
+    std::string name,
+    float f
 );
 
 unsigned int create_program(Shader& vs, Shader& fs);

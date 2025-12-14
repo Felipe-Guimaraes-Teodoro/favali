@@ -110,8 +110,7 @@ out vec3 TexCoords;
 uniform mat4 projection;
 uniform mat4 view;
 
-void main()
-{
+void main() {
     TexCoords = aPos;
     vec4 pos = projection * view * vec4 (aPos, 1.0);
     gl_Position = pos.xyww;
@@ -122,13 +121,74 @@ const char* cube_map_fs = R"(
 #version 330 core
 out vec4 FragColor;
 
-in vec3 TexCoords;
+in vec3 TexCoords; // direção do fragmento na skybox
 
-uniform samplerCube skybox;
+uniform samplerCube daySky;
+uniform samplerCube nightSky;
+uniform sampler3D cloudNoise3D;
+
+uniform vec3 sunDir;
+uniform vec3 sunColor;
+uniform float sunIntensity;
 
 void main()
-{    
-    FragColor = texture(skybox, TexCoords);
+{
+    vec3 dir = normalize(TexCoords);
+
+    vec3 dayColor   = texture(daySky, dir).rgb;
+    vec3 nightColor = texture(nightSky, dir).rgb;
+    float dayFactor = clamp(sunDir.y * 0.5 + 0.5, 0.0, 1.0);
+    vec3 sky = mix(nightColor, dayColor, dayFactor);
+
+    float sunsetFade = smoothstep(-0.1, 0.05, sunDir.y);
+    float horizonFactor = clamp((dir.y + 0.1) * 0.7, 0.0, 1.0);
+    vec3 sunsetColor = vec3(1.0, 0.4, 0.2);
+    sky = mix(sky, sunsetColor, (1.0 - dayFactor) * (1.0 - horizonFactor) * sunsetFade);
+
+    float sunAmount = max(dot(dir, normalize(sunDir)), 0.0);
+    float glowPower = mix(32.0, 8.0, 1.0 - dayFactor);
+    float sunGlow = pow(sunAmount, glowPower) * sunIntensity * dayFactor;
+    vec3 sunGlowColor = mix(sunColor, sunsetColor, 1.0 - dayFactor);
+    sky += sunGlowColor * sunGlow;
+
+    FragColor = vec4(sky, 1.0);
+}
+
+)";
+
+const char* sun_vs = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aTexCoord;
+
+out vec2 uv;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main() {
+    uv = aTexCoord;
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}  
+)";
+
+const char* sun_fs = R"(
+#version 330 core
+in vec2 uv;
+out vec4 FragColor;
+
+uniform vec3 sunColor;
+uniform float sunIntensity;
+
+void main() {
+    float d = length(uv - vec2(0.5));
+
+    float alpha = 1.0 - smoothstep(0.3, 0.5, d);
+
+    vec3 color = sunColor * sunIntensity;
+
+    FragColor = vec4(color, alpha);
 }
 )";
 
@@ -167,6 +227,24 @@ void shader_uniform_vec4(
 ) {
     unsigned int location = glGetUniformLocation(program, name.data());
     glUniform4fv(location, 1, glm::value_ptr(vec));
+}
+
+void shader_uniform_vec3(
+    unsigned int program, 
+    std::string name,
+    glm::vec3 vec
+) {
+    unsigned int location = glGetUniformLocation(program, name.data());
+    glUniform3fv(location, 1, glm::value_ptr(vec));
+}
+
+void shader_uniform_float(
+    unsigned int program, 
+    std::string name,
+    float f
+) {
+    unsigned int location = glGetUniformLocation(program, name.data());
+    glUniform1f(location, f);
 }
 
 unsigned int create_program(Shader& vs, Shader& fs) {
