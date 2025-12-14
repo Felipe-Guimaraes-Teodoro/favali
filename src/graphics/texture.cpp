@@ -134,10 +134,11 @@ unsigned int make_random_texture(){
 
 using namespace siv;
 
-
-unsigned int make_perlin_texture(int size = 512){
+unsigned int make_perlin_texture2D(int size){
     siv::PerlinNoise perlin(1234);
     std::vector<unsigned char> data(size*size);
+
+    int octaves = 5;
 
     for(int y=0; y<size; y++){
         for(int x=0; x<size; x++){
@@ -146,16 +147,23 @@ unsigned int make_perlin_texture(int size = 512){
 
             double n = 0.0;
             double freq = 1.0;
-            double amp = 1.0;
+            double amp = 0.1;
+            double maxAmp = 0.0;
 
             // fractal noise 5 octaves
-            for(int o=0; o<5; o++){
-                n += amp * perlin.noise2D_01(nx*freq, ny*freq); // 0..1
+            for(int o=0; o<octaves; o++){
+                n += amp * perlin.noise2D_01(nx*freq, ny*freq);
+                maxAmp += amp;
                 freq *= 2.0;
                 amp *= 0.5;
             }
 
-            n = std::clamp(n, 0.0, 1.0);
+            // normaliza pra 0..1
+            n /= maxAmp;
+
+            // opcional: tweak contraste pra deixar nuvens mais fofas
+            n = pow(n, 1.5); // aumenta contraste, ajusta se quiser nuvens mais suaves
+
             data[y*size + x] = static_cast<unsigned char>(n * 255);
         }
     }
@@ -169,6 +177,53 @@ unsigned int make_perlin_texture(int size = 512){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    return noiseTex;
+}
+
+unsigned int make_perlin_texture3D(int size){
+    siv::PerlinNoise perlin(1234);
+    std::vector<unsigned char> data(size*size*size);
+
+    int octaves = 5;
+
+    for(int z=0; z<size; z++){
+        for(int y=0; y<size; y++){
+            for(int x=0; x<size; x++){
+                double nx = double(x)/double(size);
+                double ny = double(y)/double(size);
+                double nz = double(z)/double(size);
+
+                double n = 0.0;
+                double freq = 1.0;
+                double amp = 0.1;
+                double maxAmp = 0.0;
+
+                for(int o=0; o<octaves; o++){
+                    n += amp * perlin.noise3D_01(nx*freq, ny*freq, nz*freq);
+                    maxAmp += amp;
+                    freq *= 2.0;
+                    amp *= 0.5;
+                }
+
+                n /= maxAmp;
+                n = pow(n, 1.5);
+
+                data[z*size*size + y*size + x] = static_cast<unsigned char>(n * 255);
+            }
+        }
+    }
+
+    GLuint noiseTex;
+    glGenTextures(1, &noiseTex);
+    glBindTexture(GL_TEXTURE_3D, noiseTex);
+    glTexImage3D(GL_TEXTURE_3D, 0, GL_RED, size, size, size, 0, GL_RED, GL_UNSIGNED_BYTE, data.data());
+
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     return noiseTex;
 }

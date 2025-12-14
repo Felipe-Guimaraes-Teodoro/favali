@@ -121,47 +121,39 @@ const char* cube_map_fs = R"(
 #version 330 core
 out vec4 FragColor;
 
-in vec3 TexCoords;
+in vec3 TexCoords; // direção do fragmento na skybox
 
 uniform samplerCube daySky;
 uniform samplerCube nightSky;
-uniform sampler2D cloudNoise;
+uniform sampler3D cloudNoise3D;
+
 uniform vec3 sunDir;
 uniform vec3 sunColor;
-uniform float sunIntensity; // [0..1]
-uniform float time;
+uniform float sunIntensity;
 
-void main() {
+void main()
+{
     vec3 dir = normalize(TexCoords);
 
-    vec3 dayColor   = texture(daySky, TexCoords).rgb;
-    vec3 nightColor = texture(nightSky, TexCoords).rgb;
-
+    vec3 dayColor   = texture(daySky, dir).rgb;
+    vec3 nightColor = texture(nightSky, dir).rgb;
     float dayFactor = clamp(sunDir.y * 0.5 + 0.5, 0.0, 1.0);
-    float smoothDay = smoothstep(0.0, 1.0, dayFactor); // transição suave
-    vec3 sky = mix(nightColor, dayColor, smoothDay);
+    vec3 sky = mix(nightColor, dayColor, dayFactor);
 
-    float sunsetFade = smoothstep(-0.1, 0.05, sunDir.y); 
+    float sunsetFade = smoothstep(-0.1, 0.05, sunDir.y);
     float horizonFactor = clamp((dir.y + 0.1) * 0.7, 0.0, 1.0);
     vec3 sunsetColor = vec3(1.0, 0.4, 0.2);
-
     sky = mix(sky, sunsetColor, (1.0 - dayFactor) * (1.0 - horizonFactor) * sunsetFade);
 
     float sunAmount = max(dot(dir, normalize(sunDir)), 0.0);
-    float glowPower = mix(32.0, 8.0, 1.0 - dayFactor); // sol baixo espalha mais
+    float glowPower = mix(32.0, 8.0, 1.0 - dayFactor);
     float sunGlow = pow(sunAmount, glowPower) * sunIntensity * dayFactor;
-    vec3 sunGlowColor = mix(sunColor, sunsetColor, 1.0 - dayFactor); // laranja ao pôr do sol
+    vec3 sunGlowColor = mix(sunColor, sunsetColor, 1.0 - dayFactor);
     sky += sunGlowColor * sunGlow;
-
-    vec2 cloudUV = fract((dir.xy * 0.5 + 0.5) * 3.0 + vec2(time*0.01, time*0.005));
-    float cloudAlpha = texture(cloudNoise, cloudUV).r;
-    cloudAlpha = smoothstep(0.3, 0.7, cloudAlpha);
-
-    vec3 cloudColor = mix(vec3(1.0), sunsetColor, 1.0 - dayFactor);
-    sky = mix(sky, cloudColor, cloudAlpha * 0.3); // 0.3 = cloud intensity
 
     FragColor = vec4(sky, 1.0);
 }
+
 )";
 
 const char* sun_vs = R"(

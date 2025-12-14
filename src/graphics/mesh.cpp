@@ -403,8 +403,6 @@ CubeMapMesh create_cube_map() {
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
 
-    mesh.clouds_texture = make_perlin_texture(1024);
-
     return mesh;
 }
 
@@ -491,16 +489,11 @@ void CubeMapMesh::draw(
     glBindTexture(GL_TEXTURE_CUBE_MAP, night_texture);
     glUniform1i(glGetUniformLocation(sky_program, "nightSky"), 1);
 
-    glActiveTexture(GL_TEXTURE2);
-    glBindTexture(GL_TEXTURE_2D, clouds_texture);
-    glUniform1i(glGetUniformLocation(sky_program, "cloudNoise"), 2);
-
     glActiveTexture(GL_TEXTURE0);
 
     shader_uniform_vec3(sky_program, "sunDir", sunDir);
     shader_uniform_vec3(sky_program, "sunColor", sunColor);
     shader_uniform_float(sky_program, "sunIntensity", sunIntensity);
-    shader_uniform_float(sky_program, "time", t);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);

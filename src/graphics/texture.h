@@ -14,4 +14,6 @@ unsigned int make_cube_map_texture(const std::vector<const char*> &faces);
 
 unsigned int make_random_texture();
 
-unsigned int make_perlin_texture(int size);
+unsigned int make_perlin_texture2D(int size = 512);
+
+unsigned int make_perlin_texture3D(int size = 512);
