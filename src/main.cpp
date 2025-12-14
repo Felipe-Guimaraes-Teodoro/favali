@@ -202,6 +202,7 @@ int main() {
                     exec_script();
                     clear_instances(gun.bullet_hole_mesh);
                     update_instances(gun.bullet_hole_mesh);
+                    gun.bullets.clear();
                 }
 
                 if (event.key.key == SDLK_LALT){
@@ -245,6 +246,8 @@ int main() {
 
         
         player.update(dt, lock_cursor, sensitivity, camera);
+        update_audio(camera.position, camera.front);
+
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
         controller.set_arm_transform(arm, camera);

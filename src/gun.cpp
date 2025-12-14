@@ -60,6 +60,7 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
 
         if (audio_ctx->samples[0]) {
             audio_ctx->samples[0]->cursor = 0;
+            audio_ctx->samples[0]->is_playing = true;
         } else {
             audio_ctx->samples[0] = load_wav("assets/bullet.wav", 0.1, false);
             // audio_ctx->samples[0]->pan = 1.0;
@@ -79,8 +80,12 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
 
                 if (audio_ctx->samples[1]) {
                     audio_ctx->samples[1]->cursor = 500 * sizeof(float) * 2;
+                    audio_ctx->samples[1]->emitter.pos = bullets[i].shape->transform.position;
+                    audio_ctx->samples[1]->is_playing = true;
                 } else {
                     audio_ctx->samples[1] = load_wav("assets/bullet.wav", 0.1, false);
+                    audio_ctx->samples[1]->emitter.not_positioned = false;
+                    audio_ctx->samples[1]->emitter.pos = bullets[i].shape->transform.position;
                     audio_ctx->samples[1]->pitch = 1.5;
                     // audio_ctx->samples[0]->pan = 1.0;
                 }
@@ -99,11 +104,15 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
                 push_instance(bullet_hole_mesh, t.getModelMat());
                 update_instances(bullet_hole_mesh);
 
-                if (audio_ctx->samples[2]) {
-                    audio_ctx->samples[2]->cursor = 500 * sizeof(float) * 2;
+                if (audio_ctx->samples[1]) {
+                    audio_ctx->samples[1]->cursor = 500 * sizeof(float) * 2;
+                    audio_ctx->samples[1]->emitter.pos = bullets[i].shape->transform.position;
+                    audio_ctx->samples[1]->is_playing = true;
                 } else {
-                    audio_ctx->samples[2] = load_wav("assets/bullet.wav", 0.1, false);
-                    audio_ctx->samples[2]->pitch = 0.5;
+                    audio_ctx->samples[1] = load_wav("assets/bullet.wav", 0.1, false);
+                    audio_ctx->samples[1]->emitter.not_positioned = false;
+                    audio_ctx->samples[1]->emitter.pos = bullets[i].shape->transform.position;
+                    audio_ctx->samples[1]->pitch = 0.5;
                     // audio_ctx->samples[0]->pan = 1.0;
                 }
             }

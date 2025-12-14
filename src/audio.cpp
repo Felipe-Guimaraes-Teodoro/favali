@@ -1,4 +1,5 @@
 #include "audio.h"
+#include "stdio.h"
 
 AudioCtx *audio_ctx = NULL;
 
@@ -34,11 +35,14 @@ Sample *load_wav(const char *path, float volume, bool delete_on_finished) {
     SDL_GetAudioStreamData(stream, data, out);
 
     smp->buf = data;
-    smp->length = out / sizeof(float);
+    smp->length = out / (sizeof(float) * 2);
     smp->cursor = 0;
     smp->pitch = 1.0;
     smp->volume = volume;
     smp->delete_on_finished = delete_on_finished;
+    smp->emitter.not_positioned = true;
+    smp->emitter.roll_off = 0.1;
+    smp->is_playing = true;
 
     SDL_DestroyAudioStream(stream);
     return smp;
@@ -52,48 +56,76 @@ void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int t
     additional_amm /= sizeof(float); // from bytes to samples
     int frames_requested = additional_amm / 2;
 
-    while (frames_requested > 0) {
+    while (frames_requested > 0 && audio_ctx) {
         float out[MAX_FRAMES * 2]; // stereo interleaved
         const int frames = SDL_min(frames_requested, MAX_FRAMES);
 
         SDL_memset(out, 0, frames*2*sizeof(float));
-        
+
         for (Sample* s : smp) {
-            if (!s || !s->buf || s->finished())
+            if (!s || !s->buf || s->finished() || !s->is_playing)
                 continue;
 
-            float vol = s->volume;
+            float l_gain, r_gain, vol, pan = 0.0;
+            float pitch = s->pitch;
 
-            // equal power panning
-            float l_gain = SDL_cosf((s->pan + 1.0f) * 0.25f * M_PI) * vol;
-            float r_gain = SDL_sinf((s->pan + 1.0f) * 0.25f * M_PI) * vol;
+            if (s->emitter.not_positioned) { /* should not calculate audio positioning? */
+                vol = s->volume;
+                pan = s->pan;
 
-            size_t remain_frames = (s->length - s->cursor) / 2;
+                // equal power panning
+                l_gain = SDL_cosf((pan + 1.0f) * 0.25f * M_PI) * vol;
+                r_gain = SDL_sinf((pan + 1.0f) * 0.25f * M_PI) * vol;
+            } else {
+                float distance = glm::distance(
+                    audio_ctx->listener.pos, s->emitter.pos
+                ) * s->emitter.roll_off;
+                
+                float attenuation = 1.0 / (1.0 + distance*distance);
+
+                vol = s->volume * attenuation;
+                vec3 emmiter_dir = glm::normalize(s->emitter.pos - audio_ctx->listener.pos);
+                pan = glm::dot(glm::cross(audio_ctx->listener.dir, UP), emmiter_dir);
+
+                pitch += glm::length(s->emitter.vel - audio_ctx->listener.vel) * 100.0;
+
+                l_gain = SDL_cosf((pan + 1.0f) * 0.25f * M_PI) * vol;
+                r_gain = SDL_sinf((pan + 1.0f) * 0.25f * M_PI) * vol;
+            }
+
+            size_t remain_frames = s->length - (size_t)s->cursor;
             size_t to_mix = SDL_min((size_t)frames, remain_frames);
 
             for (int i = 0; i < to_mix; i++) {
                 float cursor = s->cursor;
-                int frame_idx = (int)cursor;
+                int frame_idx = (int)s->cursor;
 
                 if (frame_idx + 1 >= s->length / 2) {
+                    s->cursor = s->length;
                     break;
                 }
                 
                 float frac = cursor - frame_idx;
 
-                float vl = s->buf[frame_idx*2 + 0] * (1.0f - frac) + s->buf[(frame_idx+1)*2 + 0] * frac + 1e-20f;
-                float vr = s->buf[frame_idx*2 + 1] * (1.0f - frac) + s->buf[(frame_idx+1)*2 + 1] * frac + 1e-20f;
+                float vl = s->buf[frame_idx * 2 + 0] * (1.0f - frac)
+                        + s->buf[(frame_idx + 1) * 2 + 0] * frac;
+
+                float vr = s->buf[frame_idx * 2 + 1] * (1.0f - frac)
+                        + s->buf[(frame_idx + 1) * 2 + 1] * frac;
 
                 out[i*2 + 0] += vl * l_gain;
                 out[i*2 + 1] += vr * r_gain;
 
                 // advance fractional cursor
-                s->cursor += s->pitch;
+                s->cursor += pitch;
             }
 
-            if (s->finished() && s->delete_on_finished) {
-                SDL_free(s->buf);
-                s->buf = nullptr;
+            if (s->finished()) {
+                s->is_playing = false;
+                if (s->delete_on_finished && s->buf) {
+                    SDL_free(s->buf);
+                    s->buf = nullptr;
+                }
             }
         } // for sample
 
@@ -132,6 +164,18 @@ void init_audio() {
     }
 
     SDL_ResumeAudioStreamDevice(audio_ctx->stream);
+}
+
+void update_audio(vec3 position, vec3 direction) {
+    if (!audio_ctx)
+        return;
+
+    // audio_ctx->listener.last_pos = audio_ctx->listener.pos;
+    if (audio_ctx->listener.should_compute_velocity)
+        audio_ctx->listener.vel = position - audio_ctx->listener.pos;
+
+    audio_ctx->listener.pos = position;
+    audio_ctx->listener.dir = direction;
 }
 
 void audio_quit() {
