@@ -8,6 +8,7 @@ using std::vector;
 
 struct Mesh {
     unsigned int VBO, VAO, EBO;
+    bool visible = true;
 
     vector<float> vertices;
     vector<unsigned int> indices;

@@ -49,7 +49,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
 
             glm::vec3 triNormal = tri.getTriangleNormal();
 
-            push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), {0.0, 0.0, 1.0, 1.0});
+            push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), 1, {0.0, 0.0, 1.0, 1.0});
 
             glm::vec3 diff = position - closest;
             float dist = length(diff);
@@ -64,7 +64,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
         candidates.clear();
     }
 
-    push_gizmo(Shapes::Cube, query, {1.0, 1.0, 0.0, 1.0});
+    push_gizmo(Shapes::Cube, query, 1, {1.0, 1.0, 0.0, 1.0});
 
     AABB feet;
     makeAABB_from_ray((Ray) {
@@ -73,7 +73,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
         .tMax = collider.radius * 2.0f,
     });
 
-    push_gizmo(Shapes::Cube, feet, {1.0, 0.0, 0.0, 1.0});
+    push_gizmo(Shapes::Cube, feet, 1, {1.0, 0.0, 0.0, 1.0});
 
     grounded = false;
 
@@ -84,7 +84,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
             glm::vec3 feetCenter = (feet.min + feet.max) * 0.5f;
             glm::vec3 closest = closestPointOnTriangle(feetCenter, tri);
 
-            push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), {0.0, 1.0, 0.0, 1.0});
+            push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), 1, {0.0, 1.0, 0.0, 1.0});
 
             glm::vec3 diff = feetCenter - closest;
             float dist = length(diff);

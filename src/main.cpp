@@ -75,16 +75,17 @@ void init() {
 }
 
 void onResize(int w, int h, Camera& camera) {
-
     float aspect = (float)w / (float)h;
 
     glViewport(0, 0, w, h);
 
+    camera.aspect = aspect;
+
     camera.proj = glm::perspective(
-        glm::radians(80.f),
-        aspect,
-        0.1f,
-        1000.f
+        glm::radians(camera.fov_y),
+        camera.aspect,
+        camera.z_near,
+        camera.z_far
     );
 }
 
@@ -213,6 +214,8 @@ int main() {
                     clear_instances(gun.bullet_hole_mesh);
                     update_instances(gun.bullet_hole_mesh);
                     gun.bullets.clear();
+
+                    camera.update_frustum();
                 }
 
                 if (event.key.key == SDLK_LALT){
@@ -256,6 +259,17 @@ int main() {
         player.update(dt, lock_cursor, sensitivity, camera);
         update_audio(camera.position, camera.front);
 
+        std::vector<AABB> boxes;
+        boxes.clear();
+        for (BVHNode* node : worldBVHs) {
+            bvhQueryAABB(node, boxes);
+        }
+        for (const AABB& box : boxes) {
+            if (is_aabb_on_frustum(camera.frustum, box)) {
+                push_gizmo(Shapes::Cube, box);
+            }
+        }
+
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
         controller.set_arm_transform(arm, camera);
@@ -266,6 +280,7 @@ int main() {
         draw_level(arm, camera, program);
 
         sky.draw(program_cube_mesh, program_sun, camera, time); // last to draw for optimisation purposes
+        
 
         // draw gun (and thus bullet holes) at last 
         gun.draw(program, program_instanced, camera);
@@ -274,8 +289,8 @@ int main() {
             // controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
         }
 
-        // render_gizmos(camera); // automatically calls "end_frame_gizmos"
-        end_frame_gizmos(); 
+        render_gizmos(camera); // automatically calls "end_frame_gizmos"
+        // end_frame_gizmos(); 
 
         imgui_frame(player);
 

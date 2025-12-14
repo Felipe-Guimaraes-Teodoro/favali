@@ -91,6 +91,18 @@ BVHNode* buildBVH(const std::vector<MeshTriangle>& tris, int depth){
     return node;
 }
 
+void bvhQueryAABB(BVHNode* node, std::vector<AABB>& boxes) {
+    if (!node) return;
+
+    if (node->isLeaf) {
+        boxes.push_back(node->box);
+        return;
+    }
+    
+    bvhQueryAABB(node->left, boxes);
+    bvhQueryAABB(node->right, boxes);
+}
+
 void bvhQuery(BVHNode* node, const AABB& box, std::vector<MeshTriangle>& out){
     if (!node) return;
     if (!intersects(node->box, box)) return;

@@ -11,6 +11,9 @@ using std::vector;
 typedef struct {
     Lights lights;
     vector<Shape> shapes;
+
+    // todo: shapes -> models
+    // octree (for pathfinding, culling)
     // vector<Collider> colliders;
     // vector<Entity> entities; // shapes that move
 

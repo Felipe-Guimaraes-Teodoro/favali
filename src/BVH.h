@@ -11,6 +11,7 @@ struct BVHNode {
     bool isLeaf = false;
 };
 
+void bvhQueryAABB(BVHNode* node, std::vector<AABB>& boxes);
 void bvhQuery(BVHNode* node, const AABB& box, std::vector<MeshTriangle>& out);
 
 BVHNode* buildBVH(const std::vector<MeshTriangle>& tris, int depth = 0);

@@ -2,11 +2,26 @@
 
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
+#include "geometry.h"
 
 using glm::mat4;
 using glm::vec3;
 
 static vec3 UP = {0.0, 1.0, 0.0};
+
+typedef struct {
+    vec3 normal;
+    float distance;
+} Plane;
+
+typedef struct {
+    Plane top;
+    Plane bottom;
+    Plane right;
+    Plane left;
+    Plane far;
+    Plane near;
+} Frustum;
 
 typedef struct {
     mat4 proj;
@@ -18,10 +33,13 @@ typedef struct {
     vec3 right;
     vec3 up;
 
-    // Frustum frustum;
+    Frustum frustum;
 
     float roll, yaw, pitch;
 
+    float fov_y, aspect, z_near, z_far;
+
+    void update_frustum();
     void update();
 
     void mouse_view(bool lock_cursor, float dx, float dy, float sensitivity);
@@ -33,21 +51,4 @@ Camera create_camera(
     float aspect = 900.0f / 600.0f
 );
 
-/*
-
-// frustum culling
-
-typedef struct {
-    typedef struct {
-        vec3 normal;
-        float distance;
-    } Plane;
-
-    Plane top;
-    Plane bottom;
-    Plane right;
-    Plane left;
-    Plane far;
-    Plane near;
-} Frustum;
-*/ 
+bool is_aabb_on_frustum(const Frustum& frustum, const AABB& aabb);

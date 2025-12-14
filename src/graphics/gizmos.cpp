@@ -90,7 +90,7 @@ void init_gizmos() {
     );
 }
 
-void push_gizmo(Shapes shape, Transform t, glm::vec4 col) {
+void push_gizmo(Shapes shape, Transform t, int n, glm::vec4 col) {
     gizmo_queue->gizmos.push_back( 
         (Gizmo) {
             .mesh_idx = shape,
@@ -101,7 +101,7 @@ void push_gizmo(Shapes shape, Transform t, glm::vec4 col) {
     );
 }
 
-void push_gizmo(Shapes shape, AABB aabb, glm::vec4 col) {
+void push_gizmo(Shapes shape, AABB aabb, int n, glm::vec4 col) {
     glm::vec3 center = 0.5f * (aabb.min + aabb.max);
     glm::vec3 size = aabb.max - aabb.min;
 
@@ -113,17 +113,6 @@ void push_gizmo(Shapes shape, AABB aabb, glm::vec4 col) {
             .transform = t,
             .color = col,
             .frames = 1
-        }
-    );
-}
-
-void push_gizmo_n_frames(Shapes shape, Transform t, int n, glm::vec4 col) {
-    gizmo_queue->gizmos.push_back( 
-        (Gizmo) {
-            .mesh_idx = shape,
-            .transform = t,
-            .color = col,
-            .frames = n,
         }
     );
 }
@@ -150,6 +139,8 @@ void render_gizmos(Camera& cam) {
 
     for (Gizmo& gizmo : gizmo_queue->gizmos) {
         // todo: instancing
+        gizmo_queue->gizmo_meshes[gizmo.mesh_idx].visible = true;
+        // why was it false?
         gizmo_queue->gizmo_meshes[gizmo.mesh_idx].draw(
             gizmo_queue->gizmo_program,
             gizmo.transform.getModelMat(),

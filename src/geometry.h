@@ -10,7 +10,6 @@ struct MeshTriangle {
     glm::vec3 getTriangleNormal();
 };
 
-
 struct AABB {
     glm::vec3 min;
     glm::vec3 max;

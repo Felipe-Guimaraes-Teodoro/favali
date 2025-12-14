@@ -24,6 +24,10 @@ void Mesh::draw(
     unsigned int texture,
     unsigned int draw_mode // = GL_TRIANGLES by default
 ) const {
+    if (!visible) {
+        return;
+    }
+
     if (!setup) {
         printf("WARNING: Attempting to draw deleted or incomplete mesh\n"); 
         return;
@@ -89,6 +93,7 @@ Mesh create_mesh(vector<float>& vertices, vector<unsigned int>& indices) {
     Mesh mesh = {};
     mesh.vertices = vertices; // POSTIION, normal, uv
     mesh.indices = indices;
+    mesh.visible = true;
     
     setup_mesh(mesh);
 
@@ -97,6 +102,7 @@ Mesh create_mesh(vector<float>& vertices, vector<unsigned int>& indices) {
 
 Mesh empty_mesh() {
     Mesh mesh = {};
+    mesh.visible = true;
 
     return mesh;
 }
