@@ -65,7 +65,7 @@ IkNode* create_ik_node(
     node->next = nullptr;
     node->origin = glm::vec3(0.0f);
     node->end = glm::vec3(0.0f, length, 0.0f);
-    node->axis = axis;
+    // node->axis = axis;
     
     return node;
 }
@@ -126,8 +126,7 @@ void IkController::set_arm_transform(Level* arm, Camera& camera) {
 
     while (cur) {
         vec3 dir = cur->end - cur->origin;
-        float length = glm::length(dir);
-        if (length < 1e-6f) dir = vec3(1, 0, 0);
+        if (cur->length < 1e-6f) dir = vec3(1, 0, 0);
         dir = normalize(dir);
 
         vec3 forward = dir;
@@ -140,7 +139,7 @@ void IkController::set_arm_transform(Level* arm, Camera& camera) {
         glm::mat3 rot_mat(right, up, forward);
         quat rot = glm::quat_cast(rot_mat);
 
-        vec3 mid = cur->origin + dir * 0.5f * length;
+        vec3 mid = cur->origin + dir * 0.5f * cur->length;
 
         arm->shapes[i].transform.rotation = rot * y90;
         arm->shapes[i].transform.position = mid;

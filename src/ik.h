@@ -14,7 +14,7 @@ struct IkNode {
     glm::vec3 end;
 
     glm::quat rotation;
-    glm::vec3 axis; // allowed rotation axis
+    // glm::vec3 axis; // allowed rotation axis
 
     float length;
 

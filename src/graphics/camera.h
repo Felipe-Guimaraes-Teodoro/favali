@@ -18,6 +18,8 @@ typedef struct {
     vec3 right;
     vec3 up;
 
+    // Frustum frustum;
+
     float roll, yaw, pitch;
 
     void update();
@@ -30,3 +32,22 @@ Camera create_camera(
     float fov = 80.0f,
     float aspect = 900.0f / 600.0f
 );
+
+/*
+
+// frustum culling
+
+typedef struct {
+    typedef struct {
+        vec3 normal;
+        float distance;
+    } Plane;
+
+    Plane top;
+    Plane bottom;
+    Plane right;
+    Plane left;
+    Plane far;
+    Plane near;
+} Frustum;
+*/ 

@@ -11,20 +11,28 @@
 void Gun::update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs){
     last_shot += dt;
     
-    vec3 goal = glm::mix(camera.position, player.position + player.head_ofs, -0.25f) + camera.front*0.3f + -camera.right * 0.12f - camera.up * 0.1f;
+    float recoil_amount = recoil_timer * -0.3f;
+    vec3 goal = glm::mix(camera.position, player.position + player.head_ofs, -0.25f) + camera.front*(0.3f + recoil_amount * 0.5f) + -camera.right * 0.12f - camera.up * 0.1f;
     goal -= camera.front * (recoil_timer * 0.04f);
     recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
-    float recoil_amount = recoil_timer * -0.3f;
-    controller.goal = goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f;
+    controller.goal = /* goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f */ 
+                    glm::mix(camera.position, player.position + player.head_ofs, 0.3f) + glm::normalize(camera.front * 5.0f + camera.up * -recoil_amount * 2.5f) * 0.5f - camera.right * 0.3f;
 
     glm::quat base = glm::quatLookAt(-camera.right, -camera.up);
     glm::quat recoil_q = glm::angleAxis(recoil_amount, camera.right);
 
     glm::quat target_rot = recoil_q * base;
 
-    shape->transform.rotation = glm::slerp(shape->transform.rotation, target_rot, 0.3f);
-    shape->transform.position = controller.leaf->end + camera.front * 0.1f + camera.up * 0.1f;
+    // shape->transform.rotation = glm::slerp(shape->transform.rotation, target_rot, 0.3f);
+    shape->transform.rotation = glm::slerp(controller.visual_leaf_rot * glm::quat(glm::vec3(
+        glm::radians(90.0f), // X
+        glm::radians(-90.0f), // Y
+        glm::radians(90.0f)  // Z
+    )), base, 0.5f);
+    vec3 leaf_dir = glm::normalize(controller.leaf->end - controller.leaf->origin);
+    vec3 leaf_right = glm::cross(leaf_dir, UP);
+    shape->transform.position = controller.leaf->end + leaf_dir * 0.1f;
     
     if (last_shot >= cooldown && is_shooting){
         last_shot = 0.0f;
