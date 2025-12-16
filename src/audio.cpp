@@ -67,7 +67,7 @@ void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int t
                 continue;
 
             float l_gain, r_gain, vol, pan = 0.0;
-            float pitch = s->pitch;
+            double pitch = s->pitch;
 
             if (s->emitter.not_positioned) { /* should not calculate audio positioning? */
                 vol = s->volume;
@@ -93,7 +93,7 @@ void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int t
                 float doppler = (SPEED_OF_SOUND + v_listener) / (SPEED_OF_SOUND + v_source);
 
                 pitch *= doppler;
-                pitch = glm::clamp(pitch, 0.1f, 10.0f);
+                pitch = glm::clamp(pitch, 0.1, 10.0);
 
                 l_gain = SDL_cosf((pan + 1.0f) * 0.25f * M_PI) * vol;
                 r_gain = SDL_sinf((pan + 1.0f) * 0.25f * M_PI) * vol;
@@ -103,15 +103,15 @@ void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int t
             size_t to_mix = SDL_min((size_t)frames, remain_frames);
 
             for (int i = 0; i < to_mix; i++) {
-                float cursor = s->cursor;
-                int frame_idx = (int)s->cursor;
+                double cursor = s->cursor;
+                size_t frame_idx = (size_t)s->cursor;
 
-                if (frame_idx + 1 >= s->length / 2) {
+                if (frame_idx + 1 >= s->length || s->force_stop) {
                     s->cursor = s->length; // mark as finished
                     break;
                 }
                 
-                float frac = cursor - frame_idx;
+                double frac = cursor - frame_idx;
                 
                 // glm::mix(s->buf[frame_idx * 2 + 0], s->buf[(frame_idx + 1) * 2 + 0], frac);
                 float vl = s->buf[frame_idx * 2 + 0] * (1.0f - frac)

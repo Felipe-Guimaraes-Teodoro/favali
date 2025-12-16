@@ -55,3 +55,15 @@ struct Shape {
 };
 
 Shape make_shape(Shapes shape, unsigned int texture = 0);
+
+struct StaticShape : Shape {
+    AABB box;
+    bool should_occlude;
+
+    vector<StaticShape*> children;
+
+    StaticShape(Shape&& shape, AABB b, bool occlude)
+        : Shape(std::move(shape)), box(b), should_occlude(occlude) {}
+};
+
+StaticShape shape_to_static(Shape&& shape);

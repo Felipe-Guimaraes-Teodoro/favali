@@ -17,7 +17,7 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
     recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
     controller.goal = /* goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f */ 
-                    glm::mix(camera.position, player.position + player.head_ofs, 0.3f) + glm::normalize(camera.front * 5.0f + camera.up * -recoil_amount * 2.5f) * 0.5f - camera.right * 0.3f;
+                    glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + glm::normalize(camera.front * 5.0f + camera.up * -recoil_amount * 2.5f) * 0.5f - camera.right * 0.3f;
 
     glm::quat base = glm::quatLookAt(-camera.right, -camera.up);
     glm::quat recoil_q = glm::angleAxis(recoil_amount, camera.right);
@@ -124,7 +124,6 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
                     // audio_ctx->samples[0]->pan = 1.0;
                 }
             }
-
         }
         bullets[i].update_bullet(dt);
     }

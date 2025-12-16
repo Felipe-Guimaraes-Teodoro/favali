@@ -9,6 +9,7 @@
 #include "raycast.h"
 #include "SDL3/SDL.h"
 #include "audio.h"
+#include "raycast.h"
 
 void PlayerCollider::update(float dt) {
     // im gonna be honest playercollider is pretty much just a wrapper for some variables at this point...

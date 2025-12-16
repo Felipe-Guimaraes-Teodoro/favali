@@ -210,3 +210,59 @@ Shape make_shape(Shapes shape, unsigned int texture) {
         texture
     );
 }
+
+StaticShape shape_to_static(Shape&& shape) {
+    std::vector<MeshTriangle> tris;
+    tris.reserve(500000); // optional
+
+    auto& verts = shape.mesh.vertices;
+    auto& inds  = shape.mesh.indices;
+
+    for (int i = 0; i < inds.size(); i += 3){
+        uint32_t i0 = inds[i];
+        uint32_t i1 = inds[i+1];
+        uint32_t i2 = inds[i+2];
+
+        int v0 = i0 * 8;
+        int v1 = i1 * 8;
+        int v2 = i2 * 8;
+
+        MeshTriangle t;
+        t.a = glm::vec3(verts[v0], verts[v0+1], verts[v0+2]);
+        t.b = glm::vec3(verts[v1], verts[v1+1], verts[v1+2]);
+        t.c = glm::vec3(verts[v2], verts[v2+1], verts[v2+2]);
+
+        t.a = shape.transform.getModelMat() * glm::vec4(t.a, 1);
+        t.b = shape.transform.getModelMat() * glm::vec4(t.b, 1);
+        t.c = shape.transform.getModelMat() * glm::vec4(t.c, 1);
+
+        tris.push_back(t);
+    }
+
+    AABB box;
+
+    // se não tem tri nada, vira folha vazio
+    if (tris.empty()){
+        box.min = glm::vec3(0.0f);
+        box.max = glm::vec3(0.0f);
+    }
+
+    // calc AABB cobrindo todos os tris
+    glm::vec3 minv(  std::numeric_limits<float>::infinity());
+    glm::vec3 maxv(-std::numeric_limits<float>::infinity());
+
+    for(const auto& t : tris){
+        AABB b = makeAABB(t);
+        minv = glm::min(minv, b.min);
+        maxv = glm::max(maxv, b.max);
+    }
+
+    box.min = minv;
+    box.max = maxv;
+
+    return StaticShape {
+        std::move(shape),
+        box,
+        true
+    };
+}

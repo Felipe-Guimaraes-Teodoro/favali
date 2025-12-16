@@ -227,11 +227,109 @@ Level *create_level_from_gltf(const char *path) {
             transform.rotation  = node_rot;
             transform.scale = node_scale;
 
-            level->shapes.emplace_back(
-                std::move(mesh),
-                transform,
-                glm::vec4(1.0f),
-                texture
+            level->shapes.push_back(
+                shape_to_static(
+                    Shape(
+                        std::move(mesh),
+                        transform,
+                        glm::vec4(1.0f),
+                        texture
+                    )
+                )
+            );
+        }
+
+        // append_instance_data_from_node(): 
+        if (node->has_mesh_gpu_instancing) {
+            printf("Node has gpu instancing\n");
+            for (int attr = 0; attr < node->mesh_gpu_instancing.attributes_count; attr++) {
+                printf("%s\n", node->mesh_gpu_instancing.attributes->name);
+            }
+        }
+    }
+
+    return level;
+}
+
+
+Model *create_model_from_gltf(const char *path) {
+    Model *level = create_model();
+    cgltf_data *data = load_gltf(path);
+
+    if (!data)
+        return level;
+
+    int primitive_count = 0;
+    for (int i = 0; i < data->meshes_count; i++) {
+        primitive_count += data->meshes[i].primitives_count;
+    }
+
+    level->shapes.reserve(primitive_count);
+    printf("%u shapes\n", primitive_count);
+    unsigned int texture = 0;
+    int light_count = 0;
+
+    std::vector<unsigned int> indices;
+    std::vector<float> vertices;
+
+    for (int i = 0; i < data->nodes_count; i++) {
+        cgltf_node* node = &data->nodes[i];
+        printf("loading node %s\n", node->name);
+
+        // load lights
+        if (node->light) {
+            printf("loading light\n");
+            cgltf_light *light = node->light;
+
+            vec3 translation = vec3(0);
+            if (node->has_translation) {
+                translation = {node->translation[0], node->translation[1], node->translation[2]};
+            }
+
+            level->lights.position[light_count].v = translation;
+            level->lights.color[light_count].v = {light->color[0], light->color[1], light->color[2]};
+            light_count++;
+            level->lights.count = light_count;
+        }
+
+        // load meshes
+        if (!node->mesh) continue;
+
+        cgltf_mesh* mesh = node->mesh;
+
+        glm::vec3 node_pos(node->translation[0], node->translation[1], node->translation[2]);
+        glm::quat node_rot(node->rotation[3], glm::vec3(node->rotation[0], node->rotation[1], node->rotation[2]));
+        glm::vec3 node_scale(node->scale[0], node->scale[1], node->scale[2]);
+
+        for (int p = 0; p < mesh->primitives_count; p++){
+            cgltf_primitive* prim = &mesh->primitives[p];
+
+            vertices.clear();
+            indices.clear();
+
+            append_index_data_from_primitive(prim, indices);
+            append_vertex_data_from_primitive(prim, vertices);
+            texture = create_texture_from_material(prim->material);
+
+            // this part is extremely slow
+            Mesh mesh = create_mesh(vertices, indices);
+            // todo: merge all meshes with the same material
+            // onto one big shared mesh. it would reduce draw calls too
+
+            Transform transform = Transform::empty();
+            transform.position = node_pos;
+            transform.rotation  = node_rot;
+            transform.scale = node_scale;
+
+            level->shapes.push_back(
+                shape_to_static(
+                    Shape(
+                        std::move(mesh),
+                        transform,
+                        glm::vec4(1.0f),
+                        texture
+                    )
+                )
             );
         }
 

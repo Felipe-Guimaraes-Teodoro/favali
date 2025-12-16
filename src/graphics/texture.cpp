@@ -146,23 +146,24 @@ unsigned int make_perlin_texture2D(int size){
             double ny = double(y)/double(size);
 
             double n = 0.0;
-            double freq = 1.0;
-            double amp = 0.1;
+            double freq = 5.0;
+            double amp = 1.0;
             double maxAmp = 0.0;
+            double damp = 0.5;
 
             // fractal noise 5 octaves
             for(int o=0; o<octaves; o++){
                 n += amp * perlin.noise2D_01(nx*freq, ny*freq);
                 maxAmp += amp;
                 freq *= 2.0;
-                amp *= 0.5;
+                amp *= damp;
             }
 
             // normaliza pra 0..1
             n /= maxAmp;
 
             // opcional: tweak contraste pra deixar nuvens mais fofas
-            n = pow(n, 1.5); // aumenta contraste, ajusta se quiser nuvens mais suaves
+            n = pow(n, 2.5); // aumenta contraste, ajusta se quiser nuvens mais suaves
 
             data[y*size + x] = static_cast<unsigned char>(n * 255);
         }

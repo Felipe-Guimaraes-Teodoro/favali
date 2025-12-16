@@ -10,4 +10,3 @@ struct Ray {
     
     bool hitTriangle(const MeshTriangle& t, float& outT);
 };
-

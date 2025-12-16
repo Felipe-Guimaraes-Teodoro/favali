@@ -30,6 +30,8 @@
 #include "gizmos.h"
 #include "ik.h"
 #include "audio.h"
+#include "PerlinNoise.hpp"
+#include "npc.h"
 
 using std::vector;
 
@@ -57,7 +59,6 @@ void init() {
     SDL_GL_MakeCurrent(window, gl_context);
 
     init_audio();
-    // audio_ctx->smp = load_wav("assets/sound.wav");
 
     // imgui
     imgui_init(window, gl_context);
@@ -110,6 +111,7 @@ int main() {
 
     std::vector<unsigned int> textures;
     textures.push_back(make_texture("../../../assets/bullet_hole.png"));
+    textures.push_back(make_perlin_texture2D());
 
     CubeMapMesh sky = create_cube_map();
     sky.day_texture = make_cube_map_texture({
@@ -131,6 +133,7 @@ int main() {
     });
 
     Player player = create_player();
+
     audio_ctx->ud = &player;
     player.collider.radius = 1.0;
 
@@ -149,6 +152,7 @@ int main() {
         std::vector<MeshTriangle> world_tris = get_level_tris(&level0->shapes[i]);
         worldBVHs.push_back(buildBVH(world_tris));
     }
+    global_navGraph = create_navgraph(worldBVHs);
     printf("level loading complete\n");
     
     Camera camera = create_camera({0, 0, 0}, 80.0, 1600.0 / 900.0);
@@ -165,7 +169,7 @@ int main() {
     bool lock_cursor = false;
     bool running = true;
 
-    Level *arm = create_level_from_gltf("../../../assets/arm.glb");
+    Model *arm = create_model_from_gltf("../../../assets/arm.glb");
     IkController controller = create_ik_controller({0.0, 0.0, 0.0});
     int i = 0;
     for (const Shape &shape : arm->shapes) {
@@ -196,6 +200,8 @@ int main() {
 
     update_instances(i_mesh);
 
+    Npc npc = create_npc();
+
     while (running) {
         Uint64 now = SDL_GetTicks();
         dt = (now - last)/1000.0f;
@@ -213,9 +219,12 @@ int main() {
                     exec_script();
                     clear_instances(gun.bullet_hole_mesh);
                     update_instances(gun.bullet_hole_mesh);
+                    npc.cant_find_route = true;
                     gun.bullets.clear();
-
+                    
                     camera.update_frustum();
+
+                    npc.goal = player.position;
                 }
 
                 if (event.key.key == SDLK_LALT){
@@ -257,18 +266,10 @@ int main() {
         CLEAR_SCREEN;
 
         player.update(dt, lock_cursor, sensitivity, camera);
+        npc_solve_collisions(npc, worldBVHs);
+        update_npc(npc, dt);
         update_audio(camera.position, camera.front);
-
-        std::vector<AABB> boxes;
-        boxes.clear();
-        for (BVHNode* node : worldBVHs) {
-            bvhQueryAABB(node, boxes);
-        }
-        for (const AABB& box : boxes) {
-            if (is_aabb_on_frustum(camera.frustum, box)) {
-                push_gizmo(Shapes::Cube, box);
-            }
-        }
+        visualize_nodes(global_navGraph->nodes);
 
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
@@ -277,10 +278,9 @@ int main() {
         i_mesh.draw(program_instanced, camera.view, camera.proj, glm::vec4(1.0), tmp.texture);
 
         draw_level(level0, camera, program);
-        draw_level(arm, camera, program);
+        draw_model(arm, camera, program);
 
         sky.draw(program_cube_mesh, program_sun, camera, time); // last to draw for optimisation purposes
-        
 
         // draw gun (and thus bullet holes) at last 
         gun.draw(program, program_instanced, camera);

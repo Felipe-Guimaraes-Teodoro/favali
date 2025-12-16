@@ -43,7 +43,7 @@ struct IkController {
     // FABRIK
     void update(float tolerance = 0.01f, int max_iter = 1, float alpha = 0.01f);
 
-    void set_arm_transform(Level* arm, Camera& camera);
+    void set_arm_transform(Model* arm, Camera& camera);
     void draw_dbg();
 
     void push_node(IkNode* node);

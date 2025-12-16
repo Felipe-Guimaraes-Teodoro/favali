@@ -1,35 +1,6 @@
 #include "camera.h"
 #include "transform.h"
-
-inline float aabb_distance_from_plane(const Plane& plane, const AABB& aabb) {
-    glm::vec3 c = (aabb.min + aabb.max) * 0.5f; // center
-    glm::vec3 e = (aabb.max - aabb.min) * 0.5f; // positive extents
-
-    float r = e.x * fabs(plane.normal.x)
-            + e.y * fabs(plane.normal.y)
-            + e.z * fabs(plane.normal.z);
-
-    float s = glm::dot(plane.normal, c) - plane.distance;
-
-    return s - r;
-}
-
-bool is_aabb_on_frustum(const Frustum& frustum, const AABB& aabb) {
-    if (aabb_distance_from_plane(frustum.near, aabb) < 0) return false;
-    if (aabb_distance_from_plane(frustum.far, aabb) < 0) return false;
-    if (aabb_distance_from_plane(frustum.left, aabb) < 0) return false;
-    if (aabb_distance_from_plane(frustum.right, aabb) < 0) return false;
-    if (aabb_distance_from_plane(frustum.top, aabb) < 0) return false;
-    if (aabb_distance_from_plane(frustum.bottom, aabb) < 0) return false;
-
-    return true;
-}
-// utility to create a plane from three points
-inline Plane makePlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {
-    glm::vec3 normal = glm::normalize(glm::cross(b - a, c - a));
-    float distance = glm::dot(normal, a);
-    return { normal, distance };
-}
+#include "stdio.h"
 
 void Camera::update_frustum() {
     glm::vec3 nc = position + front * z_near;

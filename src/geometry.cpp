@@ -1,6 +1,10 @@
 #include "geometry.h"
 #include "raycast.h"
 #include "glm.hpp"
+#include "stdio.h"
+#include "gtx/vector_angle.hpp"
+using glm::quat;
+using glm::vec3;
 
 glm::vec3 MeshTriangle::getTriangleNormal(){
 
@@ -65,3 +69,75 @@ AABB makeAABB_from_ray(const Ray& r) {
     b.max = glm::max(r.origin, end);
     return b;
 }
+
+bool is_aabb_on_frustum(const Frustum& frustum, const AABB& aabb) {
+    if (aabb_distance_from_plane(frustum.near, aabb) < FLT_EPSILON) return false;
+    if (aabb_distance_from_plane(frustum.far, aabb) < FLT_EPSILON) return false;
+    if (aabb_distance_from_plane(frustum.left, aabb) < FLT_EPSILON) return false;
+    if (aabb_distance_from_plane(frustum.right, aabb) < FLT_EPSILON) return false;
+    if (aabb_distance_from_plane(frustum.top, aabb) < FLT_EPSILON) return false;
+    if (aabb_distance_from_plane(frustum.bottom, aabb) < FLT_EPSILON) return false;
+
+    return true;
+}
+
+bool is_point_on_aabb(const AABB& aabb, const glm::vec3& point) {
+    if (
+        point.x > aabb.min.x && 
+        point.y > aabb.min.y && 
+        point.z > aabb.min.z &&
+        point.x < aabb.max.x && 
+        point.y < aabb.max.y && 
+        point.z < aabb.max.z 
+    ) {
+        return true;
+    }
+
+    return false;
+}
+
+bool is_line_on_aabb(const AABB& aabb, const glm::vec3& start, const glm::vec3& end) {
+    glm::vec3 invDir = 1.0f / (end - start);
+    glm::vec3 t0s = (aabb.min - start) * invDir;
+    glm::vec3 t1s = (aabb.max - start) * invDir;
+
+    glm::vec3 tmin = glm::min(t0s, t1s);
+    glm::vec3 tmax = glm::max(t0s, t1s);
+
+    float t_enter = std::max(std::max(tmin.x, tmin.y), tmin.z);
+    float t_exit  = std::min(std::min(tmax.x, tmax.y), tmax.z);
+
+    return t_enter <= t_exit && t_exit >= 0.0f && t_enter <= 1.0f;
+}
+
+glm::quat rotate_from_to(const vec3& from, const vec3& to) {
+    vec3 f = glm::normalize(from);
+    vec3 t = glm::normalize(to);
+
+    float cosTheta = glm::dot(f, t);
+
+    // nearly opposite
+    if (cosTheta < -0.999) {
+        vec3 axis = glm::cross(vec3(1.0f, 0.0f, 0.0f), f);
+        if (glm::length2(axis) < 0.0001f)
+            axis = glm::cross(vec3(0.0f, 1.0f, 0.0f), f);
+        axis = glm::normalize(axis);
+        return glm::angleAxis(glm::pi<float>(), axis);
+    }
+
+    // nearly same
+    if (cosTheta > 0.999)
+        return glm::identity<quat>();
+    vec3 axis = glm::cross(f, t);
+    float angle = glm::acos(glm::clamp(cosTheta, -1.0f, 1.0f));
+
+    return glm::angleAxis(angle, glm::normalize(axis));
+}
+
+/*
+AABB makeAABB_from_shape(const Shape& shape) {
+    AABB b;
+    printf("makeAABB_from_shape not implemented\n");
+    return b;
+}
+*/

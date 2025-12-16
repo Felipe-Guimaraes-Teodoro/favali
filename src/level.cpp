@@ -1,6 +1,7 @@
 #include "level.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #define VERTEX_STRIDE 8
 
@@ -10,10 +11,36 @@ Level *create_level() {
     return l;
 }
 
-void draw_level(Level *l, Camera& cam, unsigned int program) {
-    for (const Shape& shape : l->shapes) {
-        shape.draw(program, cam);
+Model *create_model() {
+    Model *m = (Model*) calloc(1, sizeof(Model));
+
+    return m;
+}
+
+void draw_level(Level *l, Camera& cam, unsigned int program, bool enable_culling) {
+    // int i = 0;
+    if (enable_culling) {
+        for (const StaticShape& shape : l->shapes) {
+            if (is_aabb_on_frustum(cam.frustum, shape.box)) {
+                shape.draw(program, cam);
+                // i++;
+            }
+        }
+    } else {
+        for (const StaticShape& shape : l->shapes) {
+            shape.draw(program, cam);
+        }
+        // i++;
     }
+
+    // printf("%u shapes avail, %u shapes drawn\n", l->shapes.size(),i);
+}
+
+void draw_model(Model *m, Camera& cam, unsigned int program) {
+    // cam.update_frustum();
+    for (const Shape& shape : m->shapes) {
+        shape.draw(program, cam);
+    } 
 }
 
 /// Merge all static shapes into one big static shape
@@ -44,10 +71,10 @@ void merge_level_shapes(Level* level) {
     level->shapes.clear(); // memory leak: ogl resources arent cleared yet
 
     setup_mesh(god_shape.mesh);
-    level->shapes.push_back(std::move(god_shape));
+    level->shapes.push_back(shape_to_static(std::move(god_shape)));
 }
 
-std::vector<MeshTriangle> get_level_tris(Shape *shape){
+std::vector<MeshTriangle> get_level_tris(StaticShape *shape){
     std::vector<MeshTriangle> worldTris;
     worldTris.reserve(500000); // optional
 

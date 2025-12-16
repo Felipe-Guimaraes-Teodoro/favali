@@ -96,7 +96,7 @@ void push_gizmo(Shapes shape, Transform t, int n, glm::vec4 col) {
             .mesh_idx = shape,
             .transform = t,
             .color = col,
-            .frames = 1,
+            .frames = n,
         }
     );
 }

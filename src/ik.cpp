@@ -12,30 +12,6 @@ using glm::mat4;
 using glm::vec4;
 using glm::quat;
 
-glm::quat rotate_from_to(const vec3& from, const vec3& to) {
-    vec3 f = glm::normalize(from);
-    vec3 t = glm::normalize(to);
-
-    float cosTheta = glm::dot(f, t);
-
-    // nearly opposite
-    if (cosTheta < -0.999) {
-        vec3 axis = glm::cross(vec3(1.0f, 0.0f, 0.0f), f);
-        if (glm::length2(axis) < 0.0001f)
-            axis = glm::cross(vec3(0.0f, 1.0f, 0.0f), f);
-        axis = glm::normalize(axis);
-        return glm::angleAxis(glm::pi<float>(), axis);
-    }
-
-    // nearly same
-    if (cosTheta > 0.999)
-        return glm::identity<quat>();
-    vec3 axis = glm::cross(f, t);
-    float angle = glm::acos(glm::clamp(cosTheta, -1.0f, 1.0f));
-
-    return glm::angleAxis(angle, glm::normalize(axis));
-}
-
 quat rotate_from_to_constrained(const vec3& from, const vec3& to, const vec3& allowedAxis) {
     vec3 f = glm::normalize(from);
     vec3 t = glm::normalize(to);
@@ -118,7 +94,7 @@ void IkController::update(float tolerance, int max_iter, float alpha) {
     }
 }
 
-void IkController::set_arm_transform(Level* arm, Camera& camera) {
+void IkController::set_arm_transform(Model* arm, Camera& camera) {
     IkNode* cur = root;
     int i = 0;
 

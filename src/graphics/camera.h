@@ -10,20 +10,6 @@ using glm::vec3;
 static vec3 UP = {0.0, 1.0, 0.0};
 
 typedef struct {
-    vec3 normal;
-    float distance;
-} Plane;
-
-typedef struct {
-    Plane top;
-    Plane bottom;
-    Plane right;
-    Plane left;
-    Plane far;
-    Plane near;
-} Frustum;
-
-typedef struct {
     mat4 proj;
     mat4 view;
 

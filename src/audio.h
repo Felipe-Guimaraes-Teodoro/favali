@@ -10,12 +10,13 @@ using glm::quat;
 struct Sample {
     float *buf;
     size_t length;
-    float cursor; // position where audio will play in frames
+    double cursor; // position where audio will play in frames
     float volume;
     float pitch; 
     float pan; // audio panning [-1, 1]
     bool delete_on_finished;
     bool is_playing;
+    bool force_stop;
 
     struct {
         bool not_positioned; /*
@@ -28,7 +29,7 @@ struct Sample {
     } emitter;
 
     inline bool finished() {
-        return cursor >= length;
+        return (size_t)cursor >= length;
     }
 };
 
@@ -38,7 +39,7 @@ typedef struct {
 
 
 #define MAX_SAMPLE_CHANNELS 16
-#define SPEED_OF_SOUND 10.0 
+#define SPEED_OF_SOUND 1.0 
 typedef std::array<Sample*, MAX_SAMPLE_CHANNELS> Samples;
 
 typedef struct {
