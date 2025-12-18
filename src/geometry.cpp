@@ -134,6 +134,41 @@ glm::quat rotate_from_to(const vec3& from, const vec3& to) {
     return glm::angleAxis(angle, glm::normalize(axis));
 }
 
+bool ray_intersects_aabb(
+    const AABB& box,
+    const Ray& ray,
+    float& outT
+) {
+    float tMin = 0.0f;
+    float tMax = FLT_MAX;
+
+    vec3 dir = glm::normalize(ray.direction);
+
+    for (int i = 0; i < 3; ++i) {
+        if (std::abs(dir[i]) < 1e-8f) {
+            if (ray.origin[i] < box.min[i] || ray.origin[i] > box.max[i])
+                return false;
+        } else {
+            float invD = 1.0f / dir[i];
+            float t0 = (box.min[i] - ray.origin[i]) * invD;
+            float t1 = (box.max[i] - ray.origin[i]) * invD;
+
+            if (t0 > t1)
+                std::swap(t0, t1);
+
+            tMin = glm::max(tMin, t0);
+            tMax = glm::min(tMax, t1);
+
+            if (tMin > tMax)
+                return false;
+        }
+    }
+
+    outT = tMin;
+    return true;
+}
+
+
 /*
 AABB makeAABB_from_shape(const Shape& shape) {
     AABB b;

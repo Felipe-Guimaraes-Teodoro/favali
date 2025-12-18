@@ -65,6 +65,7 @@ inline float aabb_distance_from_plane(const Plane& plane, const AABB& aabb) {
 bool is_aabb_on_frustum(const Frustum& frustum, const AABB& aabb);
 bool is_point_on_aabb(const AABB& aabb, const glm::vec3& point);
 bool is_line_on_aabb(const AABB& aabb, const glm::vec3& start, const glm::vec3& end);
+bool ray_intersects_aabb(const AABB& box, const Ray& ray, float& outT);
 
 // utility to create a plane from three points
 inline Plane makePlane(const glm::vec3& a, const glm::vec3& b, const glm::vec3& c) {

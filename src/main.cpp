@@ -216,15 +216,14 @@ int main() {
                 if (event.key.key == SDLK_F){
                     clear_instances(i_mesh);
                     update_instances(i_mesh);
-                    exec_script();
+                    // exec_script();
                     clear_instances(gun.bullet_hole_mesh);
                     update_instances(gun.bullet_hole_mesh);
                     npc.cant_find_route = true;
+                    npc.goal = player.position;
                     gun.bullets.clear();
                     
                     camera.update_frustum();
-
-                    npc.goal = player.position;
                 }
 
                 if (event.key.key == SDLK_LALT){
@@ -269,7 +268,7 @@ int main() {
         npc_solve_collisions(npc, worldBVHs);
         update_npc(npc, dt);
         update_audio(camera.position, camera.front);
-        visualize_nodes(global_navGraph->nodes);
+        // visualize_nodes(global_navGraph);
 
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
