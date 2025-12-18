@@ -10,10 +10,12 @@ layout (location = 2) in vec2 aTexCoord;
 out vec3 FragPos;
 out vec3 Normal;
 out vec2 TexCoord;
+out vec4 FragPosSunSpace;
 
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 model;
+uniform mat4 lightSpaceMatrix;
 
 void main() {
     gl_Position = projection * view * model * vec4(aPos, 1.0f);
@@ -21,6 +23,7 @@ void main() {
     FragPos = vec3(model * vec4(aPos, 1.0));
     Normal = normalize(mat3(transpose(inverse(model))) * aNormal);
     TexCoord = aTexCoord;
+    FragPosSunSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 }
 )";
 
@@ -30,12 +33,16 @@ const char* default_fs = R"(
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 TexCoord;
+in vec4 FragPosSunSpace;
 
 out vec4 FragColor;
 
+uniform bool useSun;
 uniform mat4 view;
 uniform vec4 color;
+uniform vec3 sunDir;
 uniform sampler2D ourTexture;
+uniform sampler2D shadowMap;
 
 const int MAX_LIGHTS = 20;
 
@@ -45,14 +52,45 @@ layout(std140, binding = 0) uniform Lights {
     int lightCount;
 };
 
-const vec3 ambient = vec3(0.1);
+const vec3 ambient = vec3(0.3);
 
-// uniform PointLight pointLights[16];
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    // perform perspective divide
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+    // transform to [0,1] range
+    projCoords = projCoords * 0.5 + 0.5;
+    // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
+    // get depth of current fragment from light's perspective
+    float currentDepth = projCoords.z;
+    // calculate bias (based on depth map resolution and slope)
+    float bias = max(0.001 * (1.0 - dot(normalize(Normal), -sunDir)), 0.0005);
+    // check whether current frag pos is in shadow
+    // float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;
+    // PCF
+    float shadow = 0.0;
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
+            shadow += currentDepth - bias > pcfDepth  ? 1.0 : 0.0;        
+        }    
+    }
+    shadow /= 9.0;
+    
+    // keep the shadow at 0.0 when outside the far_plane region of the light's frustum.
+    if(projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 ||
+projCoords.y < 0.0 || projCoords.y > 1.0)
+        shadow = 0.0;
+        
+    return shadow;
+}
 
 void main() {
     vec4 texColor = texture(ourTexture, TexCoord);
-
-    vec3 viewPos = -mat3(view) * view[3].xyz;
 
     vec3 normal = Normal;
 
@@ -71,10 +109,48 @@ void main() {
 
         result += color.rgb * lightColor * (diff + ambient) * (attenuation * 100);
     }
-
-    FragColor = vec4(result, color.a) * texColor;
+    
+    vec3 lighting = result;
+    
+    float shadow = 0.0;
+    if (useSun) {
+        shadow = ShadowCalculation(FragPosSunSpace);
+    }
+    
+    lighting = mix(lighting, lighting * ambient.r, shadow);
+    FragColor = vec4(lighting, color.a) * texColor;
 }
 )";
+
+const char* depth_vs = R"(
+#version 330 core
+layout (location = 0) in vec3 aPos;
+
+uniform mat4 lightSpaceMatrix;
+uniform mat4 model;
+
+void main()
+{
+    gl_Position = lightSpaceMatrix * model * vec4(aPos, 1.0);
+}
+)";
+
+const char* depth_fs = R"(
+#version 330 core
+
+void main(){}
+)";
+/*
+#version 330 core
+
+// Ouput data
+layout(location = 0) out float fragmentdepth;
+
+void main(){
+    // Not really needed, OpenGL does it anyway
+    fragmentdepth = gl_FragCoord.z;
+}
+*/
 
 const char* default_vs_instanced = R"(
 #version 420 core
@@ -192,20 +268,20 @@ void main() {
 }
 )";
 
-Shader create_shader(const GLchar *const * src, GLenum type) {
-    Shader sha = {};
+unsigned int create_shader(const GLchar *const * src, GLenum type) {
+    unsigned int sha = {};
 
-    sha.id = glCreateShader(type);
-    glShaderSource(sha.id, 1, src, NULL);
-    glCompileShader(sha.id);
+    sha = glCreateShader(type);
+    glShaderSource(sha, 1, src, NULL);
+    glCompileShader(sha);
 
-    int success;
-    char infoLog[512];
-    glGetShaderiv(sha.id, GL_COMPILE_STATUS, &success);
-
-    if(!success) {
-        glGetShaderInfoLog(sha.id, 512, NULL, infoLog);
-        printf("%s\n", infoLog);
+    GLint ok;
+    glGetShaderiv(sha, GL_COMPILE_STATUS, &ok);
+    if (!ok){
+        char log[1024];
+        glGetShaderInfoLog(sha, 1024, NULL, log);
+        printf("compile error at: %s\n", log);
+        glDeleteShader(sha);
     }
 
     return sha;
@@ -247,28 +323,28 @@ void shader_uniform_float(
     glUniform1f(location, f);
 }
 
-unsigned int create_program(Shader& vs, Shader& fs) {
+unsigned int create_program(unsigned int vs, unsigned int fs) {
     unsigned int program;
     program = glCreateProgram();
-    glAttachShader(program, vs.id);
-    glAttachShader(program, fs.id);
+    glAttachShader(program, vs);
+    glAttachShader(program, fs);
+
     glLinkProgram(program);
 
-    int success;
-    char infoLog[512];
-
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-    if(!success) {
-        glGetShaderInfoLog(program, 512, NULL, infoLog);
-        printf("%s\n", infoLog);
+    GLint ok;
+    glGetProgramiv(program, GL_LINK_STATUS, &ok);
+    if (!ok){
+        char log[1024];
+        glGetProgramInfoLog(program, 1024, NULL, log);
+        printf("link error at: %s\n", log);
     }
 
     return program;
 }
 
-void bind_ubo(const std::string& name, GLuint binding, UniformBuffer& buf, Shader& shader) {
-    GLuint index = glGetUniformBlockIndex(shader.id, name.c_str());
-    glUniformBlockBinding(shader.id, index, binding);
+void bind_ubo(const std::string& name, GLuint binding, UniformBuffer& buf, unsigned int shader) {
+    GLuint index = glGetUniformBlockIndex(shader, name.c_str());
+    glUniformBlockBinding(shader, index, binding);
 
     // coult also be glBindBufferRange
     glBindBufferBase(GL_UNIFORM_BUFFER, binding, buf.UBO);

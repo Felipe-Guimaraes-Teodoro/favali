@@ -1,8 +1,9 @@
 #include "shapes.h"
 #include "texture.h"
+#include "sun.h"
 
-void Shape::draw(unsigned int program, const Camera& camera) const {
-    mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color, texture);
+void Shape::draw(unsigned int program, const Camera& camera, Sun* sun) const {
+    mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color, texture, sun);
 }
 
 Shape make_shape(Shapes shape, unsigned int texture) {

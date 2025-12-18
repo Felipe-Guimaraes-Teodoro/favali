@@ -8,6 +8,8 @@
 
 #include "glad/glad.h"
 #include "ui.h"
+#include "glm.hpp"
+#include "gtc/matrix_transform.hpp"
 
 #include "transform.h"
 #define UBO_DEFINITION
@@ -30,6 +32,7 @@
 #include "gizmos.h"
 #include "ik.h"
 #include "audio.h"
+#include "sun.h"
 #include "PerlinNoise.hpp"
 #include "npc.h"
 
@@ -95,16 +98,19 @@ int main() {
 
     SDL_Event event;
 
-    Shader vs = create_shader(&default_vs, GL_VERTEX_SHADER);
-    Shader fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);    
-    Shader vs_instanced = create_shader(&default_vs_instanced, GL_VERTEX_SHADER);
-    Shader fs_instanced = create_shader(&default_fs_instanced, GL_FRAGMENT_SHADER);
-    Shader vs_cube_map = create_shader(&cube_map_vs, GL_VERTEX_SHADER);
-    Shader fs_cube_map = create_shader(&cube_map_fs, GL_FRAGMENT_SHADER);
-    Shader vs_sun = create_shader(&sun_vs, GL_VERTEX_SHADER);
-    Shader fs_sun = create_shader(&sun_fs, GL_FRAGMENT_SHADER);
-    
+    unsigned int vs = create_shader(&default_vs, GL_VERTEX_SHADER);
+    unsigned int fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);    
+    unsigned int vs_depth = create_shader(&depth_vs, GL_VERTEX_SHADER);
+    unsigned int fs_depth = create_shader(&depth_fs, GL_FRAGMENT_SHADER);
+    unsigned int vs_instanced = create_shader(&default_vs_instanced, GL_VERTEX_SHADER);
+    unsigned int fs_instanced = create_shader(&default_fs_instanced, GL_FRAGMENT_SHADER);
+    unsigned int vs_cube_map = create_shader(&cube_map_vs, GL_VERTEX_SHADER);
+    unsigned int fs_cube_map = create_shader(&cube_map_fs, GL_FRAGMENT_SHADER);
+    unsigned int vs_sun = create_shader(&sun_vs, GL_VERTEX_SHADER);
+    unsigned int fs_sun = create_shader(&sun_fs, GL_FRAGMENT_SHADER);
+
     unsigned int program = create_program(vs, fs);
+    unsigned int depthProgram = create_program(vs_depth, fs_depth);
     unsigned int program_instanced = create_program(vs_instanced, fs_instanced);
     unsigned int program_cube_mesh = create_program(vs_cube_map, fs_cube_map);
     unsigned int program_sun = create_program(vs_sun, fs_sun);
@@ -136,7 +142,7 @@ int main() {
 
     audio_ctx->ud = &player;
     player.collider.radius = 1.0;
-
+    
     glm::vec3 local_shoot_pos(3.2, -5.78, 0.);
     glm::vec3 muzzle_back_sample = glm::vec3(0., -5.78, 0.);
     Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.1f, 1., 5, textures[0]);
@@ -161,9 +167,8 @@ int main() {
 
     float fps = 60.0f;
     float dt = 0.0f;
-    float time = 50.0f;
+    float time = 0.0f;
     float sensitivity = 0.1;
-    bool shoot = false;
     static float recoil_timer = 0.0f;
 
     bool lock_cursor = false;
@@ -251,7 +256,6 @@ int main() {
                 }
             }
             if (event.type == SDL_EVENT_WINDOW_RESIZED) {
-                int w, h;
                 SDL_GetWindowSize(window, &w, &h);
 
                 onResize(w, h, camera);
@@ -261,7 +265,11 @@ int main() {
         }
 
         player.solve_collisions(worldBVHs);
-        
+
+        sky.sun.updateSun(time);
+
+        sky.sun.renderShadow(depthProgram, {level0}, w, h);
+
         CLEAR_SCREEN;
 
         player.update(dt, lock_cursor, sensitivity, camera);
@@ -274,9 +282,9 @@ int main() {
         controller.update(0.01, 10, 0.01);
         controller.set_arm_transform(arm, camera);
         gun.update(dt, camera, controller, player, worldBVHs);
-        i_mesh.draw(program_instanced, camera.view, camera.proj, glm::vec4(1.0), tmp.texture);
+        // i_mesh.draw(program_instanced, camera.view, camera.proj, glm::vec4(1.0), tmp.texture);
 
-        draw_level(level0, camera, program);
+        draw_level(level0, camera, program, &sky.sun);
         draw_model(arm, camera, program);
 
         sky.draw(program_cube_mesh, program_sun, camera, time); // last to draw for optimisation purposes
@@ -284,9 +292,11 @@ int main() {
         // draw gun (and thus bullet holes) at last 
         gun.draw(program, program_instanced, camera);
 
-        if (lua_ctx) {
-            // controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
-        }
+        sky.draw(program_cube_mesh, program_sun, camera, time); // last to draw for optimisation purposes
+
+        // if (lua_ctx) {
+        //     // controller.goal = vec3(lua_ctx->goal_x, lua_ctx->goal_y, lua_ctx->goal_z);
+        // }
 
         render_gizmos(camera); // automatically calls "end_frame_gizmos"
         // end_frame_gizmos(); 

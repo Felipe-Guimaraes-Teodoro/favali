@@ -171,7 +171,7 @@ Level *create_level_from_gltf(const char *path) {
     }
 
     level->shapes.reserve(primitive_count);
-    printf("%u shapes\n", primitive_count);
+    // printf("%u shapes\n", primitive_count);
     unsigned int texture = 0;
     int light_count = 0;
 
@@ -180,11 +180,11 @@ Level *create_level_from_gltf(const char *path) {
 
     for (int i = 0; i < data->nodes_count; i++) {
         cgltf_node* node = &data->nodes[i];
-        printf("loading node %s\n", node->name);
+        // printf("loading node %s\n", node->name);
 
         // load lights
         if (node->light) {
-            printf("loading light\n");
+            // printf("loading light\n");
             cgltf_light *light = node->light;
 
             vec3 translation = vec3(0);
@@ -335,9 +335,9 @@ Model *create_model_from_gltf(const char *path) {
 
         // append_instance_data_from_node(): 
         if (node->has_mesh_gpu_instancing) {
-            printf("Node has gpu instancing\n");
+            // printf("Node has gpu instancing\n");
             for (int attr = 0; attr < node->mesh_gpu_instancing.attributes_count; attr++) {
-                printf("%s\n", node->mesh_gpu_instancing.attributes->name);
+                // printf("%s\n", node->mesh_gpu_instancing.attributes->name);
             }
         }
     }

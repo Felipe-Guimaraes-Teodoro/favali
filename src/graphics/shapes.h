@@ -4,7 +4,7 @@
 #include "mesh.h"
 #include "camera.h"
 
-constexpr float PI = 3.14159265358979323846f;
+constexpr float PI = 3.141592653589793238462643383f;
 
 enum Shapes {
     Square,
@@ -51,7 +51,7 @@ struct Shape {
         return *this;
     }
 
-    void draw(unsigned int program, const Camera& camera) const;
+    void draw(unsigned int program, const Camera& camera, Sun* sun = nullptr) const;
 };
 
 Shape make_shape(Shapes shape, unsigned int texture = 0);

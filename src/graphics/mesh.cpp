@@ -22,7 +22,8 @@ void Mesh::draw(
     glm::mat4 proj_mat, 
     glm::vec4 col, 
     unsigned int texture,
-    unsigned int draw_mode // = GL_TRIANGLES by default
+    Sun* sun,
+    unsigned int draw_mode
 ) const {
     if (!visible) {
         return;
@@ -33,20 +34,59 @@ void Mesh::draw(
         return;
     }
 
+    if (!glIsProgram(program)) {
+        printf("PROGRAM INVALID: %u\n", program);
+        return;
+    }
+
     glUseProgram(program);
     
     shader_uniform_mat4(program, "model", model_mat);
     shader_uniform_mat4(program, "view", view_mat);
     shader_uniform_mat4(program, "projection", proj_mat);
-
+    
     shader_uniform_vec4(program, "color", col);
-
+    
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture);
+    glUniform1i(glGetUniformLocation(program, "ourTexture"), 0);
+    
+    glUniform1i(glGetUniformLocation(program, "useSun"), sun != nullptr);
+    if (sun){
+        shader_uniform_mat4(program, "lightSpaceMatrix", sun->sunSpaceMatrix);
+        shader_uniform_vec3(program, "sunDir", glm::normalize(sun->sunDir));
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, sun->depthMap);
+        glUniform1i(glGetUniformLocation(program, "shadowMap"), 1);
+    }
+
+    glActiveTexture(GL_TEXTURE0);
+
     glBindVertexArray(VAO);
     glDrawElements(
         draw_mode,
         indices.size(), 
         GL_UNSIGNED_INT, 
+        0
+    );
+}
+
+void Mesh::drawDepth(
+    unsigned int depthProgram,
+    const glm::mat4& model_mat
+) {
+    if (!setup) {
+        printf("WARNING: Attempting to draw depth of deleted or incomplete mesh\n");
+        return;
+    }
+
+    shader_uniform_mat4(depthProgram, "model", model_mat);
+
+    glBindVertexArray(VAO);
+    glDrawElements(
+        GL_TRIANGLES,
+        indices.size(),
+        GL_UNSIGNED_INT,
         0
     );
 }
@@ -374,27 +414,27 @@ CubeMapMesh create_cube_map() {
         2, 3, 0
     };
 
-    mesh.sun.vertices = sun_vertices;
-    mesh.sun.indices = sun_indices;
+    mesh.sun_mesh.vertices = sun_vertices;
+    mesh.sun_mesh.indices = sun_indices;
     
-    mesh.sun.setup = true;
+    mesh.sun_mesh.setup = true;
 
-    glGenVertexArrays(1, &mesh.sun.VAO);
-    glGenBuffers(1, &mesh.sun.VBO);
-    glGenBuffers(1, &mesh.sun.EBO);
+    glGenVertexArrays(1, &mesh.sun_mesh.VAO);
+    glGenBuffers(1, &mesh.sun_mesh.VBO);
+    glGenBuffers(1, &mesh.sun_mesh.EBO);
     
-    glBindVertexArray(mesh.sun.VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh.sun.VBO);
+    glBindVertexArray(mesh.sun_mesh.VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh.sun_mesh.VBO);
     glBufferData(GL_ARRAY_BUFFER, 
-        mesh.sun.vertices.size() * sizeof(float), 
-        mesh.sun.vertices.data(), 
+        mesh.sun_mesh.vertices.size() * sizeof(float), 
+        mesh.sun_mesh.vertices.data(), 
         GL_STATIC_DRAW
     );
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.sun.EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh.sun_mesh.EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, 
-        mesh.sun.indices.size() * sizeof(unsigned int), 
-        mesh.sun.indices.data(), 
+        mesh.sun_mesh.indices.size() * sizeof(unsigned int), 
+        mesh.sun_mesh.indices.data(), 
         GL_STATIC_DRAW
     );
 
@@ -408,6 +448,8 @@ CubeMapMesh create_cube_map() {
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
+
+    mesh.sun = createSun();
 
     return mesh;
 }
@@ -460,16 +502,8 @@ void CubeMapMesh::draw(
     unsigned int sun_program,
     Camera& camera,
     float time
-) const {
-    float t = time * 0.05f;
-
-    glm::vec3 sunDir = glm::normalize(glm::vec3(
-        cos(t),
-        sin(t),
-        0.2f
-    ));
-
-    float sunIntensity = glm::clamp(glm::abs(sunDir.y) * 0.5f + 0.5f, 0.0f, 1.0f);
+) {
+    float sunIntensity = glm::clamp(glm::abs(sun.sunDir.y) * 0.5f + 0.5f, 0.0f, 1.0f);
     glm::vec3 sunColor = vec3(1.0, 0.95, 0.8);
 
     // draw skybox
@@ -497,7 +531,7 @@ void CubeMapMesh::draw(
 
     glActiveTexture(GL_TEXTURE0);
 
-    shader_uniform_vec3(sky_program, "sunDir", sunDir);
+    shader_uniform_vec3(sky_program, "sunDir", sun.sunDir);
     shader_uniform_vec3(sky_program, "sunColor", sunColor);
     shader_uniform_float(sky_program, "sunIntensity", sunIntensity);
 
@@ -505,7 +539,7 @@ void CubeMapMesh::draw(
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
     // draw sun quad
-    if (!sun.setup) {
+    if (!sun_mesh.setup) {
         printf("WARNING: Attempting to draw deleted or incomplete sun mesh from cube map\n"); 
         return;
     }
@@ -530,8 +564,8 @@ void CubeMapMesh::draw(
         shader_uniform_vec3(sun_program, "sunColor", color);
         shader_uniform_float(sun_program, "sunIntensity", intensity);
 
-        glBindVertexArray(sun.VAO);
-        glDrawElements(GL_TRIANGLES, sun.indices.size(), GL_UNSIGNED_INT, 0);
+        glBindVertexArray(sun_mesh.VAO);
+        glDrawElements(GL_TRIANGLES, sun_mesh.indices.size(), GL_UNSIGNED_INT, 0);
     };
 
     // enable blending for sun/moon
@@ -541,10 +575,10 @@ void CubeMapMesh::draw(
     glDepthFunc(GL_LEQUAL);
 
     // draw sun
-    drawBillboard(sunDir, glm::vec3(1.0, 0.95, 0.8), sunIntensity, 50.0f);
+    drawBillboard(sun.sunDir, glm::vec3(1.0, 0.95, 0.8), sunIntensity, 50.0f);
 
     // draw moon
-    glm::vec3 moonDir = -sunDir;
+    glm::vec3 moonDir = -sun.sunDir;
     float moonIntensity = sunIntensity;
     drawBillboard(moonDir, glm::vec3(0.6, 0.65, 0.8), moonIntensity, 35.0f);
 

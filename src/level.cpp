@@ -17,21 +17,24 @@ Model *create_model() {
     return m;
 }
 
-void draw_level(Level *l, Camera& cam, unsigned int program, bool enable_culling) {
+void draw_level(Level *l, Camera& cam, unsigned int program, Sun* sun, bool enable_culling) {
     // int i = 0;
     if (enable_culling) {
         for (const StaticShape& shape : l->shapes) {
             if (is_aabb_on_frustum(cam.frustum, shape.box)) {
-                shape.draw(program, cam);
+                shape.draw(program, cam, sun);
                 // i++;
             }
         }
     } else {
         for (const StaticShape& shape : l->shapes) {
-            shape.draw(program, cam);
+            shape.draw(program, cam, sun);
         }
         // i++;
     }
+    // for (const Shape& shape : l->shapes) {
+    //     shape.draw(program, cam, sun);
+    // }
 
     // printf("%u shapes avail, %u shapes drawn\n", l->shapes.size(),i);
 }
@@ -47,6 +50,7 @@ void draw_model(Model *m, Camera& cam, unsigned int program) {
 /// Reduces draw calls but also reduces culling opportunities
 /// Todo: merge only shapes that share the same material
 /// aka: texture (since theres no actual material def)
+
 void merge_level_shapes(Level* level) {
     unsigned int base_index = 0;
 
@@ -73,6 +77,7 @@ void merge_level_shapes(Level* level) {
     setup_mesh(god_shape.mesh);
     level->shapes.push_back(shape_to_static(std::move(god_shape)));
 }
+
 
 std::vector<MeshTriangle> get_level_tris(StaticShape *shape){
     std::vector<MeshTriangle> worldTris;
