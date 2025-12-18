@@ -35,6 +35,7 @@ add_executable(shenanigans
     src/graphics/model.cpp
     src/graphics/shapes.cpp
     src/graphics/gizmos.cpp
+    src/graphics/sun.cpp
 )
 
 target_include_directories(imgui PUBLIC

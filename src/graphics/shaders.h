@@ -9,6 +9,9 @@
 extern const char* default_vs;
 extern const char* default_fs;
 
+extern const char* depth_vs;
+extern const char* depth_fs;
+
 extern const char* default_vs_instanced;
 extern const char* default_fs_instanced;
 
@@ -18,11 +21,7 @@ extern const char* cube_map_fs;
 extern const char* sun_vs;
 extern const char* sun_fs;
 
-typedef struct {
-    unsigned int id;
-} Shader;
-
-Shader create_shader(const GLchar *const * src, GLenum type);
+unsigned int create_shader(const GLchar *const * src, GLenum type);
 
 void shader_uniform_mat4(
     unsigned int program, 
@@ -48,7 +47,7 @@ void shader_uniform_float(
     float f
 );
 
-unsigned int create_program(Shader& vs, Shader& fs);
+unsigned int create_program(unsigned int vs, unsigned int fs);
 
 #ifdef UBO_DEFINITION // cause i'm too lazy to separate this to its file
 
@@ -83,7 +82,7 @@ void bind_ubo(
     const std::string& name, 
     GLuint binding, 
     UniformBuffer& buf, 
-    Shader& shader
+    unsigned int shader
 );
 
 #endif

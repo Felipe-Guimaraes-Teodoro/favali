@@ -5,20 +5,21 @@
 #include "shapes.h"
 #include "geometry.h"
 #include "light.h"
+#include "sun.h"
 
 using std::vector;
 
-typedef struct {
+struct Level{
     Lights lights;
     vector<Shape> shapes;
     // vector<Collider> colliders;
     // vector<Entity> entities; // shapes that move
 
-} Level;
+};
 
 Level *create_level();
 
-void draw_level(Level *l, Camera& cam, unsigned int program);
+void draw_level(Level *l, Camera& cam, unsigned int program, Sun* sun);
 
 void merge_level_shapes(Level* level);
 

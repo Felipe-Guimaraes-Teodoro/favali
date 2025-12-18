@@ -10,9 +10,9 @@ Level *create_level() {
     return l;
 }
 
-void draw_level(Level *l, Camera& cam, unsigned int program) {
+void draw_level(Level *l, Camera& cam, unsigned int program, Sun* sun) {
     for (const Shape& shape : l->shapes) {
-        shape.draw(program, cam);
+        shape.draw(program, cam, sun);
     }
 }
 

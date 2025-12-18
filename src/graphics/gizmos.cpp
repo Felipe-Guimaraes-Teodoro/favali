@@ -82,8 +82,8 @@ void init_gizmos() {
 
     init_vaos(gizmo_queue);
 
-    Shader vs = create_shader(&gizmo_vs, GL_VERTEX_SHADER);
-    Shader fs = create_shader(&gizmo_fs, GL_FRAGMENT_SHADER);
+    unsigned int vs = create_shader(&gizmo_vs, GL_VERTEX_SHADER);
+    unsigned int fs = create_shader(&gizmo_fs, GL_FRAGMENT_SHADER);
     gizmo_queue->gizmo_program = create_program(
         vs,
         fs
@@ -96,7 +96,7 @@ void push_gizmo(Shapes shape, Transform t, glm::vec4 col) {
             .mesh_idx = shape,
             .transform = t,
             .color = col,
-            .frames = 1,
+            .frames = 1
         }
     );
 }

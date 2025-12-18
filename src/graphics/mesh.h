@@ -5,6 +5,7 @@ using std::vector;
 #include "glad/glad.h"
 #include "gtc/type_ptr.hpp"
 #include "camera.h"
+#include "sun.h"
 
 struct Mesh {
     unsigned int VBO, VAO, EBO;
@@ -55,10 +56,16 @@ struct Mesh {
         glm::mat4 model_mat, 
         glm::mat4 view_mat, 
         glm::mat4 proj_mat, 
-        glm::vec4 col, 
+        glm::vec4 col,
         unsigned int texture,
+        Sun* sun = nullptr,
         unsigned int draw_mode = GL_TRIANGLES
     ) const;
+
+    void drawDepth(
+        unsigned int depthProgram,
+        const glm::mat4& model_mat
+    );
 
     ~Mesh();
 };
@@ -158,7 +165,8 @@ struct CubeMapMesh {
 
     unsigned int clouds_texture;
 
-    Mesh sun;
+    Mesh sun_mesh;
+    Sun sun;
 
     bool setup = false;
 
@@ -200,10 +208,10 @@ struct CubeMapMesh {
 
     void draw(
         unsigned int program,
-        unsigned int sun,
+        unsigned int sun_program,
         Camera& camera,
         float time
-    ) const;
+    );
 
     ~CubeMapMesh();
 };
