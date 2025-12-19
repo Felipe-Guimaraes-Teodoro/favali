@@ -4,7 +4,7 @@
 #include "glad/glad.h"
 #include <vector>
 
-#define SHADOW_SIZE 2048
+#define SHADOW_SIZE 4096
 
 class Level;
 

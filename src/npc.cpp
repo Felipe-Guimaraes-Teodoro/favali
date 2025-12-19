@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <optional>
 #include <queue>
+#include <algorithm>
 
 #include "gizmos.h"
 #include "player.h"
@@ -99,8 +100,8 @@ void expand_navgraph(NavGraph *ng, vector<BVHNode*>& bvh, vec3 pos, vec3 goal) {
             float dist_from_ground = 0.0;
             float dist_from_ceiling = FLT_MAX;
 
-            Ray to_ground = (Ray) {.origin = vec3(nodePos), .direction = -UP};
-            Ray to_ceiling = (Ray) {.origin = vec3(nodePos), .direction = UP};
+            Ray to_ground{vec3(nodePos), -UP};
+            Ray to_ceiling{vec3(nodePos), UP};
             
             float min_dist = FLT_MAX;
             if (ray_intersects_aabb(box, to_ground, min_dist)) {

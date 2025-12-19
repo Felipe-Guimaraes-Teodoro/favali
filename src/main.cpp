@@ -145,7 +145,7 @@ int main() {
     
     glm::vec3 local_shoot_pos(3.2, -5.78, 0.);
     glm::vec3 muzzle_back_sample = glm::vec3(0., -5.78, 0.);
-    Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.1f, 1., 5, textures[0]);
+    Gun gun = make_gun(muzzle_back_sample, local_shoot_pos, 0.3f, 0.0f, 1, textures[0]);
     gun.shape = std::make_unique<Shape>(create_shape_from_gltf("../../../assets/gun.gltf", 0));
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();
@@ -249,10 +249,16 @@ int main() {
                 if (event.button.button == 1){
                     gun.is_shooting = true;
                 }
+                if (event.button.button == 3){
+                    gun.aiming = true;
+                }
             }
             if (event.type == SDL_EVENT_MOUSE_BUTTON_UP){
                 if (event.button.button == 1){
                     gun.is_shooting = false;
+                }
+                if (event.button.button == 3){
+                    gun.aiming = false;
                 }
             }
             if (event.type == SDL_EVENT_WINDOW_RESIZED) {

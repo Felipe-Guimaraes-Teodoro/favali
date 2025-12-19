@@ -25,6 +25,8 @@ typedef struct{
     float spread;
     unsigned int bullets_per_shot;
 
+    bool aiming;
+
     void update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs);
 
     void draw(unsigned int program, unsigned int instanced_program, Camera& camera);

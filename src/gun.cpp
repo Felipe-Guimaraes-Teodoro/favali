@@ -12,24 +12,26 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
     last_shot += dt;
     
     float recoil_amount = recoil_timer * -0.3f;
-    vec3 goal = glm::mix(camera.position, player.position + player.head_ofs, -0.25f) + camera.front*(0.3f + recoil_amount * 0.5f) + -camera.right * 0.12f - camera.up * 0.1f;
-    goal -= camera.front * (recoil_timer * 0.04f);
     recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
-    controller.goal = /* goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f */ 
-                    glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + glm::normalize(camera.front * 5.0f + camera.up * -recoil_amount * 2.5f) * 0.5f - camera.right * 0.3f;
+    if (aiming){
+        controller.goal = /* goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f */ 
+        glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front * 0.5f + camera.up * -recoil_amount * 2.5f * 0.5f - camera.up * 0.05f;
+    } else{
+        controller.goal = /* goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f */ 
+        glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front + camera.up * -recoil_amount * 0.5f - camera.right * 0.3f;
+    }
 
-    glm::quat base = glm::quatLookAt(-camera.right, -camera.up);
+    glm::quat look = glm::quatLookAt(camera.front, -camera.up);
+    glm::quat fix = glm::angleAxis(glm::radians(90.f), vec3(0,1,0)); // -Z -> -X
+    glm::quat base = look * fix;
+
     glm::quat recoil_q = glm::angleAxis(recoil_amount, camera.right);
 
     glm::quat target_rot = recoil_q * base;
 
-    // shape->transform.rotation = glm::slerp(shape->transform.rotation, target_rot, 0.3f);
-    shape->transform.rotation = glm::slerp(controller.visual_leaf_rot * glm::quat(glm::vec3(
-        glm::radians(90.0f), // X
-        glm::radians(-90.0f), // Y
-        glm::radians(90.0f)  // Z
-    )), base, 0.5f);
+    shape->transform.rotation = glm::slerp(shape->transform.rotation, target_rot, 0.3f);
+
     vec3 leaf_dir = glm::normalize(controller.leaf->end - controller.leaf->origin);
     vec3 leaf_right = glm::cross(leaf_dir, UP);
     shape->transform.position = controller.leaf->end + leaf_dir * 0.1f;
@@ -47,18 +49,16 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
         glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
         
         for (int i = 0; i < bullets_per_shot; i++){
-            float x = dist(gen);
-            float y = dist(gen);
-            float z = dist(gen);
+            glm::vec3 local_dir = glm::normalize(muzzle_pos - muzzle_back_sample);
 
-            glm::vec3 rand_spread(x, y, z);
-            rand_spread *= 0.2;
+            glm::vec3 spread_local(dist(gen), dist(gen), 0.f);
+            spread_local *= spread;
 
-            glm::vec4 dir = glm::vec4(muzzle_pos - muzzle_back_sample, 0.);
-            dir -= glm::vec4(rand_spread, 0.);
-            glm::vec3 dir_norm = glm::normalize(glm::vec3(shape->transform.getModelMat() * dir));
-
-            Bullet b = create_bullet(muzzle_world, dir_norm);
+            local_dir = glm::normalize(local_dir + spread_local);
+            
+            glm::vec3 world_dir = glm::normalize(shape->transform.rotation * local_dir);
+            
+            Bullet b = create_bullet(muzzle_world, world_dir);
             b.damage = bullet_template.damage;
             b.lifetime = bullet_template.lifetime;
             b.speed = bullet_template.speed;
@@ -166,6 +166,7 @@ Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown,
     g.bullets_per_shot = bullets_per_shot;
     g.last_shot = 0.0;
     g.is_shooting = false;
+    g.aiming = false;
     
     g.bullet_hole_tex = bullet_hole_tex;
     Shape bs = make_shape(Shapes::Square, bullet_hole_tex); // Bullet Shape :)
