@@ -14,6 +14,7 @@ void Bullet::update_bullet(float dt){
         return;
     }
     shape->transform.position += dir * speed * dt;
+    shape->transform.position += GRAVITY*dt;
     shape->transform.scale = vec3(.05);
     shape->transform.rotation = glm::quatLookAt(dir, UP);
 

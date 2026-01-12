@@ -17,19 +17,19 @@ struct AABB {
     glm::vec3 max;
 };
 
-typedef struct {
+struct Plane {
     glm::vec3 normal;
     float distance;
-} Plane;
+};
 
-typedef struct {
+struct Frustum {
     Plane top;
     Plane bottom;
     Plane right;
     Plane left;
-    Plane far;
-    Plane near;
-} Frustum;
+    Plane p_far;
+    Plane p_near;
+};
 
 inline AABB makeAABB(const MeshTriangle& t){
     AABB b;

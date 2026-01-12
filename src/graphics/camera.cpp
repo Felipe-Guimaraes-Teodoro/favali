@@ -27,8 +27,8 @@ void Camera::update_frustum() {
     glm::vec3 fbl = fc - upF - rightF;
     glm::vec3 fbr = fc - upF + rightF;
 
-    frustum.near = makePlane(ntr, ntl, nbl);
-    frustum.far = makePlane(ftl, ftr, fbr);
+    frustum.p_near = makePlane(ntr, ntl, nbl);
+    frustum.p_far = makePlane(ftl, ftr, fbr);
     frustum.left = makePlane(ntl, ftl, fbl);
     frustum.right = makePlane(ftr, ntr, nbr);
     frustum.top = makePlane(ntl, ntr, ftr);

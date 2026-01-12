@@ -68,10 +68,10 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
     push_gizmo(Shapes::Cube, query, 1, {1.0, 1.0, 0.0, 1.0});
 
     AABB feet;
-    makeAABB_from_ray((Ray) {
-        .origin = position,
-        .direction = -UP,
-        .tMax = collider.radius * 2.0f,
+    makeAABB_from_ray(Ray {
+        position,
+        -UP,
+        collider.radius * 2.0f,
     });
 
     push_gizmo(Shapes::Cube, feet, 1, {1.0, 0.0, 0.0, 1.0});
@@ -187,10 +187,10 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     // velocity *= damping;
     position += velocity * dt;
 
-    Ray grounded_ray = (Ray){
-        .origin = position,
-        .direction = -UP,
-        .tMax = collider.radius*0.55f, // go half of player's size
+    Ray grounded_ray {
+        position,
+        -UP,
+        collider.radius*0.55f, // go half of player's size
     };
 
     // printf("player vel: %f\n", current_speed);
@@ -200,6 +200,22 @@ void Player::player_movement(float dt, bool lock_cursor, float sensitivity, Came
     current_speed = glm::length(last_pos - position);
 
     camera.update();
+}
+
+// used by server when receives input from client
+void Player::applyInput(InputPacket input, float dt) {
+    vec3 wishdir(0);
+
+    // move apenas no plano XZ
+    wishdir.x = input.moveX;
+    wishdir.z = input.moveY;
+
+    if (glm::length(wishdir) > 0.1f) wishdir = glm::normalize(wishdir) * speed;
+
+    velocity.x = wishdir.x;
+    velocity.z = wishdir.z;
+
+    position += velocity * dt;
 }
 
 Player create_player() {

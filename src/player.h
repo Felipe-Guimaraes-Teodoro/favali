@@ -8,6 +8,7 @@ on the codebase cause i freaking love physically based movement
 #include "glm.hpp"
 #include "BVH.h"
 #include "camera.h"
+#include "net/net_common.h"
 
 using glm::vec3;
 
@@ -54,6 +55,8 @@ typedef struct {
     void update(float dt, bool lock_cursor, float sensitivity, Camera& camera);
 
     void player_movement(float dt, bool lock_cursor, float sensitivity, Camera& camera);
+
+    void applyInput(InputPacket input, float dt);
 
     void solve_collisions(std::vector<BVHNode*> worldBVHs);
 } Player;

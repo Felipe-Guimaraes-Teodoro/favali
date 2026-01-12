@@ -71,8 +71,8 @@ AABB makeAABB_from_ray(const Ray& r) {
 }
 
 bool is_aabb_on_frustum(const Frustum& frustum, const AABB& aabb) {
-    if (aabb_distance_from_plane(frustum.near, aabb) < FLT_EPSILON) return false;
-    if (aabb_distance_from_plane(frustum.far, aabb) < FLT_EPSILON) return false;
+    if (aabb_distance_from_plane(frustum.p_near, aabb) < FLT_EPSILON) return false;
+    if (aabb_distance_from_plane(frustum.p_far, aabb) < FLT_EPSILON) return false;
     if (aabb_distance_from_plane(frustum.left, aabb) < FLT_EPSILON) return false;
     if (aabb_distance_from_plane(frustum.right, aabb) < FLT_EPSILON) return false;
     if (aabb_distance_from_plane(frustum.top, aabb) < FLT_EPSILON) return false;

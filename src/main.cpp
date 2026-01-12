@@ -150,8 +150,6 @@ int main() {
     gun.shape->transform.scale = vec3(0.01);
     gun.bullet_template = create_bullet_template();
 
-    SDL_Surface surface;
-
     Level *level0 = create_level_from_gltf("../../../assets/level2.glb");
     std::vector<BVHNode*> worldBVHs;
     for (int i = 0; i < level0->shapes.size(); i++){
