@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(shenanigans VERSION 0.1.0 LANGUAGES C CXX)
+project(favali VERSION 0.1.0 LANGUAGES C CXX)
 
 find_package(OpenGL REQUIRED)
+find_package(Threads REQUIRED)
+
+add_subdirectory("${CMAKE_SOURCE_DIR}/external/enet")
 
 add_library(imgui
     external/imgui/imgui.cpp
@@ -14,21 +17,16 @@ add_library(imgui
 )
 target_include_directories(imgui PUBLIC external/imgui)
 
-add_executable(shenanigans 
+add_executable(favali 
     src/main.cpp
-    src/scripting.c
     src/level.cpp
-    src/bullet.cpp
-    src/BVH.cpp
-    src/geometry.cpp
-    src/raycast.cpp
-    src/player.cpp
-    src/sod.cpp
-    src/gun.cpp
-    src/ik.cpp
-    src/audio.cpp
-    src/npc.cpp
-
+    
+    src/physics/ik.cpp
+    src/physics/sod.cpp
+    src/physics/BVH.cpp
+    src/physics/geometry.cpp
+    src/physics/raycast.cpp
+    
     src/graphics/camera.cpp
     src/graphics/mesh.cpp
     src/graphics/shaders.cpp
@@ -37,22 +35,34 @@ add_executable(shenanigans
     src/graphics/shapes.cpp
     src/graphics/gizmos.cpp
     src/graphics/sun.cpp
+
+    src/gameplay/player.cpp
+    src/gameplay/gun.cpp
+    src/gameplay/bullet.cpp
+    src/gameplay/scripting.c
+
+    src/audio/audio.h
+    src/audio/audio.cpp
 )
 
 target_include_directories(imgui PUBLIC
     ${CMAKE_SOURCE_DIR}/external/sdl3/include
 )
 
-target_include_directories(shenanigans PUBLIC
+target_include_directories(favali PUBLIC
     ${CMAKE_SOURCE_DIR}/external/include
     ${CMAKE_SOURCE_DIR}/external/glad/include
     ${CMAKE_SOURCE_DIR}/external/glm
     ${CMAKE_SOURCE_DIR}/external/sdl3/include
     ${CMAKE_SOURCE_DIR}/external/lua/src
     ${CMAKE_SOURCE_DIR}/external/imgui
+    ${CMAKE_SOURCE_DIR}/external/enet/include
 
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/graphics
+    ${CMAKE_SOURCE_DIR}/src/physics
+    ${CMAKE_SOURCE_DIR}/src/gameplay
+    ${CMAKE_SOURCE_DIR}/src/audio
 )
 
 file(GLOB LUA_SRC "${CMAKE_SOURCE_DIR}/external/lua/src/*.c")
@@ -62,7 +72,7 @@ set_target_properties(lua PROPERTIES EXCLUDE_FROM_ALL TRUE)
 add_library(glad STATIC external/glad/src/glad.c)
 target_include_directories(glad PUBLIC external/glad/include)
 
-target_link_options(shenanigans PRIVATE 
+target_link_options(favali PRIVATE 
     "-L${CMAKE_SOURCE_DIR}/external/sdl3"
 )
 
@@ -70,12 +80,14 @@ target_link_libraries(imgui PUBLIC
     SDL3
 )
 
-target_link_libraries(shenanigans PUBLIC
+target_link_libraries(favali PUBLIC
     OpenGL::GL
+    Threads::Threads
     glad
     SDL3
     lua
     imgui
+    enet
 )
 
 #copy DLL's onto output directory
@@ -92,7 +104,7 @@ add_custom_target(copy_assets ALL
         "${CMAKE_BINARY_DIR}/assets"
 )
 
-add_dependencies(shenanigans 
+add_dependencies(favali 
     copy_runtime_dlls
     copy_assets
 )

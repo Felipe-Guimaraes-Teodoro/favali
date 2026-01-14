@@ -4,7 +4,7 @@
 #include "level.h"
 #include <vector>
 
-void Sun::updateSun(float time){
+void Sun::update_sun(float time){
     float t = time * 0.05f;
     
     sunDir = glm::normalize(glm::vec3(
@@ -33,7 +33,7 @@ void Sun::updateSun(float time){
     sunSpaceMatrix = sunProj * sunView;
 }
 
-void Sun::renderShadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize){
+void Sun::render_shadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize){
     if (!glIsProgram(depthProgram)) {
         printf("DEPTH PROGRAM INVALID: %u\n", depthProgram);
         return;
@@ -64,7 +64,7 @@ void Sun::renderShadow(unsigned int depthProgram, const std::vector<Level*>& lev
     glViewport(0, 0, screenW, screenH);
 }
 
-Sun createSun(int shadowSize)
+Sun create_sun(int shadowSize)
 {
     Sun sun{};
 

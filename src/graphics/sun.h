@@ -18,9 +18,9 @@ struct Sun{
     unsigned int depthFBO;
     unsigned int depthMap;
 
-    void updateSun(float time);
+    void update_sun(float time);
 
-    void renderShadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize = SHADOW_SIZE);
+    void render_shadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize = SHADOW_SIZE);
 };
 
-Sun createSun(int shadowSize = SHADOW_SIZE);
+Sun create_sun(int shadowSize = SHADOW_SIZE);

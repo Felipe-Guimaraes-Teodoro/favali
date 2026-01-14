@@ -4,7 +4,7 @@
 #include "level.h"
 #include <vector>
 
-void SpotLight::updateLight(glm::vec3 lightPos){
+void SpotLight::update_light(glm::vec3 lightPos){
     view = glm::lookAt(
         lightPos,
         glm::vec3(0.),
@@ -24,7 +24,7 @@ void SpotLight::updateLight(glm::vec3 lightPos){
     lightSpaceMatrix = proj * view;
 }
 
-void SpotLight::renderShadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize){
+void SpotLight::render_shadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize){
     if (!glIsProgram(depthProgram)) {
         printf("DEPTH PROGRAM INVALID: %u\n", depthProgram);
         return;
@@ -55,7 +55,7 @@ void SpotLight::renderShadow(unsigned int depthProgram, const std::vector<Level*
     glViewport(0, 0, screenW, screenH);
 }
 
-SpotLight createSpotLight(int shadowSize) {
+SpotLight create_spotlight(int shadowSize) {
     SpotLight light{};
 
     light.fov = 25.0f;

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "glm.hpp"
 #include "geometry.h"
 
 struct Ray {
@@ -8,5 +7,5 @@ struct Ray {
     glm::vec3 direction;
     float tMax;
     
-    bool hitTriangle(const MeshTriangle& t, float& outT);
+    bool hit_triangle(const MeshTriangle& t, float& outT);
 };

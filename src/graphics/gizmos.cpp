@@ -72,7 +72,7 @@ const std::array<Shapes, 3> supported_shapes = {
 
 void init_vaos(GizmoQueue *queue) {
     for (Shapes shape : supported_shapes) {
-        Shape tmp_shape = make_shape(shape);
+        Shape tmp_shape = create_shape(shape);
         queue->gizmo_meshes[shape] = std::move(tmp_shape.mesh);
     }
 }
@@ -91,14 +91,14 @@ void init_gizmos() {
 }
 
 void push_gizmo(Shapes shape, Transform t, int n, glm::vec4 col) {
-    gizmo_queue->gizmos.push_back( 
-        (Gizmo) {
-            .mesh_idx = shape,
-            .transform = t,
-            .color = col,
-            .frames = n,
-        }
-    );
+    Gizmo giz = {
+        shape,
+        t,
+        col,
+        n
+    };
+
+    gizmo_queue->gizmos.push_back(giz);
 }
 
 void push_gizmo(Shapes shape, AABB aabb, int n, glm::vec4 col) {
@@ -107,14 +107,14 @@ void push_gizmo(Shapes shape, AABB aabb, int n, glm::vec4 col) {
 
     Transform t(center, glm::quat(1,0,0,0), size);
 
-    gizmo_queue->gizmos.push_back(
-        (Gizmo) {
-            .mesh_idx = shape,
-            .transform = t,
-            .color = col,
-            .frames = 1
-        }
-    );
+    Gizmo giz = {
+        shape,
+        t,
+        col,
+        n
+    };
+
+    gizmo_queue->gizmos.push_back(giz);
 }
 
 void pop_gizmo() {

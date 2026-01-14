@@ -1,12 +1,12 @@
 #include "geometry.h"
 #include "raycast.h"
-#include "glm.hpp"
 #include "stdio.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/vector_angle.hpp"
 using glm::quat;
 using glm::vec3;
 
-glm::vec3 MeshTriangle::getTriangleNormal(){
+glm::vec3 MeshTriangle::get_tri_normal(){
 
     glm::vec3 ab = b - a;
     glm::vec3 ac = c - a;
@@ -15,7 +15,7 @@ glm::vec3 MeshTriangle::getTriangleNormal(){
 }
 
 
-glm::vec3 closestPointOnTriangle(const glm::vec3& p, MeshTriangle tri) {
+glm::vec3 closest_point_on_tri(const glm::vec3& p, MeshTriangle tri) {
 
     glm::vec3 ab = tri.b - tri.a;
     glm::vec3 ac = tri.c - tri.a;
@@ -61,7 +61,7 @@ glm::vec3 closestPointOnTriangle(const glm::vec3& p, MeshTriangle tri) {
     return p - dist * n;
 }
 
-AABB makeAABB_from_ray(const Ray& r) {
+AABB create_AABB_from_ray(const Ray& r) {
     glm::vec3 end = r.origin + r.direction * r.tMax;
 
     AABB b;
@@ -166,6 +166,12 @@ bool ray_intersects_aabb(
 
     outT = tMin;
     return true;
+}
+
+Plane create_plane(const vec3& a, const vec3& b, const vec3& c) {
+    glm::vec3 normal = glm::normalize(glm::cross(b - a, c - a));
+    float distance = glm::dot(normal, a);
+    return { normal, distance };
 }
 
 

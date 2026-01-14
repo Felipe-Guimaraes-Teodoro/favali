@@ -1,6 +1,6 @@
 #include "raycast.h"
 
-bool Ray::hitTriangle(const MeshTriangle& t, float& outT) {
+bool Ray::hit_triangle(const MeshTriangle& t, float& outT) {
     const float EPS = 0.00001f;
 
     glm::vec3 e1 = t.b - t.a;

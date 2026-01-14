@@ -1,4 +1,5 @@
-#include "model.hpp"
+#include "model.h"
+
 #include "texture.h"
 
 #include <stdlib.h>
@@ -33,7 +34,7 @@ unsigned int create_texture_from_material(cgltf_material* material) {
     if (img->uri) {
         char path[512];
         snprintf(path, sizeof(path), "assets/%s", img->uri);
-        return make_texture(path);
+        return create_texture(path);
     }
 
     if (img->buffer_view) {
@@ -42,7 +43,7 @@ unsigned int create_texture_from_material(cgltf_material* material) {
     
         const uint8_t *tex_data = cgltf_buffer_view_data(img->buffer_view);
 
-        return make_texture_from_memory(tex_data, size);
+        return create_texture_from_memory(tex_data, size);
     }
 
     return create_default_texture();
@@ -128,7 +129,7 @@ cgltf_data *load_gltf(const char* path) {
 }
 
 Shape create_shape_from_gltf(const char *path, int idx) {
-    Shape shape = make_shape(Shapes::Triangle); // so if something goes wrong render placeholder shape
+    Shape shape = create_shape(Shapes::Triangle); // so if something goes wrong render placeholder shape
 
     cgltf_data *data = load_gltf(path);
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
 #include "glm.hpp"
 #include "gtc/matrix_transform.hpp"
 #include "geometry.h"
@@ -9,7 +10,7 @@ using glm::vec3;
 
 static vec3 UP = {0.0, 1.0, 0.0};
 
-typedef struct {
+struct Camera {
     mat4 proj;
     mat4 view;
 
@@ -29,7 +30,7 @@ typedef struct {
     void update();
 
     void mouse_view(bool lock_cursor, float dx, float dy, float sensitivity);
-} Camera;
+};
 
 Camera create_camera(
     vec3 pos = {0.0f, 0.0f, 1.0f},

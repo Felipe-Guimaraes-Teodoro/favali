@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "transform.h"
+#define GLM_ENABLE_EXPERIMENTAL
 #include "gtx/vector_angle.hpp"
 
 #include "gizmos.h"
@@ -186,9 +187,9 @@ void IkController::push_node(IkNode* node) {
 
 IkController create_ik_controller(vec3 origin) {
     IkController controller = {
-        .root = nullptr,
-        .leaf = nullptr,
-        .origin = origin,
+        nullptr,
+        nullptr,
+        origin
     };
     
     return controller;

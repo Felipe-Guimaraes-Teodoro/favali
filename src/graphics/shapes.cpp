@@ -6,7 +6,7 @@ void Shape::draw(unsigned int program, const Camera& camera, Sun* sun) const {
     mesh.draw(program, transform.getModelMat(), camera.view, camera.proj, color, texture, sun);
 }
 
-Shape make_shape(Shapes shape, unsigned int texture) {
+Shape create_shape(Shapes shape, unsigned int texture) {
     vector<float> vertices;
     vector<unsigned int> indices;
 
@@ -253,7 +253,7 @@ StaticShape shape_to_static(Shape&& shape) {
     glm::vec3 maxv(-std::numeric_limits<float>::infinity());
 
     for(const auto& t : tris){
-        AABB b = makeAABB(t);
+        AABB b = create_AABB(t);
         minv = glm::min(minv, b.min);
         maxv = glm::max(maxv, b.max);
     }

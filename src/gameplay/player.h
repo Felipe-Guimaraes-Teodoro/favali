@@ -1,8 +1,3 @@
-/* 
-its probably better to do this after establishing some physics library/architecture
-on the codebase cause i freaking love physically based movement
-*/
-
 #pragma once
 
 #include "glm.hpp"

@@ -1,9 +1,10 @@
 #include "sod.h"
+#define _USE_MATH_DEFINES
 #include <math.h>
 
 SOD create_sod(float f, float z, float r, vec3 x0) {
     SOD sod = {};
-
+    
     sod.k1 = z / (M_PI * f);
     sod.k2 = 1.0 / ((2.0 * M_PI * f) * (2.0 * M_PI * f));
     sod.k3 = r * z / (2.0 * M_PI * f);

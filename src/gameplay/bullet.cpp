@@ -3,7 +3,9 @@
 #include "BVH.h"
 #include "player.h"
 #include "gizmos.h"
+#include "shapes.h"
 #include <stdio.h>
+#include <memory>
 
 void Bullet::update_bullet(float dt){
     if (lifetime <= 0.){
@@ -21,7 +23,6 @@ void Bullet::update_bullet(float dt){
 }
 
 bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
-    // calcula distancia maxima q o tiro anda no frame
     float maxDist = speed * dt;
 
     Ray r;
@@ -32,7 +33,7 @@ bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
     float closestT = std::numeric_limits<float>::infinity();
     bool hit = false;
 
-    AABB rayBox = makeAABB_from_ray(r);
+    AABB rayBox = create_AABB_from_ray(r);
     std::vector<MeshTriangle> candidates;
 
     for (int i = 0; i < (int)worldBVHs.size(); i++) {
@@ -42,10 +43,10 @@ bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
         for (auto &tri : candidates) {
             float t;
 
-            if (r.hitTriangle(tri, t)) {
+            if (r.hit_triangle(tri, t)) {
                 if (t < closestT) {
                     closestT = t;
-                    normal = tri.getTriangleNormal();
+                    normal = tri.get_tri_normal();
                     hit = true;
 
                     break;
@@ -64,7 +65,7 @@ bool Bullet::handle_collisions(float dt, std::vector<BVHNode*> worldBVHs) {
 
 Bullet create_bullet(const glm::vec3& muzzle_world, const glm::vec3& forward) {
     Bullet b;
-    b.shape = std::make_unique<Shape>(make_shape(Shapes::Sphere));
+    b.shape = std::make_unique<Shape>(create_shape(Shapes::Sphere));
     b.shape->transform.position = muzzle_world;
     b.shape->transform.scale = glm::vec3(0.05f);
 

@@ -2,7 +2,6 @@
 
 #include <SDL3/SDL.h>
 #include <array>
-#include "player.h"
 #include "glm.hpp"
 using glm::vec3;
 using glm::quat;
@@ -44,14 +43,12 @@ typedef std::array<Sample*, MAX_SAMPLE_CHANNELS> Samples;
 
 typedef struct {
     SDL_AudioStream *stream = NULL;
-    Player *ud;
     Samples samples;
     // todo: synthesizer, where on the user defines how its frames
     // should be generated on the fly
     SDL_AudioSpec spec;
 
     struct {
-        // vec3 last_pos;
         bool should_compute_velocity;
         vec3 vel;
 

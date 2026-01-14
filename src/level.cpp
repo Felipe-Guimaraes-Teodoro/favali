@@ -54,7 +54,7 @@ void draw_model(Model *m, Camera& cam, unsigned int program) {
 void merge_level_shapes(Level* level) {
     unsigned int base_index = 0;
 
-    Shape god_shape = make_shape(Shapes::Empty);
+    Shape god_shape = create_shape(Shapes::Empty);
 
     for (Shape& shape : level->shapes) {
         god_shape.mesh.vertices.insert(

@@ -1,5 +1,7 @@
 #include "audio.h"
 #include "stdio.h"
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 AudioCtx *audio_ctx = NULL;
 
@@ -85,7 +87,7 @@ void audio_cb(void *userdata, SDL_AudioStream *stream, int additional_amm, int t
 
                 vol = s->volume * attenuation;
                 vec3 dir = glm::normalize(s->emitter.pos - audio_ctx->listener.pos);
-                pan = glm::dot(glm::cross(audio_ctx->listener.dir, UP), dir);
+                pan = glm::dot(glm::cross(audio_ctx->listener.dir, {0.0, 1.0, 0.0}), dir);
                 pan = glm::clamp(pan, -1.0f, 1.0f);
 
                 float v_listener = glm::dot(audio_ctx->listener.vel, dir);

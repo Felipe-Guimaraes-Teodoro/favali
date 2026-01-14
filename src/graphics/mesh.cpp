@@ -449,7 +449,7 @@ CubeMapMesh create_cube_map() {
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
     glBindVertexArray(0);
 
-    mesh.sun = createSun();
+    mesh.sun = create_sun();
 
     return mesh;
 }

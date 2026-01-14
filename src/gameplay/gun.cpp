@@ -5,7 +5,6 @@
 #include "gun.h"
 #include "camera.h"
 #include "glm.hpp"
-#include "ik.h"
 #include "audio.h"
 
 void Gun::update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs){
@@ -15,11 +14,9 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
     recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
     if (aiming){
-        controller.goal = /* goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f */ 
-        glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front * 0.5f + camera.up * -recoil_amount * 2.5f * 0.5f - camera.up * 0.05f;
+        controller.goal = glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front * 0.5f + camera.up * -recoil_amount * 0.5f * 2.5f - camera.up * 0.05f;
     } else{
-        controller.goal = /* goal + camera.front * 0.3f - camera.up * 0.2f * camera.right * 0.6f */ 
-        glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front + camera.up * -recoil_amount * 0.5f - camera.right * 0.3f;
+        controller.goal = glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front + camera.up * -recoil_amount * 0.5f - camera.right * 0.3f;
     }
 
     glm::quat look = glm::quatLookAt(camera.front, -camera.up);
@@ -47,7 +44,8 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
         std::uniform_real_distribution<float> dist(-spread, spread);
 
         glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
-        
+        glm::vec3 muzzle_back_sample = muzzle_pos + glm::vec3(1., 0., 0.);
+
         for (int i = 0; i < bullets_per_shot; i++){
             glm::vec3 local_dir = glm::normalize(muzzle_pos - muzzle_back_sample);
 
@@ -156,10 +154,9 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, Camera& cam
     dead_bullets.clear();
 }
 
-Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot, unsigned int bullet_hole_tex){
+Gun create_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot, unsigned int bullet_hole_tex){
     Gun g;
     g.recoil_timer = 0.;
-    g.muzzle_back_sample = muzzle_back_sample;
     g.muzzle_pos = muzzle_pos;
     g.cooldown = cooldown;
     g.spread = spread;
@@ -169,7 +166,7 @@ Gun make_gun(glm::vec3 muzzle_back_sample, glm::vec3 muzzle_pos, float cooldown,
     g.aiming = false;
     
     g.bullet_hole_tex = bullet_hole_tex;
-    Shape bs = make_shape(Shapes::Square, bullet_hole_tex); // Bullet Shape :)
+    Shape bs = create_shape(Shapes::Square, bullet_hole_tex); // Bullet Shape :)
     g.bullet_hole_mesh = mesh_to_instanced(bs.mesh);
 
     return g;

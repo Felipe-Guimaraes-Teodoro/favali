@@ -1,13 +1,21 @@
 #pragma once
 
-typedef struct {
-    glm::vec3 v;
-    float padding;
-} PaddedVec3;
+#include "glm.hpp"
 
 struct Lights {
-    PaddedVec3 position[20]; // 20 is the default maximum allowed lights
-    PaddedVec3 color[20];
+    struct {
+        glm::vec3 v;
+        float padding;
+    }  position[20]; // 20 is the default maximum allowed lights
+
+    struct {
+        glm::vec3 v;
+        float padding;
+    }  color[20];
+
+    // i'm declaring the padded vectors like this cause
+    // it would be visible to the whole codebase otherwise
+
     int16_t count; // ammount of lights in the scene
     
     static Lights empty() {

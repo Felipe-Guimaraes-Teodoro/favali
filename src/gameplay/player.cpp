@@ -46,9 +46,9 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
 
         for (auto& tri : candidates) {
             // closest tri to point
-            glm::vec3 closest = closestPointOnTriangle(position, tri);
+            glm::vec3 closest = closest_point_on_tri(position, tri);
 
-            glm::vec3 triNormal = tri.getTriangleNormal();
+            glm::vec3 triNormal = tri.get_tri_normal();
 
             push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), 1, {0.0, 0.0, 1.0, 1.0});
 
@@ -68,7 +68,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
     push_gizmo(Shapes::Cube, query, 1, {1.0, 1.0, 0.0, 1.0});
 
     AABB feet;
-    makeAABB_from_ray((Ray) {
+    create_AABB_from_ray((Ray) {
         .origin = position,
         .direction = -UP,
         .tMax = collider.radius * 2.0f,
@@ -83,7 +83,7 @@ void Player::solve_collisions(std::vector<BVHNode*> worldBVHs){
 
         for (auto& tri : candidates) {
             glm::vec3 feetCenter = (feet.min + feet.max) * 0.5f;
-            glm::vec3 closest = closestPointOnTriangle(feetCenter, tri);
+            glm::vec3 closest = closest_point_on_tri(feetCenter, tri);
 
             push_gizmo(Shapes::Sphere, Transform(closest, vec3(0.1)), 1, {0.0, 1.0, 0.0, 1.0});
 
@@ -217,6 +217,7 @@ Player create_player() {
     player.dive_boost = false;
     player.jump_force = 6.5;
     player.last_jumped = 0;
+    player.collider.radius = 1.0f;
 
     return player;
 }

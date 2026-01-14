@@ -20,7 +20,7 @@ unsigned int create_default_texture() {
     return texture_id;
 }
 
-unsigned int make_texture(const char *path){
+unsigned int create_texture(const char *path){
     // stbi_set_flip_vertically_on_load(true);
 
     int width, height, nrChannels;
@@ -49,7 +49,7 @@ unsigned int make_texture(const char *path){
     return texture;
 }
 
-unsigned int make_texture_from_memory(const uint8_t* src, int size) {
+unsigned int create_texture_from_memory(const uint8_t* src, int size) {
     int width, height, nrChannels;
     unsigned char* data = stbi_load_from_memory(src, size, &width, &height, &nrChannels, 0);
 
@@ -76,7 +76,7 @@ unsigned int make_texture_from_memory(const uint8_t* src, int size) {
     return texture;
 }
 
-unsigned int make_cube_map_texture(const std::vector<const char*> &faces){
+unsigned int create_cube_map_texture(const std::vector<const char*> &faces){
     unsigned int texture;
     
     glGenTextures(1, &texture);
@@ -109,7 +109,7 @@ unsigned int make_cube_map_texture(const std::vector<const char*> &faces){
     return texture;
 }
 
-unsigned int make_random_texture(){
+unsigned int create_random_texture(){
     int size = 256;
     std::vector<unsigned char> data(size*size);
 
@@ -134,7 +134,7 @@ unsigned int make_random_texture(){
 
 using namespace siv;
 
-unsigned int make_perlin_texture2D(int size){
+unsigned int create_perlin_texture2D(int size){
     siv::PerlinNoise perlin(1234);
     std::vector<unsigned char> data(size*size);
 
@@ -182,7 +182,7 @@ unsigned int make_perlin_texture2D(int size){
     return noiseTex;
 }
 
-unsigned int make_perlin_texture3D(int size){
+unsigned int create_perlin_texture3D(int size){
     siv::PerlinNoise perlin(1234);
     std::vector<unsigned char> data(size*size*size);
 

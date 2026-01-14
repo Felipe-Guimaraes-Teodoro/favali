@@ -54,7 +54,7 @@ struct Shape {
     void draw(unsigned int program, const Camera& camera, Sun* sun = nullptr) const;
 };
 
-Shape make_shape(Shapes shape, unsigned int texture = 0);
+Shape create_shape(Shapes shape, unsigned int texture = 0);
 
 struct StaticShape : Shape {
     AABB box;

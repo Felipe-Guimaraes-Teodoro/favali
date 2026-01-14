@@ -26,7 +26,7 @@ BVHNode* buildBVH(const std::vector<MeshTriangle>& tris, int depth){
     glm::vec3 maxv(-std::numeric_limits<float>::infinity());
 
     for(const auto& t : tris){
-        AABB b = makeAABB(t);
+        AABB b = create_AABB(t);
         // sanity check - se tiver NaN/inf aborta cedo (debug)
         if (!is_finite_vec3(b.min) || !is_finite_vec3(b.max)){
             std::cerr << "buildBVH: found non-finite triangle AABB (depth " << depth << ")\n";

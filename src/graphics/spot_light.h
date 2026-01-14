@@ -21,12 +21,12 @@ struct SpotLight{
 
     float fov;
 
-    void updateLight(glm::vec3 lightPos);
+    void update_light(glm::vec3 lightPos);
 
-    void renderShadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize = SPOTLIGHT_SHADOW_SIZE);
+    void render_shadow(unsigned int depthProgram, const std::vector<Level*>& levels, int screenW, int screenH, int shadowSize = SPOTLIGHT_SHADOW_SIZE);
 };
 
-SpotLight createSpotLight(int shadowSize = SPOTLIGHT_SHADOW_SIZE);
+SpotLight create_spotlight(int shadowSize = SPOTLIGHT_SHADOW_SIZE);
 
 struct SpotLightsData{
     glm::vec4 positions[10];

@@ -1,8 +1,8 @@
 #pragma once
 
+#include <memory>
 #include "shapes.h"
 #include "BVH.h"
-#include <memory>
 
 typedef struct {
     float damage;
