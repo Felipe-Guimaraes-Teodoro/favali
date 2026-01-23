@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "glm.hpp"
 #include "audio.h"
+#include "shaders.h"
 
 void Gun::update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs){
     last_shot += dt;
@@ -44,7 +45,7 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
         std::uniform_real_distribution<float> dist(-spread, spread);
 
         glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
-        glm::vec3 muzzle_back_sample = muzzle_pos + glm::vec3(1., 0., 0.);
+        glm::vec3 muzzle_back_sample = muzzle_pos - glm::vec3(0.001, 0., 0.);
 
         for (int i = 0; i < bullets_per_shot; i++){
             glm::vec3 local_dir = glm::normalize(muzzle_pos - muzzle_back_sample);
@@ -127,8 +128,9 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
     }
 }
 
-void Gun::draw(unsigned int program, unsigned int instanced_program, Camera& camera){
+void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned int laser_program, Camera& camera){
     shape->draw(program, camera);
+    printf("drawing stuff\n");
 
     std::deque<int> dead_bullets;
 
@@ -145,13 +147,29 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, Camera& cam
     glDepthMask(GL_FALSE); // prevents Z-fighting
     bullet_hole_mesh.draw(instanced_program, camera.view, camera.proj, glm::vec4(1.), bullet_hole_tex);
     glDepthMask(GL_TRUE);
-    glDisable(GL_BLEND);
 
     for (int k = dead_bullets.size() - 1; k >= 0; k--) {
         int idx = dead_bullets[k];
         bullets.erase(bullets.begin() + idx);
     }
     dead_bullets.clear();
+
+    // origem do laser
+    laser->transform.position = shape->transform.position;
+
+    // rotacao olhando pra direcao do tiro
+    laser->transform.rotation = shape->transform.rotation * glm::vec3(-1, 0, 0);
+
+    // escala = comprimento + espessura
+    laser->transform.scale = glm::vec3(
+        100.0,
+        10.,
+        1.0f
+    );
+
+    laser->draw(laser_program, camera, nullptr);
+
+    glDisable(GL_BLEND);
 }
 
 Gun create_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot, unsigned int bullet_hole_tex){

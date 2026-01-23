@@ -33,7 +33,11 @@ void init(SDL_Window** window, SDL_GLContext *gl_context, int width, int height)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    *window = SDL_CreateWindow("FAVALI", width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    *window = SDL_CreateWindow("FAVALI", width, height, 
+        SDL_WINDOW_OPENGL | 
+        SDL_WINDOW_RESIZABLE // |
+        // SDL_WINDOW_SURFACE_VSYNC_DISABLED
+    );
     SDL_SetWindowRelativeMouseMode(*window, true);
     *gl_context = SDL_GL_CreateContext(*window);
     if (!gladLoadGLLoader((GLADloadproc)SDL_GL_GetProcAddress)) {

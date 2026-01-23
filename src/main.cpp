@@ -11,21 +11,27 @@
 #define UBO_DEFINITION
 #include "shaders.h"
 
-int w = 800;
-int h = 600;
-
 int main() {
     SDL_Window *window = nullptr;
     SDL_GLContext gl_context;
     
+    int w = 800;
+    int h = 600;
     init(&window, &gl_context, w, h);
 
     std::vector<unsigned int> textures;
     textures.push_back(create_texture("assets/bullet_hole.png"));
 
-    Level *level = create_level_from_gltf("assets/level2.glb");
+    Level *level = create_level_from_gltf("assets/level3.glb");
+    Model *target = create_model_from_gltf("assets/target.glb");
+
+    for (auto& shape : target->shapes) {
+        shape.transform.position.x += 10.0;
+        level->shapes.push_back(shape_to_static(std::move(shape)));
+    }
+
     std::vector<BVHNode*> worldBVHs;
-    for (int i = 0; i < level->shapes.size(); i++){
+    for (int i = 0; i < level->shapes.size(); i++){"w"
         std::vector<MeshTriangle> world_tris = get_level_tris(&level->shapes[i]);
         worldBVHs.push_back(buildBVH(world_tris));
     }
@@ -39,21 +45,34 @@ int main() {
         i++;
     }
 
+    int main_vs = create_shader(&default_vs, GL_VERTEX_SHADER);
     int main_fs = create_shader(&default_fs, GL_FRAGMENT_SHADER);
+    int main_program = create_program(main_vs, main_fs);
+    
+    int instance_vs = create_shader(&default_vs_instanced, GL_VERTEX_SHADER);
+    int instance_fs = create_shader(&default_fs_instanced, GL_FRAGMENT_SHADER);
+    int instance_program = create_program(instance_vs, instance_fs);
+    
+    int ls_vs = create_shader(&laser_vs, GL_VERTEX_SHADER);
+    int ls_fs = create_shader(&laser_fs, GL_FRAGMENT_SHADER);
+    int laser_program = create_program(ls_vs, ls_fs);
+
     Lights lights = level->lights;
     UniformBuffer ubo = create_ubo<Lights>(&lights, sizeof(Lights));
     bind_ubo("Light", 0, ubo, main_fs);
-    int main_vs = create_shader(&default_vs, GL_VERTEX_SHADER);
-    int main_program = create_program(main_vs, main_fs);
-
+    
     Sun sun = create_sun();
 
     Player player = create_player();
 
-    Gun gun = create_gun(glm::vec3(7.07, 0.11, 0.), 2., 0., 1, textures[0]);
+    Gun gun = create_gun(glm::vec3(0.707, 0.011, 0.), 2., 0., 1, textures[0]);
     // this MUST be callsed "nosin" or else...
     gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/nosin.glb", 0));
+    std::unique_ptr<Shape> laser = std::make_unique<Shape>(create_shape(Shapes::Laser));
+    // setup_mesh(laser->mesh);
+    gun.laser = std::move(laser);
     gun.bullet_template = create_bullet_template();
+    gun.cooldown = 0.1;
     
     SDL_Event event;
 
@@ -71,8 +90,7 @@ int main() {
     while(running){
         Uint64 now = SDL_GetTicks();
         dt = (now - last)/1000.0f;
-        last = now;
-
+        
         while(SDL_PollEvent(&event)){
             if (event.type == SDL_EVENT_QUIT)
                 running = false;
@@ -136,8 +154,11 @@ int main() {
         CLEAR_SCREEN;
 
         draw_level(level, camera, main_program, &sun);
-        gun.shape->draw(main_program, camera);
+        // gun.shape->draw(main_program, camera);
         draw_model(arm, camera, main_program);
+        draw_model(target, camera, main_program);
+
+        gun.draw(main_program, instance_program, laser_program, camera);
 
         render_gizmos(camera);
 
@@ -146,12 +167,16 @@ int main() {
         float target = 1000.0f / fps;
         float frame_ms = dt * 1000.0f;
 
+        last = now;
+
         if (frame_ms < target) {
             SDL_Delay((Uint32)(target - frame_ms));
         }
 
         // printf("%.1f\n", frame_ms);
         time += dt;
+
+        // printf("%f\n", time);
     }
 
     end_process(&window, &gl_context);

@@ -1,0 +1,422 @@
+[
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/sdl3/include -O3 -DNDEBUG -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui.cpp.obj -c C:\\k\\favali-refactor\\external\\imgui\\imgui.cpp",
+  "file": "C:\\k\\favali-refactor\\external\\imgui\\imgui.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/sdl3/include -O3 -DNDEBUG -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui_draw.cpp.obj -c C:\\k\\favali-refactor\\external\\imgui\\imgui_draw.cpp",
+  "file": "C:\\k\\favali-refactor\\external\\imgui\\imgui_draw.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui_draw.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/sdl3/include -O3 -DNDEBUG -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui_widgets.cpp.obj -c C:\\k\\favali-refactor\\external\\imgui\\imgui_widgets.cpp",
+  "file": "C:\\k\\favali-refactor\\external\\imgui\\imgui_widgets.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui_widgets.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/sdl3/include -O3 -DNDEBUG -o CMakeFiles\\imgui.dir\\external\\imgui\\imgui_tables.cpp.obj -c C:\\k\\favali-refactor\\external\\imgui\\imgui_tables.cpp",
+  "file": "C:\\k\\favali-refactor\\external\\imgui\\imgui_tables.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\imgui_tables.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/sdl3/include -O3 -DNDEBUG -o CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_sdl3.cpp.obj -c C:\\k\\favali-refactor\\external\\imgui\\backends\\imgui_impl_sdl3.cpp",
+  "file": "C:\\k\\favali-refactor\\external\\imgui\\backends\\imgui_impl_sdl3.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_sdl3.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/sdl3/include -O3 -DNDEBUG -o CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_opengl3.cpp.obj -c C:\\k\\favali-refactor\\external\\imgui\\backends\\imgui_impl_opengl3.cpp",
+  "file": "C:\\k\\favali-refactor\\external\\imgui\\backends\\imgui_impl_opengl3.cpp",
+  "output": "CMakeFiles\\imgui.dir\\external\\imgui\\backends\\imgui_impl_opengl3.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\main.cpp.obj -c C:\\k\\favali-refactor\\src\\main.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\main.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\main.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\level.cpp.obj -c C:\\k\\favali-refactor\\src\\level.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\level.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\level.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\physics\\ik.cpp.obj -c C:\\k\\favali-refactor\\src\\physics\\ik.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\physics\\ik.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\physics\\ik.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\physics\\sod.cpp.obj -c C:\\k\\favali-refactor\\src\\physics\\sod.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\physics\\sod.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\physics\\sod.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\physics\\BVH.cpp.obj -c C:\\k\\favali-refactor\\src\\physics\\BVH.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\physics\\BVH.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\physics\\BVH.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\physics\\geometry.cpp.obj -c C:\\k\\favali-refactor\\src\\physics\\geometry.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\physics\\geometry.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\physics\\geometry.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\physics\\raycast.cpp.obj -c C:\\k\\favali-refactor\\src\\physics\\raycast.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\physics\\raycast.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\physics\\raycast.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\camera.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\camera.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\camera.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\camera.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\mesh.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\mesh.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\mesh.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\mesh.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\shaders.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\shaders.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\shaders.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\shaders.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\texture.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\texture.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\texture.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\texture.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\model.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\model.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\model.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\model.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\shapes.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\shapes.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\shapes.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\shapes.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\gizmos.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\gizmos.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\gizmos.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\gizmos.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\graphics\\sun.cpp.obj -c C:\\k\\favali-refactor\\src\\graphics\\sun.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\graphics\\sun.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\graphics\\sun.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\gameplay\\player.cpp.obj -c C:\\k\\favali-refactor\\src\\gameplay\\player.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\gameplay\\player.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\gameplay\\player.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\gameplay\\gun.cpp.obj -c C:\\k\\favali-refactor\\src\\gameplay\\gun.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\gameplay\\gun.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\gameplay\\gun.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\gameplay\\bullet.cpp.obj -c C:\\k\\favali-refactor\\src\\gameplay\\bullet.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\gameplay\\bullet.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\gameplay\\bullet.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\gameplay\\scripting.c.obj -c C:\\k\\favali-refactor\\src\\gameplay\\scripting.c",
+  "file": "C:\\k\\favali-refactor\\src\\gameplay\\scripting.c",
+  "output": "CMakeFiles\\favali.dir\\src\\gameplay\\scripting.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe g++ -IC:/k/favali-refactor/external/include -IC:/k/favali-refactor/external/glad/include -IC:/k/favali-refactor/external/glm -IC:/k/favali-refactor/external/sdl3/include -IC:/k/favali-refactor/external/lua/src -IC:/k/favali-refactor/external/imgui -IC:/k/favali-refactor/external/enet/include -IC:/k/favali-refactor/src -IC:/k/favali-refactor/src/graphics -IC:/k/favali-refactor/src/physics -IC:/k/favali-refactor/src/gameplay -IC:/k/favali-refactor/src/audio -O3 -DNDEBUG -o CMakeFiles\\favali.dir\\src\\audio\\audio.cpp.obj -c C:\\k\\favali-refactor\\src\\audio\\audio.cpp",
+  "file": "C:\\k\\favali-refactor\\src\\audio\\audio.cpp",
+  "output": "CMakeFiles\\favali.dir\\src\\audio\\audio.cpp.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lapi.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lapi.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lapi.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lapi.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lauxlib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lauxlib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lauxlib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lauxlib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lbaselib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lbaselib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lbaselib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lbaselib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lcode.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lcode.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lcode.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lcode.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lcorolib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lcorolib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lcorolib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lcorolib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lctype.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lctype.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lctype.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lctype.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\ldblib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\ldblib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\ldblib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\ldblib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\ldebug.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\ldebug.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\ldebug.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\ldebug.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\ldo.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\ldo.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\ldo.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\ldo.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\ldump.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\ldump.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\ldump.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\ldump.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lfunc.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lfunc.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lfunc.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lfunc.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lgc.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lgc.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lgc.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lgc.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\linit.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\linit.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\linit.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\linit.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\liolib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\liolib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\liolib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\liolib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\llex.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\llex.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\llex.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\llex.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lmathlib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lmathlib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lmathlib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lmathlib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lmem.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lmem.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lmem.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lmem.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\loadlib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\loadlib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\loadlib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\loadlib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lobject.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lobject.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lobject.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lobject.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lopcodes.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lopcodes.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lopcodes.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lopcodes.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\loslib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\loslib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\loslib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\loslib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lparser.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lparser.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lparser.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lparser.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lstate.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lstate.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lstate.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lstate.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lstring.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lstring.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lstring.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lstring.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lstrlib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lstrlib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lstrlib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lstrlib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\ltable.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\ltable.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\ltable.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\ltable.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\ltablib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\ltablib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\ltablib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\ltablib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\ltm.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\ltm.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\ltm.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\ltm.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lua.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lua.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lua.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lua.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\luac.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\luac.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\luac.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\luac.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lundump.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lundump.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lundump.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lundump.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lutf8lib.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lutf8lib.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lutf8lib.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lutf8lib.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lvm.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lvm.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lvm.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lvm.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -O3 -DNDEBUG -o CMakeFiles\\lua.dir\\external\\lua\\src\\lzio.c.obj -c C:\\k\\favali-refactor\\external\\lua\\src\\lzio.c",
+  "file": "C:\\k\\favali-refactor\\external\\lua\\src\\lzio.c",
+  "output": "CMakeFiles\\lua.dir\\external\\lua\\src\\lzio.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -IC:/k/favali-refactor/external/glad/include -O3 -DNDEBUG -o CMakeFiles\\glad.dir\\external\\glad\\src\\glad.c.obj -c C:\\k\\favali-refactor\\external\\glad\\src\\glad.c",
+  "file": "C:\\k\\favali-refactor\\external\\glad\\src\\glad.c",
+  "output": "CMakeFiles\\glad.dir\\external\\glad\\src\\glad.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\callbacks.c.obj -c C:\\k\\favali-refactor\\external\\enet\\callbacks.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\callbacks.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\callbacks.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\compress.c.obj -c C:\\k\\favali-refactor\\external\\enet\\compress.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\compress.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\compress.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\host.c.obj -c C:\\k\\favali-refactor\\external\\enet\\host.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\host.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\host.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\list.c.obj -c C:\\k\\favali-refactor\\external\\enet\\list.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\list.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\list.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\packet.c.obj -c C:\\k\\favali-refactor\\external\\enet\\packet.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\packet.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\packet.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\peer.c.obj -c C:\\k\\favali-refactor\\external\\enet\\peer.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\peer.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\peer.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\protocol.c.obj -c C:\\k\\favali-refactor\\external\\enet\\protocol.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\protocol.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\protocol.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\unix.c.obj -c C:\\k\\favali-refactor\\external\\enet\\unix.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\unix.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\unix.c.obj"
+},
+{
+  "directory": "C:/k/favali-refactor/out/build/custom_configure",
+  "command": "E:\\msys64\\usr\\bin\\ccache.exe gcc -DHAS_OFFSETOF=1 -IC:/k/favali-refactor/external/enet/include -O3 -DNDEBUG   -Wno-error -o external\\enet\\CMakeFiles\\enet.dir\\win32.c.obj -c C:\\k\\favali-refactor\\external\\enet\\win32.c",
+  "file": "C:\\k\\favali-refactor\\external\\enet\\win32.c",
+  "output": "external\\enet\\CMakeFiles\\enet.dir\\win32.c.obj"
+}
+]

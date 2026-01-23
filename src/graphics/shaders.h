@@ -21,6 +21,9 @@ extern const char* cube_map_fs;
 extern const char* sun_vs;
 extern const char* sun_fs;
 
+extern const char* laser_vs;
+extern const char* laser_fs;
+
 unsigned int create_shader(const GLchar *const * src, GLenum type);
 
 void shader_uniform_mat4(

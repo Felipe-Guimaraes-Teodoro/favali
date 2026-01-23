@@ -140,17 +140,6 @@ const char* depth_fs = R"(
 
 void main(){}
 )";
-/*
-#version 330 core
-
-// Ouput data
-layout(location = 0) out float fragmentdepth;
-
-void main(){
-    // Not really needed, OpenGL does it anyway
-    fragmentdepth = gl_FragCoord.z;
-}
-*/
 
 const char* default_vs_instanced = R"(
 #version 420 core
@@ -263,6 +252,53 @@ void main() {
     float alpha = 1.0 - smoothstep(0.3, 0.5, d);
 
     vec3 color = sunColor * sunIntensity;
+
+    FragColor = vec4(color, alpha);
+}
+)";
+
+const char* laser_vs = R"(
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec2 aUV;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+out vec2 vUV;
+
+void main()
+{
+    vUV = aUV;
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+}
+)";
+
+const char* laser_fs = R"(
+#version 330 core
+
+in vec2 vUV;
+out vec4 FragColor;
+
+// uniform vec3 laserColor;   // ex: vec3(1,0,0)
+// uniform float intensity;   // ex: 1.5
+
+void main()
+{
+    vec3 laserColor = vec3(0,1,0);
+    float intensity = 1.5;
+
+    // gradiente vertical (centro forte, bordas suaves)
+    float d = abs(vUV.y - 0.5) * 2.0;
+    float alpha = 1.0 - d;
+
+    // suaviza
+    alpha = clamp(alpha, 0.0, 1.0);
+    alpha = pow(alpha, 1.5);
+
+    vec3 color = laserColor * intensity;
 
     FragColor = vec4(color, alpha);
 }

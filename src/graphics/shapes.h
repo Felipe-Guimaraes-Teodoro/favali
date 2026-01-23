@@ -12,6 +12,7 @@ enum Shapes {
     Triangle,
     Cube,
     Sphere,
+    Laser,
     Empty, /* WARNING: Empty HAS TO BE the last shape in this enum otherwise 
         gizmos might break
     */

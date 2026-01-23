@@ -6,6 +6,7 @@
 #include "camera.h"
 #include "glm.hpp"
 #include "ik.h"
+#include "shapes.h"
 
 // BEWARE: all guns must be pointing at -X
 struct Gun{
@@ -25,11 +26,13 @@ struct Gun{
     float spread;
     unsigned int bullets_per_shot;
 
+    std::unique_ptr<Shape> laser;
+
     bool aiming;
 
     void update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs);
 
-    void draw(unsigned int program, unsigned int instanced_program, Camera& camera);
+    void draw(unsigned int program, unsigned int instanced_program, unsigned int laser_program, Camera& camera);
 };
 
 Gun create_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot, unsigned int bullet_hole_tex);
