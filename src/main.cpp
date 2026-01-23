@@ -56,10 +56,23 @@ int main() {
     gun.bullet_template = create_bullet_template();
     
     SDL_Event event;
+
+    Uint64 last = SDL_GetTicks();
+
+    float fps = 60.0f;
+    float dt = 0.0f;
+    float time = 0.0f;
+    float sensitivity = 0.1;
+    static float recoil_timer = 0.0f;
+
     bool running = true;
     bool lock_cursor = false;
 
     while(running){
+        Uint64 now = SDL_GetTicks();
+        dt = (now - last)/1000.0f;
+        last = now;
+
         while(SDL_PollEvent(&event)){
             if (event.type == SDL_EVENT_QUIT)
                 running = false;
@@ -114,11 +127,11 @@ int main() {
         update_ubo<void>(ubo, &lights);
 
         player.solve_collisions(worldBVHs);
-        player.update(0.0016, lock_cursor, 0.1, camera);
+        player.update(dt, lock_cursor, sensitivity, camera);
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
         controller.set_arm_transform(arm, camera);
-        gun.update(0.0016, camera, controller, player, worldBVHs);
+        gun.update(dt, camera, controller, player, worldBVHs);
 
         CLEAR_SCREEN;
 
@@ -129,6 +142,16 @@ int main() {
         render_gizmos(camera);
 
         SDL_GL_SwapWindow(window);
+
+        float target = 1000.0f / fps;
+        float frame_ms = dt * 1000.0f;
+
+        if (frame_ms < target) {
+            SDL_Delay((Uint32)(target - frame_ms));
+        }
+
+        // printf("%.1f\n", frame_ms);
+        time += dt;
     }
 
     end_process(&window, &gl_context);
