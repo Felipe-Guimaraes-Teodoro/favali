@@ -92,6 +92,8 @@ projCoords.y < 0.0 || projCoords.y > 1.0)
 void main() {
     vec4 texColor = texture(ourTexture, TexCoord);
 
+    if (texColor.a < 0.1) discard;
+
     vec3 normal = Normal;
 
     vec3 result = vec3(0.0);
@@ -290,11 +292,10 @@ void main()
     vec3 laserColor = vec3(0,1,0);
     float intensity = 1.5;
 
-    // gradiente vertical (centro forte, bordas suaves)
     float d = abs(vUV.y - 0.5) * 2.0;
     float alpha = 1.0 - d;
 
-    // suaviza
+    // ohhh yeah smoooooth
     alpha = clamp(alpha, 0.0, 1.0);
     alpha = pow(alpha, 1.5);
 

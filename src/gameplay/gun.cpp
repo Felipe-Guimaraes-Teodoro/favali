@@ -15,7 +15,7 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
     recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
     if (aiming){
-        controller.goal = glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front * 0.5f + camera.up * -recoil_amount * 0.5f * 2.5f - camera.up * 0.05f;
+        controller.goal = glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front * 0.5f + camera.up * -recoil_amount * 0.5f * 2.5f - camera.up * 0.1f;
     } else{
         controller.goal = glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front + camera.up * -recoil_amount * 0.5f - camera.right * 0.3f;
     }
@@ -144,9 +144,8 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned in
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE); // prevents Z-fighting
+
     bullet_hole_mesh.draw(instanced_program, camera.view, camera.proj, glm::vec4(1.), bullet_hole_tex);
-    glDisable(GL_BLEND);
-    glDepthMask(GL_TRUE);
 
     for (int k = dead_bullets.size() - 1; k >= 0; k--) {
         int idx = dead_bullets[k];
@@ -154,6 +153,7 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned in
     }
     dead_bullets.clear();
 
+    // draw laser
     glm::vec3 begin = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
 
     glm::vec3 forward_local = glm::vec3(1, 0, 0);
@@ -166,7 +166,10 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned in
 
     laser.update(begin, end, 0.05);
 
+    glDisable(GL_BLEND);
+    glDepthMask(GL_TRUE);
     laser.draw(laser_program, camera);
+
 }
 
 Gun create_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot, unsigned int bullet_hole_tex){

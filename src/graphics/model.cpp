@@ -49,61 +49,64 @@ unsigned int create_texture_from_material(cgltf_material* material) {
     return create_default_texture();
 }
 
-void append_vertex_data_from_primitive(cgltf_primitive* primitive, vector<float> &vertices) {
-    cgltf_accessor *pos_accessor = get_accessor_from_primitive_type(
-        primitive,  
-        cgltf_attribute_type_position
+void append_vertex_data_from_primitive(
+    cgltf_primitive* primitive,
+    vector<float>& vertices
+) {
+    cgltf_accessor* pos = get_accessor_from_primitive_type(
+        primitive, cgltf_attribute_type_position
     );
-    
-    cgltf_accessor *normal_accessor = get_accessor_from_primitive_type(
-        primitive,  
-        cgltf_attribute_type_normal
+    cgltf_accessor* norm = get_accessor_from_primitive_type(
+        primitive, cgltf_attribute_type_normal
     );
-    
-    cgltf_accessor *uv_accessor = get_accessor_from_primitive_type(
-        primitive,  
-        cgltf_attribute_type_texcoord
+    cgltf_accessor* uv = get_accessor_from_primitive_type(
+        primitive, cgltf_attribute_type_texcoord
     );
 
-    if (pos_accessor && normal_accessor && uv_accessor) {
-        float tmp_pos[3];
-        float tmp_norm[3];
-        float tmp_uv[2];
+    if (!pos || !norm || !uv)
+        return;
 
-        int stride = 8;
-        
-        vertices.resize(pos_accessor->count * stride);
+    const int stride = 8;
+    size_t baseVertex = vertices.size();
 
-        for (int k = 0; k < pos_accessor->count; ++k) {
-            cgltf_accessor_read_float(pos_accessor, k, tmp_pos, 3);
-            cgltf_accessor_read_float(normal_accessor, k, tmp_norm, 3);
-            cgltf_accessor_read_float(uv_accessor, k, tmp_uv, 2);
-            
-            int base = k * stride;
+    vertices.resize(baseVertex + pos->count * stride);
 
-            vertices[base + 0] = tmp_pos[0];
-            vertices[base + 1] = tmp_pos[1];
-            vertices[base + 2] = tmp_pos[2];
+    float p[3], n[3], t[2];
 
-            vertices[base + 3] = tmp_norm[0];
-            vertices[base + 4] = tmp_norm[1];
-            vertices[base + 5] = tmp_norm[2];
+    for (cgltf_size i = 0; i < pos->count; i++) {
+        cgltf_accessor_read_float(pos, i, p, 3);
+        cgltf_accessor_read_float(norm, i, n, 3);
+        cgltf_accessor_read_float(uv, i, t, 2);
 
-            vertices[base + 6] = tmp_uv[0];
-            vertices[base + 7] = tmp_uv[1];
-        }
-    } // if accessors
+        size_t base = baseVertex + i * stride;
+
+        vertices[base + 0] = p[0];
+        vertices[base + 1] = p[1];
+        vertices[base + 2] = p[2];
+
+        vertices[base + 3] = n[0];
+        vertices[base + 4] = n[1];
+        vertices[base + 5] = n[2];
+
+        vertices[base + 6] = t[0];
+        vertices[base + 7] = t[1];
+    }
 }
 
-void append_index_data_from_primitive(cgltf_primitive* primitive, vector<unsigned int> &indices) {
-    if (primitive->indices) {
-        cgltf_accessor *indices_accessor = primitive->indices;
+void append_index_data_from_primitive(
+    cgltf_primitive* primitive,
+    vector<unsigned int>& indices,
+    unsigned int baseVertex
+) {
+    if (!primitive->indices)
+        return;
 
-        for (int index = 0; index < indices_accessor->count; index++) {
-            indices.push_back(
-                (unsigned int)cgltf_accessor_read_index(indices_accessor, index)
-            );
-        }
+    cgltf_accessor* accessor = primitive->indices;
+
+    for (cgltf_size i = 0; i < accessor->count; i++) {
+        indices.push_back(
+            baseVertex + (unsigned int)cgltf_accessor_read_index(accessor, i)
+        );
     }
 }
 
@@ -146,7 +149,10 @@ Shape create_shape_from_gltf(const char *path, int idx) {
         for (int p = 0; p < current_mesh->primitives_count; p++) {
             cgltf_primitive *primitive = &current_mesh->primitives[p];
 
-            append_index_data_from_primitive(primitive, indices);
+            int vertex_stride = 8; // well this is gonna break something in the future
+            unsigned int baseVertex = vertices.size() / 8;
+
+            append_index_data_from_primitive(primitive, indices, baseVertex);
             append_vertex_data_from_primitive(primitive, vertices);
             texture = create_texture_from_material(primitive->material);
         } // for primitives
@@ -214,7 +220,7 @@ Level *create_level_from_gltf(const char *path) {
             vertices.clear();
             indices.clear();
 
-            append_index_data_from_primitive(prim, indices);
+            append_index_data_from_primitive(prim, indices, 0);
             append_vertex_data_from_primitive(prim, vertices);
             texture = create_texture_from_material(prim->material);
 
@@ -305,7 +311,7 @@ Model *create_model_from_gltf(const char *path) {
             vertices.clear();
             indices.clear();
 
-            append_index_data_from_primitive(prim, indices);
+            append_index_data_from_primitive(prim, indices, 0);
             append_vertex_data_from_primitive(prim, vertices);
             texture = create_texture_from_material(prim->material);
 

@@ -65,9 +65,12 @@ int main() {
 
     Player player = create_player();
 
-    Gun gun = create_gun(glm::vec3(0.41949, 0.00111, -0.0019), 2., 0., 1, textures[0]);
+    // Gun gun = create_gun(glm::vec3(0.41949, 0.00111, -0.0019), 2., 0., 1, textures[0]); // for nosin
+    Gun gun = create_gun(glm::vec3(0.1136, -0.0529, 0.0), 2., 0., 1, textures[0]); // for pistol
     // this MUST be callsed "nosin" or else...
-    gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/nosin.glb", 0));
+    // gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/nosin.glb", 0));
+    gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/pistol.glb", 0));
+
     gun.bullet_template = create_bullet_template();
     gun.cooldown = 0.1;
     

@@ -8,7 +8,7 @@
 #include "ik.h"
 #include "shapes.h"
 
-// BEWARE: all guns must be pointing at -X
+// BEWARE: all guns must be pointing at +X
 struct Gun{
     std::unique_ptr<Shape> shape;
     float last_shot;
