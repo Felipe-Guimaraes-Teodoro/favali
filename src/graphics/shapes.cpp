@@ -189,17 +189,127 @@ Shape create_shape(Shapes shape, unsigned int texture) {
             break;
         }
 
-        case Laser: {
-            vertices = {
-                // pos              uv
-                0.0f, -0.5f, 0.0f,  0.0f, 0.0f,
-                1.0f, -0.5f, 0.0f,  1.0f, 0.0f,
-                1.0f,  0.5f, 0.0f,  1.0f, 1.0f,
-                0.0f,  0.5f, 0.0f,  0.0f, 1.0f
-            };
+        case Cylinder: {
+            int slices = 32;
+            float radius = 0.5f;
+            float halfLen = 0.5f;
 
-            indices = { 0,1,2, 0,2,3 };
-            
+            // vertices for the sides
+            for (int i = 0; i <= slices; i++) {
+                float a = (float)i / (float)slices * 2.0f * PI;
+                float x = cosf(a) * radius;
+                float z = sinf(a) * radius;
+
+                // ===== bottom =====
+                vertices.push_back(x);
+                vertices.push_back(-halfLen);
+                vertices.push_back(z);
+
+                glm::vec3 n = glm::normalize(glm::vec3(x, 0.0f, z));
+                vertices.push_back(n.x);
+                vertices.push_back(n.y);
+                vertices.push_back(n.z);
+
+                vertices.push_back((float)i / slices);
+                vertices.push_back(0.0f);
+
+                // ===== top =====
+                vertices.push_back(x);
+                vertices.push_back(halfLen);
+                vertices.push_back(z);
+
+                vertices.push_back(n.x);
+                vertices.push_back(n.y);
+                vertices.push_back(n.z);
+
+                vertices.push_back((float)i / slices);
+                vertices.push_back(1.0f);
+            }
+
+            // bottom cap center
+            vertices.push_back(0.0f);
+            vertices.push_back(-halfLen);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(-1.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.5f);
+            vertices.push_back(0.5f);
+
+            // top cap center
+            vertices.push_back(0.0f);
+            vertices.push_back(halfLen);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(1.0f);
+            vertices.push_back(0.0f);
+            vertices.push_back(0.5f);
+            vertices.push_back(0.5f);
+
+            int bottomCenterIndex = (slices + 1) * 2;
+            int topCenterIndex = bottomCenterIndex + 1;
+
+            // bottom cap vertices
+            for (int i = 0; i < slices; i++) {
+                float a = (float)i / (float)slices * 2.0f * PI;
+                float x = cosf(a) * radius;
+                float z = sinf(a) * radius;
+
+                vertices.push_back(x);
+                vertices.push_back(-halfLen);
+                vertices.push_back(z);
+                vertices.push_back(0.0f);
+                vertices.push_back(-1.0f);
+                vertices.push_back(0.0f);
+                vertices.push_back(0.5f + cosf(a) * 0.5f);
+                vertices.push_back(0.5f + sinf(a) * 0.5f);
+            }
+
+            // top cap vertices
+            for (int i = 0; i < slices; i++) {
+                float a = (float)i / (float)slices * 2.0f * PI;
+                float x = cosf(a) * radius;
+                float z = sinf(a) * radius;
+
+                vertices.push_back(x);
+                vertices.push_back(halfLen);
+                vertices.push_back(z);
+                vertices.push_back(0.0f);
+                vertices.push_back(1.0f);
+                vertices.push_back(0.0f);
+                vertices.push_back(0.5f + cosf(a) * 0.5f);
+                vertices.push_back(0.5f + sinf(a) * 0.5f);
+            }
+
+            // indices for sides
+            for (int i = 0; i < slices; i++) {
+                int k = i * 2;
+
+                indices.push_back(k);
+                indices.push_back(k + 1);
+                indices.push_back(k + 2);
+
+                indices.push_back(k + 1);
+                indices.push_back(k + 3);
+                indices.push_back(k + 2);
+            }
+
+            // indices for bottom cap
+            int bottomCapStart = bottomCenterIndex + 2;
+            for (int i = 0; i < slices; i++) {
+                indices.push_back(bottomCenterIndex);
+                indices.push_back(bottomCapStart + i);
+                indices.push_back(bottomCapStart + ((i + 1) % slices));
+            }
+
+            // indices for top cap
+            int topCapStart = bottomCapStart + slices;
+            for (int i = 0; i < slices; i++) {
+                indices.push_back(topCenterIndex);
+                indices.push_back(topCapStart + ((i + 1) % slices));
+                indices.push_back(topCapStart + i);
+            }
+
             break;
         }
 
@@ -280,4 +390,26 @@ StaticShape shape_to_static(Shape&& shape) {
         box,
         true
     };
+}
+
+Line::Line(){
+    line_shape = std::make_unique<Shape>(create_shape(Shapes::Cylinder));
+}
+
+void Line::update(glm::vec3 begin, glm::vec3 end, float width){
+    width /= 10.; // width is naturally wayyy too high
+    glm::vec3 dir = end - begin;
+
+    line_shape->transform.position = (begin + end) * 0.5f;
+
+    glm::vec3 dir_n = glm::normalize(dir);
+    glm::vec3 up = glm::vec3(0, 1, 0);
+
+    line_shape->transform.rotation = glm::rotation(up, dir_n);
+
+    line_shape->transform.scale = glm::vec3(width, glm::length(dir), width);
+}
+
+void Line::draw(unsigned int program, Camera &camera){
+    line_shape->draw(program, camera, nullptr);
 }

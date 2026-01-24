@@ -130,7 +130,6 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
 
 void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned int laser_program, Camera& camera){
     shape->draw(program, camera);
-    printf("drawing stuff\n");
 
     std::deque<int> dead_bullets;
 
@@ -146,6 +145,7 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned in
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE); // prevents Z-fighting
     bullet_hole_mesh.draw(instanced_program, camera.view, camera.proj, glm::vec4(1.), bullet_hole_tex);
+    glDisable(GL_BLEND);
     glDepthMask(GL_TRUE);
 
     for (int k = dead_bullets.size() - 1; k >= 0; k--) {
@@ -154,22 +154,19 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned in
     }
     dead_bullets.clear();
 
-    // origem do laser
-    laser->transform.position = shape->transform.position;
+    glm::vec3 begin = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
 
-    // rotacao olhando pra direcao do tiro
-    laser->transform.rotation = shape->transform.rotation * glm::vec3(-1, 0, 0);
+    glm::vec3 forward_local = glm::vec3(1, 0, 0);
 
-    // escala = comprimento + espessura
-    laser->transform.scale = glm::vec3(
-        100.0,
-        10.,
-        1.0f
-    );
+    glm::vec3 forward_world = shape->transform.rotation * forward_local;
 
-    laser->draw(laser_program, camera, nullptr);
+    float length = 100.0f;
 
-    glDisable(GL_BLEND);
+    glm::vec3 end = begin + forward_world * length;
+
+    laser.update(begin, end, 0.05);
+
+    laser.draw(laser_program, camera);
 }
 
 Gun create_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int bullets_per_shot, unsigned int bullet_hole_tex){
@@ -186,6 +183,8 @@ Gun create_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int 
     g.bullet_hole_tex = bullet_hole_tex;
     Shape bs = create_shape(Shapes::Square, bullet_hole_tex); // Bullet Shape :)
     g.bullet_hole_mesh = mesh_to_instanced(bs.mesh);
+
+    Line line = Line();
 
     return g;
 }

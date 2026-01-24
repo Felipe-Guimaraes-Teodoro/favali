@@ -22,7 +22,7 @@ int main() {
     std::vector<unsigned int> textures;
     textures.push_back(create_texture("assets/bullet_hole.png"));
 
-    Level *level = create_level_from_gltf("assets/level3.glb");
+    Level *level = create_level_from_gltf("assets/level2.glb");
     Model *target = create_model_from_gltf("assets/target.glb");
 
     for (auto& shape : target->shapes) {
@@ -31,7 +31,7 @@ int main() {
     }
 
     std::vector<BVHNode*> worldBVHs;
-    for (int i = 0; i < level->shapes.size(); i++){"w"
+    for (int i = 0; i < level->shapes.size(); i++){
         std::vector<MeshTriangle> world_tris = get_level_tris(&level->shapes[i]);
         worldBVHs.push_back(buildBVH(world_tris));
     }
@@ -65,12 +65,9 @@ int main() {
 
     Player player = create_player();
 
-    Gun gun = create_gun(glm::vec3(0.707, 0.011, 0.), 2., 0., 1, textures[0]);
+    Gun gun = create_gun(glm::vec3(0.41949, 0.00111, -0.0019), 2., 0., 1, textures[0]);
     // this MUST be callsed "nosin" or else...
     gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/nosin.glb", 0));
-    std::unique_ptr<Shape> laser = std::make_unique<Shape>(create_shape(Shapes::Laser));
-    // setup_mesh(laser->mesh);
-    gun.laser = std::move(laser);
     gun.bullet_template = create_bullet_template();
     gun.cooldown = 0.1;
     
@@ -141,26 +138,23 @@ int main() {
         SDL_GetRelativeMouseState(&dx, &dy);
         camera.mouse_view(lock_cursor, dx, dy, 0.1);
         camera.update();
-
+        
         update_ubo<void>(ubo, &lights);
-
+        
         player.solve_collisions(worldBVHs);
         player.update(dt, lock_cursor, sensitivity, camera);
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
         controller.update(0.01, 10, 0.01);
         controller.set_arm_transform(arm, camera);
         gun.update(dt, camera, controller, player, worldBVHs);
-
         CLEAR_SCREEN;
-
+        
         draw_level(level, camera, main_program, &sun);
-        // gun.shape->draw(main_program, camera);
         draw_model(arm, camera, main_program);
-        draw_model(target, camera, main_program);
-
+        
         gun.draw(main_program, instance_program, laser_program, camera);
 
-        render_gizmos(camera);
+        // render_gizmos(camera);
 
         SDL_GL_SwapWindow(window);
 

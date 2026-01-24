@@ -266,7 +266,6 @@ Model *create_model_from_gltf(const char *path) {
     }
 
     level->shapes.reserve(primitive_count);
-    printf("%u shapes\n", primitive_count);
     unsigned int texture = 0;
     int light_count = 0;
 
@@ -275,11 +274,9 @@ Model *create_model_from_gltf(const char *path) {
 
     for (int i = 0; i < data->nodes_count; i++) {
         cgltf_node* node = &data->nodes[i];
-        printf("loading node %s\n", node->name);
 
         // load lights
         if (node->light) {
-            printf("loading light\n");
             cgltf_light *light = node->light;
 
             vec3 translation = vec3(0);

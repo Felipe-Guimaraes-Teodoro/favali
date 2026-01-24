@@ -26,7 +26,7 @@ struct Gun{
     float spread;
     unsigned int bullets_per_shot;
 
-    std::unique_ptr<Shape> laser;
+    Line laser;
 
     bool aiming;
 

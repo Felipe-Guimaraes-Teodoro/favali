@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "transform.h"
 #include "mesh.h"
 #include "camera.h"
@@ -12,7 +13,7 @@ enum Shapes {
     Triangle,
     Cube,
     Sphere,
-    Laser,
+    Cylinder,
     Empty, /* WARNING: Empty HAS TO BE the last shape in this enum otherwise 
         gizmos might break
     */
@@ -53,6 +54,19 @@ struct Shape {
     }
 
     void draw(unsigned int program, const Camera& camera, Sun* sun = nullptr) const;
+};
+
+struct Line{
+    glm::vec3 begin;
+    glm::vec3 end;
+
+    std::unique_ptr<Shape> line_shape;
+
+    Line();
+
+    void update(glm::vec3 begin, glm::vec3 end, float width);
+
+    void draw(unsigned int program, Camera &camera);
 };
 
 Shape create_shape(Shapes shape, unsigned int texture = 0);

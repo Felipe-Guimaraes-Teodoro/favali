@@ -76,7 +76,7 @@ void Mesh::drawDepth(
     const glm::mat4& model_mat
 ) {
     if (!setup) {
-        printf("WARNING: Attempting to draw depth of deleted or incomplete mesh\n");
+        printf("WARNING: Attempting to draw depth of deleted or incomplete depth mesh\n");
         return;
     }
 
@@ -173,7 +173,7 @@ void InstancedMesh::draw(
     unsigned int draw_mode // = GL_TRIANGLES by default
 ) const {
     if (!setup) {
-        printf("WARNING: Attempting to draw deleted or incomplete mesh\n"); 
+        printf("WARNING: Attempting to draw deleted or incomplete instanced mesh\n"); 
         return;
     }
 
