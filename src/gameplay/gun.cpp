@@ -1,51 +1,55 @@
 #include <vector>
 #include <deque>
-#include <random>
 
 #include "gun.h"
 #include "camera.h"
 #include "glm.hpp"
 #include "audio.h"
 #include "shaders.h"
+#include "utils.h"
 
 void Gun::update(float dt, Camera& camera, IkController& controller, Player& player, std::vector<BVHNode*> worldBVHs){
     last_shot += dt;
-    
-    float recoil_amount = recoil_timer * -0.3f;
-    recoil_timer = glm::max(0.f, recoil_timer - dt * 6.f);
 
     if (aiming){
-        controller.goal = glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front * 0.5f + camera.up * -recoil_amount * 0.5f * 2.5f - camera.up * 0.1f;
+        shape->transform.position = glm::mix(shape->transform.position, camera.position + (camera.front * (0.5f + aim_offset.z)) - (camera.up * (aim_offset.y)) + (camera.right * (aim_offset.x)), 0.5);
+        
+        controller.goal = shape->transform.position;
     } else{
-        controller.goal = glm::mix(camera.position, player.position + player.head_ofs, -0.1f) + camera.front + camera.up * -recoil_amount * 0.5f - camera.right * 0.3f;
+        shape->transform.position = glm::mix(shape->transform.position, camera.position + (camera.front) - (camera.up * 0.3f) - (camera.right * (0.3f)), 0.5);
+        
+        controller.goal = shape->transform.position;
     }
 
     glm::quat look = glm::quatLookAt(camera.front, -camera.up);
+
+    glm::quat vertical_q = glm::angleAxis(glm::radians(vertical_recoil), camera.right);
+    
+    glm::quat lateral_q = glm::angleAxis(glm::radians(lateral_recoil), camera.up);
+
+    glm::quat base = lateral_q * vertical_q * look;
+
     glm::quat fix = glm::angleAxis(glm::radians(90.f), vec3(0,1,0)); // -Z -> -X
-    glm::quat base = look * fix;
+    glm::quat final_rot = base * fix;
 
-    glm::quat recoil_q = glm::angleAxis(recoil_amount, camera.right);
+    shape->transform.rotation = glm::slerp(shape->transform.rotation, final_rot, 0.30f);
 
-    glm::quat target_rot = recoil_q * base;
-
-    shape->transform.rotation = glm::slerp(shape->transform.rotation, target_rot, 0.3f);
-
-    vec3 leaf_dir = glm::normalize(controller.leaf->end - controller.leaf->origin);
-    vec3 leaf_right = glm::cross(leaf_dir, UP);
-    shape->transform.position = controller.leaf->end + leaf_dir * 0.1f;
+    // vec3 leaf_dir = glm::normalize(controller.leaf->end - controller.leaf->origin);
+    // shape->transform.position = controller.leaf->end + leaf_dir * 0.1f;
     
     if (last_shot >= cooldown && is_shooting){
         last_shot = 0.0f;
-
-        recoil_timer += 1.f;
-        recoil_timer = glm::min(recoil_timer, 1.5f);
+        
+        vertical_recoil -= randf(0.7f, 0.9f) * vertical_recoil_strength;
+        lateral_recoil  += randf(-1.0f, 1.0f) * lateral_recoil_strength;
+        
+        std::uniform_real_distribution<float> dist(-spread, spread);
+        
+        glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
+        glm::vec3 muzzle_back_sample = muzzle_pos - glm::vec3(0.001, 0., 0.);
         
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_real_distribution<float> dist(-spread, spread);
-
-        glm::vec3 muzzle_world = glm::vec3(shape->transform.getModelMat() * glm::vec4(muzzle_pos, 1.0));
-        glm::vec3 muzzle_back_sample = muzzle_pos - glm::vec3(0.001, 0., 0.);
 
         for (int i = 0; i < bullets_per_shot; i++){
             glm::vec3 local_dir = glm::normalize(muzzle_pos - muzzle_back_sample);
@@ -73,6 +77,9 @@ void Gun::update(float dt, Camera& camera, IkController& controller, Player& pla
             // audio_ctx->samples[0]->pan = 1.0;
         }
     }
+
+    vertical_recoil = glm::min(vertical_recoil * 0.96f, 0.0f);
+    lateral_recoil  *= 0.92f;
 
     for (int i = 0; i < bullets.size(); i++){
         if (bullets[i].handle_collisions(dt, worldBVHs)){
@@ -166,9 +173,12 @@ void Gun::draw(unsigned int program, unsigned int instanced_program, unsigned in
 
     laser.update(begin, end, 0.05);
 
-    glDisable(GL_BLEND);
-    glDepthMask(GL_TRUE);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+
     laser.draw(laser_program, camera);
+
+    glDepthMask(GL_TRUE);
+    glDisable(GL_BLEND);
 
 }
 
@@ -176,12 +186,19 @@ Gun create_gun(glm::vec3 muzzle_pos, float cooldown, float spread, unsigned int 
     Gun g;
     g.recoil_timer = 0.;
     g.muzzle_pos = muzzle_pos;
+    g.aim_offset = glm::vec3(0.);
     g.cooldown = cooldown;
     g.spread = spread;
     g.bullets_per_shot = bullets_per_shot;
     g.last_shot = 0.0;
     g.is_shooting = false;
     g.aiming = false;
+
+    g.vertical_recoil_strength = 10.0f;
+    g.lateral_recoil_strength = 10.0f;
+
+    g.vertical_recoil = 0.0;
+    g.lateral_recoil = 0.0;
     
     g.bullet_hole_tex = bullet_hole_tex;
     Shape bs = create_shape(Shapes::Square, bullet_hole_tex); // Bullet Shape :)

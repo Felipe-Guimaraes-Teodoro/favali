@@ -290,18 +290,9 @@ out vec4 FragColor;
 void main()
 {
     vec3 laserColor = vec3(0,1,0);
-    float intensity = 1.5;
+    float alpha = 0.6;
 
-    float d = abs(vUV.y - 0.5) * 2.0;
-    float alpha = 1.0 - d;
-
-    // ohhh yeah smoooooth
-    alpha = clamp(alpha, 0.0, 1.0);
-    alpha = pow(alpha, 1.5);
-
-    vec3 color = laserColor * intensity;
-
-    FragColor = vec4(color, alpha);
+    FragColor = vec4(laserColor, alpha);
 }
 )";
 

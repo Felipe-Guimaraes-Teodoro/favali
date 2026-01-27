@@ -6,7 +6,7 @@
 using glm::quat;
 using glm::vec3;
 
-glm::vec3 MeshTriangle::get_tri_normal(){
+glm::vec3 MeshTriangle::get_tri_normal() const{
 
     glm::vec3 ab = b - a;
     glm::vec3 ac = c - a;
@@ -173,7 +173,6 @@ Plane create_plane(const vec3& a, const vec3& b, const vec3& c) {
     float distance = glm::dot(normal, a);
     return { normal, distance };
 }
-
 
 /*
 AABB makeAABB_from_shape(const Shape& shape) {

@@ -9,7 +9,7 @@ struct Ray; // forward declaration to not fuck shit up
 struct MeshTriangle {
     vec3 a, b, c;
     
-    vec3 get_tri_normal();
+    vec3 get_tri_normal() const;
 };
 
 struct AABB {

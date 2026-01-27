@@ -20,11 +20,19 @@ struct Gun{
     unsigned int bullet_hole_tex;
 
     glm::vec3 muzzle_pos; // position where the bullet is actually instantiated
+    glm::vec3 aim_offset;
     bool is_shooting;
     BulletTemplate bullet_template;
     float cooldown;
     float spread;
     unsigned int bullets_per_shot;
+
+    // recoil operates in radians
+    float vertical_recoil_strength;
+    float lateral_recoil_strength;
+
+    float vertical_recoil;
+    float lateral_recoil;
 
     Line laser;
 

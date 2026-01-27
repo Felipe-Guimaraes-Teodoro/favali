@@ -22,8 +22,8 @@ int main() {
     std::vector<unsigned int> textures;
     textures.push_back(create_texture("assets/bullet_hole.png"));
 
-    Level *level = create_level_from_gltf("assets/level2.glb");
-    Model *target = create_model_from_gltf("assets/target.glb");
+    Level *level = create_level_from_gltf("assets/3d/level2.glb");
+    Model *target = create_model_from_gltf("assets/3d/target.glb");
 
     for (auto& shape : target->shapes) {
         shape.transform.position.x += 10.0;
@@ -37,7 +37,7 @@ int main() {
     }
 
     Camera camera = create_camera({10, 10, 10});
-    Model *arm = create_model_from_gltf("../../../assets/arm.glb");
+    Model *arm = create_model_from_gltf("../../../assets/3d/arm.glb");
     IkController controller = create_ik_controller({0.0, 0.0, 0.0});
     int i = 0;
     for (const Shape &shape : arm->shapes) {
@@ -65,15 +65,15 @@ int main() {
 
     Player player = create_player();
 
-    // Gun gun = create_gun(glm::vec3(0.41949, 0.00111, -0.0019), 2., 0., 1, textures[0]); // for nosin
-    Gun gun = create_gun(glm::vec3(0.1136, -0.0529, 0.0), 2., 0., 1, textures[0]); // for pistol
+    Gun gun = create_gun(glm::vec3(0.41949, 0.00111, -0.0019), 2., 0., 1, textures[0]); // for nosin
+    // Gun gun = create_gun(glm::vec3(0.1136, -0.0529, 0.0), 2., 0., 1, textures[0]); // for pistol
     // this MUST be callsed "nosin" or else...
-    // gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/nosin.glb", 0));
-    gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/pistol.glb", 0));
+    gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/3d/nosin.glb", 0));
+    // gun.shape = std::make_unique<Shape>(create_shape_from_gltf("assets/pistol.glb", 0));
 
     gun.bullet_template = create_bullet_template();
     gun.cooldown = 0.1;
-    
+
     SDL_Event event;
 
     Uint64 last = SDL_GetTicks();
@@ -106,10 +106,10 @@ int main() {
                     SDL_SetWindowRelativeMouseMode(window, lock_cursor);
                     lock_cursor = !lock_cursor;
                     if (lock_cursor){
-                        SDL_HideCursor();
+                        SDL_ShowCursor();
                     }
                     else{
-                        SDL_ShowCursor();
+                        SDL_HideCursor();
                     }
                 }
                 if (event.key.key == SDLK_ESCAPE){
@@ -134,6 +134,10 @@ int main() {
                 }
             }
 
+            if (event.type == SDL_EVENT_MOUSE_WHEEL){
+                gun.aim_offset.y += event.wheel.y*dt; // adding offset on the three axis could be implemented later
+            }
+
             ImGui_ImplSDL3_ProcessEvent(&event);
         }
 
@@ -147,7 +151,7 @@ int main() {
         player.solve_collisions(worldBVHs);
         player.update(dt, lock_cursor, sensitivity, camera);
         controller.root->origin = -camera.right * 0.25f + camera.position + -camera.up * 0.2f;
-        controller.update(0.01, 10, 0.01);
+        controller.update(0.01, 10, 0.1);
         controller.set_arm_transform(arm, camera);
         gun.update(dt, camera, controller, player, worldBVHs);
         CLEAR_SCREEN;
